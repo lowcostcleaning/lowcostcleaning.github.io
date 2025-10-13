@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lowcost Cleaning</title>
   <style>
     body {
@@ -15,31 +15,12 @@
     }
 
     header {
-      padding: 100px 20px 60px;
+      padding: 80px 20px 40px;
       animation: fadeInUp 1.4s ease forwards;
     }
 
-    h1 {
-      font-size: 2.8rem;
-      font-weight: 600;
-      margin-bottom: 10px;
-      letter-spacing: -0.5px;
-    }
-
-    p {
-      font-size: 1.15rem;
-      color: #555;
-      margin-bottom: 40px;
-      line-height: 1.6;
-    }
-
-    .buttons {
-      display: flex;
-      justify-content: center;
-      gap: 20px;
-      flex-wrap: wrap;
-      animation: fadeInUp 1.6s ease forwards;
-    }
+    h1 { font-size: 2.6rem; margin-bottom: 10px; }
+    p { font-size: 1.1rem; color: #555; margin-bottom: 40px; }
 
     .btn {
       background: #000;
@@ -50,15 +31,11 @@
       font-size: 1rem;
       cursor: pointer;
       transition: all 0.3s ease;
+      margin: 5px;
     }
-
-    .btn:hover {
-      background: #333;
-      transform: scale(1.05);
-    }
+    .btn:hover { background: #333; transform: scale(1.05); }
 
     footer {
-      animation: fadeInUp 1.2s ease forwards;
       margin-top: 100px;
       padding: 20px;
       color: #888;
@@ -70,115 +47,167 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- Модальное окно --- */
+    /* --- Календарь --- */
+    .calendar {
+      max-width: 340px;
+      margin: 0 auto;
+      display: grid;
+      grid-template-columns: repeat(7, 1fr);
+      gap: 8px;
+      margin-top: 30px;
+    }
+
+    .day {
+      padding: 10px;
+      border-radius: 8px;
+      cursor: pointer;
+      transition: 0.2s;
+      font-size: 0.95rem;
+    }
+
+    .available {
+      background: #e7fbe7;
+      color: #0a0;
+    }
+
+    .available:hover {
+      background: #c6f5c6;
+      transform: scale(1.1);
+    }
+
+    .unavailable {
+      background: #f2f2f2;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .calendar-header {
+      margin-top: 30px;
+      font-weight: 600;
+      font-size: 1.3rem;
+    }
+
+    /* --- Модалка --- */
     .modal {
       display: none;
       position: fixed;
       z-index: 10;
-      left: 0;
-      top: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.6);
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
       justify-content: center;
       align-items: center;
     }
-
     .modal-content {
       background: #fff;
-      padding: 30px 25px;
+      padding: 25px;
       border-radius: 16px;
       width: 90%;
-      max-width: 400px;
-      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
-      animation: fadeInUp 0.5s ease;
+      max-width: 360px;
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
-
-    .modal h2 {
-      margin-bottom: 20px;
-      font-size: 1.4rem;
-    }
-
-    input, select {
+    .modal-content input {
       width: 100%;
-      padding: 12px;
-      margin-bottom: 15px;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
       border: 1px solid #ccc;
-      border-radius: 10px;
       font-size: 1rem;
-      box-sizing: border-box;
     }
-
     .book-btn {
       background: #000;
       color: #fff;
-      padding: 12px;
-      width: 100%;
       border: none;
-      border-radius: 10px;
+      padding: 10px 20px;
+      border-radius: 8px;
       font-size: 1rem;
       cursor: pointer;
-      transition: 0.3s;
+      width: 100%;
     }
-
-    .book-btn:hover {
-      background: #333;
-      transform: scale(1.03);
-    }
-
+    .book-btn:hover { background: #333; }
     .close {
-      position: absolute;
-      top: 15px;
-      right: 25px;
-      font-size: 26px;
-      color: #fff;
+      float: right;
+      font-size: 20px;
       cursor: pointer;
-    }
-
-    @media (max-width: 600px) {
-      h1 { font-size: 2rem; }
-      .btn { width: 90%; max-width: 300px; }
+      color: #aaa;
     }
   </style>
 </head>
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
-
-    <div class="buttons">
-      <button class="btn" onclick="openModal('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
-      <button class="btn" onclick="openModal('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
-    </div>
+    <p>Выберите тип уборки и дату</p>
+    <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
+    <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
   </header>
 
-  <footer>
-    © 2025 Lowcost Cleaning. Все права чисты.
-  </footer>
+  <div class="calendar-container">
+    <div class="calendar-header" id="monthLabel"></div>
+    <div class="calendar" id="calendar"></div>
+  </div>
 
-  <!-- Модальное окно -->
+  <footer>© 2025 Lowcost Cleaning</footer>
+
+  <!-- Модалка -->
   <div id="bookingModal" class="modal">
     <div class="modal-content">
-      <span class="close" onclick="closeModal()">&times;</span>
-      <h2 id="serviceTitle">Запись на уборку</h2>
-      <input type="date" id="bookingDate" min="">
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalTitle">Бронирование</h3>
       <input type="text" id="clientName" placeholder="Ваше имя">
-      <input type="tel" id="clientPhone" placeholder="Ваш телефон">
+      <input type="tel" id="clientPhone" placeholder="Телефон">
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
     </div>
   </div>
 
   <script>
-    const modal = document.getElementById("bookingModal");
-    const serviceTitle = document.getElementById("serviceTitle");
-    const bookingDate = document.getElementById("bookingDate");
-    const today = new Date().toISOString().split("T")[0];
-    bookingDate.setAttribute("min", today);
+    const availableDates = ["2025-10-15", "2025-10-17", "2025-10-20", "2025-10-22", "2025-10-25"];
     let selectedService = "";
+    let selectedDate = "";
 
-    function openModal(service) {
+    function chooseService(service) {
       selectedService = service;
-      serviceTitle.innerText = service;
+      generateCalendar();
+    }
+
+    // === Генерация календаря ===
+    function generateCalendar() {
+      const calendar = document.getElementById("calendar");
+      const monthLabel = document.getElementById("monthLabel");
+      calendar.innerHTML = "";
+
+      const year = 2025;
+      const month = 9; // октябрь (0 = январь)
+      const date = new Date(year, month, 1);
+      const monthName = date.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
+      monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dayDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+        const div = document.createElement("div");
+        div.classList.add("day");
+
+        if (availableDates.includes(dayDate)) {
+          div.classList.add("available");
+          div.innerText = i;
+          div.onclick = () => openModal(dayDate);
+        } else {
+          div.classList.add("unavailable");
+          div.innerText = i;
+        }
+
+        calendar.appendChild(div);
+      }
+    }
+
+    // === Модальное окно ===
+    const modal = document.getElementById("bookingModal");
+
+    function openModal(date) {
+      selectedDate = date;
+      document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
       modal.style.display = "flex";
     }
 
@@ -186,27 +215,23 @@
       modal.style.display = "none";
     }
 
-    window.onclick = function(event) {
-      if (event.target == modal) closeModal();
-    }
-
     function sendBooking() {
-      const date = bookingDate.value;
       const name = document.getElementById("clientName").value.trim();
       const phone = document.getElementById("clientPhone").value.trim();
 
-      if (!date || !name || !phone) {
-        alert("Пожалуйста, заполните все поля!");
+      if (!name || !phone) {
+        alert("Пожалуйста, заполните имя и телефон");
         return;
       }
 
-      const message = encodeURIComponent(
-        `🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${date}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
-      );
-      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`; // ← сюда вставь свой username или ссылку на бота
+      const message = encodeURIComponent(`🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`);
+      const telegramLink = `https://t.me/lowcost_cleaning_bot?text=${message}`; // 👈 твой бот
       window.open(telegramLink, "_blank");
       closeModal();
     }
+
+    // автоинициализация
+    generateCalendar();
   </script>
 </body>
 </html>
