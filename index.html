@@ -140,11 +140,13 @@
         const res = await fetch(API_URL);
         const text = await res.text();
 
+        // Проверяем формат
         if (!text.startsWith("/**/ google.visualization")) {
           console.warn("Некорректный ответ Google Sheets:", text.slice(0, 100));
           return [];
         }
 
+        // Извлекаем JSON из обертки
         const jsonText = text.substring(text.indexOf("(") + 1, text.lastIndexOf(")"));
         const data = JSON.parse(jsonText);
         const rows = data.table.rows;
@@ -188,7 +190,7 @@
 
       const now = new Date();
       const year = now.getFullYear();
-      const month = now.getMonth(); 
+      const month = now.getMonth();
       const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
       monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
