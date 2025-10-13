@@ -1,39 +1,110 @@
-diff --git a/index.html b/index.html
-index df52977013a657fc540e91a04ef8deb4616afff6..2b48d1e7363da522f4efae15bb9eaaa0c04f3e7c 100644
---- a/index.html
-+++ b/index.html
-@@ -78,33 +78,34 @@
-     @keyframes fadeInUp {
-       from { opacity: 0; transform: translateY(30px); }
-       to { opacity: 1; transform: translateY(0); }
-     }
- 
-     /* --- Адаптив под телефон --- */
-     @media (max-width: 600px) {
-       h1 {
-         font-size: 2rem;
-       }
-       .btn {
-         width: 100%;
-         max-width: 300px;
-       }
-     }
-   </style>
- </head>
- <body>
-   <header>
-     <h1>🧹 Lowcost Cleaning</h1>
-     <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
- 
-     <div class="buttons">
-       <button class="btn">🏠 Студия — 90₾</button>
-       <button class="btn">🛏 1+1 — 120₾</button>
-+      <button class="btn">🧼 Химчистка — 50₾</button>
-     </div>
-   </header>
- 
-   <footer>
-     © 2025 Lowcost Cleaning. Все права чисты.
-   </footer>
- </body>
- </html>
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Lowcost Cleaning</title>
+  <style>
+    /* --- Базовые стили --- */
+    body {
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      background: #fff;
+      color: #111;
+      text-align: center;
+      overflow-x: hidden;
+    }
+
+    header {
+      padding: 100px 20px 60px;
+      opacity: 0;
+      transform: translateY(40px);
+      animation: fadeInUp 1.4s ease forwards;
+    }
+
+    h1 {
+      font-size: 2.8rem;
+      font-weight: 600;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      font-size: 1.15rem;
+      color: #555;
+      margin-bottom: 40px;
+      line-height: 1.6;
+    }
+
+    .buttons {
+      display: flex;
+      justify-content: center;
+      gap: 20px;
+      flex-wrap: wrap;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1.6s ease forwards;
+      animation-delay: 0.6s;
+    }
+
+    .btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 14px 34px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+
+    footer {
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeInUp 1.2s ease forwards;
+      animation-delay: 1.2s;
+      margin-top: 100px;
+      padding: 20px;
+      color: #888;
+      font-size: 0.9rem;
+    }
+
+    /* --- Анимация появления --- */
+    @keyframes fadeInUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    /* --- Адаптив под телефон --- */
+    @media (max-width: 600px) {
+      h1 {
+        font-size: 2rem;
+      }
+      .btn {
+        width: 100%;
+        max-width: 300px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧹 Lowcost Cleaning</h1>
+    <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
+
+    <div class="buttons">
+      <button class="btn">🏠 Студия — 90₾</button>
+      <button class="btn">🛏 1+1 — 120₾</button>
+    </div>
+  </header>
+
+  <footer>
+    © 2025 Lowcost Cleaning. Все права чисты.
+  </footer>
+</body>
+</html>
