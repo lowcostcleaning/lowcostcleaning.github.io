@@ -111,23 +111,25 @@
     </div>
   </div>
 
-  <script>
-    // Используем твою опубликованную таблицу
-    const API_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?output=csv";
+ <script>
+const API_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?output=csv";
 
-    let selectedService = "";
-    let selectedDate = "";
+let selectedService = "";
+let selectedDate = "";
 
-    async function getBusyDates() {
+async function getBusyDates() {
   try {
-    const res = await fetch(API_URL + `&nocache=${Date.now()}`); // 👈 уникальный запрос, чтобы не брал из кэша
-    const text = await res.text();
+    // 👇 добавляем принудительный "анти-кэш" и повтор при сбое
+    const response = await fetch(API_URL + `&nocache=${Date.now()}`, { cache: "no-store" });
+    const text = await response.text();
     const rows = text.split("\n").map(r => r.split(","));
     const busy = [];
 
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      if (row.length < 2) continue;
+      if (!row[0] || !row[1]) continue;
+
       let date = row[0].trim().replace(/"/g, "");
       const status = row[1].trim().toLowerCase();
 
@@ -140,23 +142,39 @@
       }
     }
 
-    console.log("📅 Загружены занятые даты:", busy);
+    console.log("📅 Занятые даты:", busy);
     return busy;
   } catch (err) {
-    console.error("Ошибка при получении данных таблицы:", err);
+    console.error("Ошибка загрузки таблицы:", err);
     return [];
   }
 }
 
-async function generateCalendar() {
+async function chooseService(service) {
+  selectedService = service;
+  const container = document.getElementById("calendarContainer");
+  container.style.display = "flex";
+  container.scrollIntoView({ behavior: "smooth" });
+
+  // ⏳ показываем сообщение "Загрузка"
+  document.getElementById("calendar").innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
+
+  // 🔁 гарантированный перезапрос до успеха (2 попытки)
+  let busyDates = await getBusyDates();
+  if (!busyDates.length) {
+    console.warn("🔁 Повторный запрос к таблице...");
+    await new Promise(r => setTimeout(r, 1200));
+    busyDates = await getBusyDates();
+  }
+
+  generateCalendar(busyDates);
+}
+
+function generateCalendar(busyDates = []) {
   const calendar = document.getElementById("calendar");
   const monthLabel = document.getElementById("monthLabel");
-  calendar.innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
+  calendar.innerHTML = "";
 
-  // 👇 ждём пока getBusyDates() полностью завершится
-  const busyDates = await getBusyDates();
-
-  calendar.innerHTML = ""; // очищаем загрузку
   const now = new Date();
   const year = now.getFullYear();
   const month = now.getMonth();
@@ -168,7 +186,7 @@ async function generateCalendar() {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   let html = "<tr>";
-  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
   const normalizedBusy = busyDates.map(d => {
@@ -190,7 +208,7 @@ async function generateCalendar() {
     if (normalizedBusy.includes(dateStr)) {
       className = "unavailable";
       click = "";
-    } else if (dateObj < new Date().setHours(0,0,0,0)) {
+    } else if (dateObj < new Date().setHours(0, 0, 0, 0)) {
       className = "past";
       click = "";
     }
@@ -203,31 +221,31 @@ async function generateCalendar() {
   calendar.innerHTML = html;
 }
 
+const modal = document.getElementById("bookingModal");
+function openModal(date) {
+  selectedDate = date;
+  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
+  modal.style.display = "flex";
+}
+function closeModal() {
+  modal.style.display = "none";
+}
 
-    const modal = document.getElementById("bookingModal");
-    function openModal(date) {
-      selectedDate = date;
-      document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
-      modal.style.display = "flex";
-    }
-    function closeModal() {
-      modal.style.display = "none";
-    }
+function sendBooking() {
+  const name = document.getElementById("clientName").value.trim();
+  const phone = document.getElementById("clientPhone").value.trim();
+  if (!name || !phone) {
+    alert("Пожалуйста, заполните имя и телефон");
+    return;
+  }
+  const message = encodeURIComponent(
+    `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+  );
+  const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
+  window.open(telegramLink, "_blank");
+  closeModal();
+}
+</script>
 
-    function sendBooking() {
-      const name = document.getElementById("clientName").value.trim();
-      const phone = document.getElementById("clientPhone").value.trim();
-      if (!name || !phone) {
-        alert("Пожалуйста, заполните имя и телефон");
-        return;
-      }
-      const message = encodeURIComponent(
-        `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
-      );
-      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
-      window.open(telegramLink, "_blank");
-      closeModal();
-    }
-  </script>
 </body>
 </html>
