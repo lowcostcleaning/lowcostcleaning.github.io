@@ -120,7 +120,7 @@
 
     async function getBusyDates() {
   try {
-    const res = await fetch(API_URL);
+    const res = await fetch(API_URL + `&nocache=${Date.now()}`); // 👈 уникальный запрос, чтобы не брал из кэша
     const text = await res.text();
     const rows = text.split("\n").map(r => r.split(","));
     const busy = [];
@@ -132,7 +132,6 @@
       const status = row[1].trim().toLowerCase();
 
       if (status.includes("занято")) {
-        // поддержка формата 15.10.2025
         if (date.includes(".")) {
           const [d, m, y] = date.split(".");
           date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
@@ -141,7 +140,7 @@
       }
     }
 
-    console.log("📅 Занятые даты:", busy);
+    console.log("📅 Загружены занятые даты:", busy);
     return busy;
   } catch (err) {
     console.error("Ошибка при получении данных таблицы:", err);
@@ -149,72 +148,61 @@
   }
 }
 
+async function generateCalendar() {
+  const calendar = document.getElementById("calendar");
+  const monthLabel = document.getElementById("monthLabel");
+  calendar.innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
 
-    async function chooseService(service) {
-      selectedService = service;
-      document.getElementById("calendarContainer").style.display = "flex";
-      await generateCalendar();
-      window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 30, behavior: "smooth" });
+  // 👇 ждём пока getBusyDates() полностью завершится
+  const busyDates = await getBusyDates();
+
+  calendar.innerHTML = ""; // очищаем загрузку
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
+  const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
+  monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+  const firstDay = new Date(year, month, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const daysInMonth = new Date(year, month + 1, 0).getDate();
+
+  let html = "<tr>";
+  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
+
+  const normalizedBusy = busyDates.map(d => {
+    if (d.includes(".")) {
+      const [day, month, year] = d.split(".");
+      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+    }
+    return d;
+  });
+
+  for (let i = 0; i < offset; i++) html += `<td></td>`;
+
+  for (let i = 1; i <= daysInMonth; i++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+    const dateObj = new Date(dateStr);
+    let className = "available";
+    let click = `onclick="openModal('${dateStr}')"`;
+
+    if (normalizedBusy.includes(dateStr)) {
+      className = "unavailable";
+      click = "";
+    } else if (dateObj < new Date().setHours(0,0,0,0)) {
+      className = "past";
+      click = "";
     }
 
-    async function generateCalendar() {
-      const busyDates = await getBusyDates();
-      const calendar = document.getElementById("calendar");
-      const monthLabel = document.getElementById("monthLabel");
-      calendar.innerHTML = "";
-
-      const now = new Date();
-      const year = now.getFullYear();
-      const month = now.getMonth(); // текущий месяц
-      const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
-      monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-      const firstDay = new Date(year, month, 1).getDay();
-      const offset = firstDay === 0 ? 6 : firstDay - 1;
-      const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-      let html = "<tr>";
-      const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-      html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-
-      for (let i = 0; i < offset; i++) {
-        html += `<td></td>`;
-      }
-
-      for (let i = 1; i <= daysInMonth; i++) {
-        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
-        const dateObj = new Date(dateStr);
-        let className = "available";
-        let click = `onclick="openModal('${dateStr}')"`;
-
-        // Преобразуем занятые даты из формата 15.10.2025 в ISO (2025-10-15)
-const normalizedBusy = busyDates.map(d => {
-  if (d.includes(".")) {
-    const [day, month, year] = d.split(".");
-    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-
+    html += `<td class="${className}" ${click}>${i}</td>`;
+    if ((i + offset) % 7 === 0) html += "</tr><tr>";
   }
-  return d;
-});
 
-if (normalizedBusy.includes(dateStr)) {
-  className = "unavailable";
-  click = "";
+  html += "</tr>";
+  calendar.innerHTML = html;
+}
 
-        } else if (dateObj < new Date().setHours(0,0,0,0)) {
-          className = "past";
-          click = "";
-        }
-
-        html += `<td class="${className}" ${click}>${i}</td>`;
-        if ((i + offset) % 7 === 0) {
-          html += "</tr><tr>";
-        }
-      }
-
-      html += "</tr>";
-      calendar.innerHTML = html;
-    }
 
     const modal = document.getElementById("bookingModal");
     function openModal(date) {
