@@ -182,6 +182,24 @@ function generateCalendar(busyDates = []) {
   const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
+  // ✅ Для апартаментов учитываем, что даты не полностью заняты
+  const fullyBookedDays = [];
+  if (currentSheet === "Апартаменты") {
+    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+    const grouped = {};
+
+    busyDates.forEach(entry => {
+      const [d, t] = entry.split(" ");
+      if (!grouped[d]) grouped[d] = [];
+      if (t) grouped[d].push(t);
+    });
+
+    // если для даты заняты все 5 временных слотов — считаем полностью занятой
+    for (const [date, times] of Object.entries(grouped)) {
+      if (times.length >= allTimes.length) fullyBookedDays.push(date);
+    }
+  }
+
   const normalizedBusy = busyDates.map(d => d.split(" ")[0]);
 
   for (let i = 0; i < offset; i++) html += `<td></td>`;
@@ -192,7 +210,11 @@ function generateCalendar(busyDates = []) {
     let className = "available";
     let click = `onclick="openModal('${dateStr}')"`;
 
-    if (normalizedBusy.includes(dateStr)) {
+    // 🚫 только полностью занятые даты блокируются
+    if (currentSheet !== "Апартаменты" && normalizedBusy.includes(dateStr)) {
+      className = "unavailable";
+      click = "";
+    } else if (currentSheet === "Апартаменты" && fullyBookedDays.includes(dateStr)) {
       className = "unavailable";
       click = "";
     } else if (dateObj < new Date().setHours(0,0,0,0)) {
@@ -207,6 +229,7 @@ function generateCalendar(busyDates = []) {
   html += "</tr>";
   calendar.innerHTML = html;
 }
+
 
 const modal = document.getElementById("bookingModal");
 
