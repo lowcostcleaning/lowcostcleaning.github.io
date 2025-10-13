@@ -7,10 +7,8 @@
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center;
-      margin: 0;
-      background: #fff;
-      color: #111;
+      text-align: center; margin: 0;
+      background: #fff; color: #111;
     }
     header { padding: 80px 20px 40px; }
     h1 { margin: 10px 0; font-size: 2rem; }
@@ -48,18 +46,15 @@
     .modal {
       display: none;
       position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
+      z-index: 10; left: 0; top: 0;
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.6);
       justify-content: center; align-items: center;
     }
     .modal-content {
-      background: #fff;
-      padding: 25px;
+      background: #fff; padding: 25px;
       border-radius: 16px;
-      width: 90%;
-      max-width: 360px;
+      width: 90%; max-width: 360px;
       text-align: left;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
@@ -106,11 +101,6 @@
         <label for="timeSelect">Выберите время:</label>
         <select id="timeSelect">
           <option value="">-- выберите время --</option>
-          <option>10:00</option>
-          <option>12:00</option>
-          <option>14:00</option>
-          <option>16:00</option>
-          <option>18:00</option>
         </select>
       </div>
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
@@ -123,11 +113,11 @@ const BASE_URL =
 
 let selectedService = "", selectedDate = "", currentSheet = "";
 
-// 🔧 Подставь реальные GID листов:
+// GID таблиц
 const gids = { 
-  "Главный": "0",          // ← лист для студии и 1+1
-  "Химчистка": "591986483", // ← GID листа "Химчистка"
-  "Апартаменты": "1636464154" // ← GID листа "Апартаменты"
+  "Главный": "0",
+  "Химчистка": "591986483",
+  "Апартаменты": "1636464154"
 };
 
 async function getBusyDates(sheetName) {
@@ -143,18 +133,19 @@ async function getBusyDates(sheetName) {
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       if (row.length < 2) continue;
+
       let date = row[0].trim().replace(/"/g, "");
-      const status = row[1].trim().toLowerCase();
+      const status = row[row.length - 1].trim().toLowerCase();
+      const time = row.length > 2 ? row[1].trim() : "";
 
       if (status.includes("занято")) {
         if (date.includes(".")) {
           const [d, m, y] = date.split(".");
           date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
         }
-        busy.push(date);
+        busy.push(time ? `${date} ${time}` : date);
       }
     }
-    console.log(`📅 ${sheetName}:`, busy);
     return busy;
   } catch (err) {
     console.error("Ошибка загрузки:", err);
@@ -191,13 +182,7 @@ function generateCalendar(busyDates = []) {
   const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  const normalizedBusy = busyDates.map(d => {
-    if (d.includes(".")) {
-      const [day, month, year] = d.split(".");
-      return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
-    }
-    return d;
-  });
+  const normalizedBusy = busyDates.map(d => d.split(" ")[0]);
 
   for (let i = 0; i < offset; i++) html += `<td></td>`;
 
@@ -224,13 +209,36 @@ function generateCalendar(busyDates = []) {
 }
 
 const modal = document.getElementById("bookingModal");
-function openModal(date) {
+
+async function openModal(date) {
   selectedDate = date;
   document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
   const timeBlock = document.getElementById("timeContainer");
-  timeBlock.style.display = currentSheet === "Апартаменты" ? "block" : "none";
+  const timeSelect = document.getElementById("timeSelect");
+
+  if (currentSheet === "Апартаменты") {
+    timeBlock.style.display = "block";
+    const busy = await getBusyDates("Апартаменты");
+    const busyTimes = busy.filter(v => v.startsWith(date)).map(v => v.split(" ")[1]);
+    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+    const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
+
+    timeSelect.innerHTML = `<option value="">-- выберите время --</option>`;
+    freeTimes.forEach(t => {
+      const opt = document.createElement("option");
+      opt.value = t; opt.textContent = t;
+      timeSelect.appendChild(opt);
+    });
+    if (freeTimes.length === 0) {
+      timeSelect.innerHTML = `<option value="">Все слоты заняты</option>`;
+      timeSelect.disabled = true;
+    } else timeSelect.disabled = false;
+  } else {
+    timeBlock.style.display = "none";
+  }
   modal.style.display = "flex";
 }
+
 function closeModal() { modal.style.display = "none"; }
 
 function sendBooking() {
