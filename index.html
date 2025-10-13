@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lowcost Cleaning</title>
   <style>
-    /* --- Базовые стили --- */
     body {
       margin: 0;
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -17,8 +16,6 @@
 
     header {
       padding: 100px 20px 60px;
-      opacity: 0;
-      transform: translateY(40px);
       animation: fadeInUp 1.4s ease forwards;
     }
 
@@ -41,10 +38,7 @@
       justify-content: center;
       gap: 20px;
       flex-wrap: wrap;
-      opacity: 0;
-      transform: translateY(20px);
       animation: fadeInUp 1.6s ease forwards;
-      animation-delay: 0.6s;
     }
 
     .btn {
@@ -63,53 +57,8 @@
       transform: scale(1.05);
     }
 
-    /* --- Календарь --- */
-    .calendar-section {
-      margin-top: 60px;
-      animation: fadeInUp 1.2s ease forwards;
-      animation-delay: 0.8s;
-    }
-
-    .calendar-section h2 {
-      font-size: 1.6rem;
-      margin-bottom: 20px;
-    }
-
-    input[type="date"] {
-      padding: 10px 15px;
-      font-size: 1rem;
-      border: 1px solid #ccc;
-      border-radius: 10px;
-      outline: none;
-      transition: 0.3s;
-    }
-
-    input[type="date"]:focus {
-      border-color: #000;
-    }
-
-    .book-btn {
-      margin-top: 25px;
-      padding: 12px 28px;
-      font-size: 1rem;
-      border: none;
-      border-radius: 10px;
-      background: #111;
-      color: #fff;
-      cursor: pointer;
-      transition: 0.3s;
-    }
-
-    .book-btn:hover {
-      background: #333;
-      transform: scale(1.05);
-    }
-
     footer {
-      opacity: 0;
-      transform: translateY(20px);
       animation: fadeInUp 1.2s ease forwards;
-      animation-delay: 1.2s;
       margin-top: 100px;
       padding: 20px;
       color: #888;
@@ -121,9 +70,74 @@
       to { opacity: 1; transform: translateY(0); }
     }
 
+    /* --- Модальное окно --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0;
+      top: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.6);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 30px 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 400px;
+      box-shadow: 0 8px 20px rgba(0, 0, 0, 0.2);
+      animation: fadeInUp 0.5s ease;
+    }
+
+    .modal h2 {
+      margin-bottom: 20px;
+      font-size: 1.4rem;
+    }
+
+    input, select {
+      width: 100%;
+      padding: 12px;
+      margin-bottom: 15px;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      font-size: 1rem;
+      box-sizing: border-box;
+    }
+
+    .book-btn {
+      background: #000;
+      color: #fff;
+      padding: 12px;
+      width: 100%;
+      border: none;
+      border-radius: 10px;
+      font-size: 1rem;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .book-btn:hover {
+      background: #333;
+      transform: scale(1.03);
+    }
+
+    .close {
+      position: absolute;
+      top: 15px;
+      right: 25px;
+      font-size: 26px;
+      color: #fff;
+      cursor: pointer;
+    }
+
     @media (max-width: 600px) {
       h1 { font-size: 2rem; }
-      .btn, input[type="date"], .book-btn { width: 90%; max-width: 300px; }
+      .btn { width: 90%; max-width: 300px; }
     }
   </style>
 </head>
@@ -133,15 +147,8 @@
     <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
 
     <div class="buttons">
-      <button class="btn">🏠 Студия — 90₾</button>
-      <button class="btn">🛏 1+1 — 120₾</button>
-    </div>
-
-    <div class="calendar-section">
-      <h2>Запишитесь на уборку</h2>
-      <input type="date" id="bookingDate" min="">
-      <br>
-      <button class="book-btn" onclick="sendToTelegram()">Забронировать</button>
+      <button class="btn" onclick="openModal('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
+      <button class="btn" onclick="openModal('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
     </div>
   </header>
 
@@ -149,22 +156,56 @@
     © 2025 Lowcost Cleaning. Все права чисты.
   </footer>
 
-  <script>
-    // Устанавливаем минимальную дату — сегодня
-    const dateInput = document.getElementById("bookingDate");
-    const today = new Date().toISOString().split("T")[0];
-    dateInput.setAttribute("min", today);
+  <!-- Модальное окно -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">&times;</span>
+      <h2 id="serviceTitle">Запись на уборку</h2>
+      <input type="date" id="bookingDate" min="">
+      <input type="text" id="clientName" placeholder="Ваше имя">
+      <input type="tel" id="clientPhone" placeholder="Ваш телефон">
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    </div>
+  </div>
 
-    // Отправка выбранной даты в Telegram
-    function sendToTelegram() {
-      const date = dateInput.value;
-      if (!date) {
-        alert("Пожалуйста, выберите дату!");
+  <script>
+    const modal = document.getElementById("bookingModal");
+    const serviceTitle = document.getElementById("serviceTitle");
+    const bookingDate = document.getElementById("bookingDate");
+    const today = new Date().toISOString().split("T")[0];
+    bookingDate.setAttribute("min", today);
+    let selectedService = "";
+
+    function openModal(service) {
+      selectedService = service;
+      serviceTitle.innerText = service;
+      modal.style.display = "flex";
+    }
+
+    function closeModal() {
+      modal.style.display = "none";
+    }
+
+    window.onclick = function(event) {
+      if (event.target == modal) closeModal();
+    }
+
+    function sendBooking() {
+      const date = bookingDate.value;
+      const name = document.getElementById("clientName").value.trim();
+      const phone = document.getElementById("clientPhone").value.trim();
+
+      if (!date || !name || !phone) {
+        alert("Пожалуйста, заполните все поля!");
         return;
       }
-      const message = encodeURIComponent(`🧹 Запись на уборку:\nДата: ${date}`);
-      const telegramLink = `https://t.me/your_username?text=${message}`;
+
+      const message = encodeURIComponent(
+        `🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${date}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+      );
+      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`; // ← сюда вставь свой username или ссылку на бота
       window.open(telegramLink, "_blank");
+      closeModal();
     }
   </script>
 </body>
