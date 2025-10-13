@@ -1,8 +1,8 @@
 <!DOCTYPE html>
 <html lang="ru">
 <head>
-  <meta charset="UTF-8" />
-  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <title>Lowcost Cleaning</title>
   <style>
     body {
@@ -11,160 +11,70 @@
       background: #fff;
       color: #111;
       text-align: center;
-      overflow-x: hidden;
     }
-
     header {
       padding: 80px 20px 40px;
       animation: fadeInUp 1.4s ease forwards;
     }
-
     h1 { font-size: 2.6rem; margin-bottom: 10px; }
     p { font-size: 1.1rem; color: #555; margin-bottom: 40px; }
-
     .btn {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 14px 34px;
-      border-radius: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.3s ease;
-      margin: 5px;
+      background: #000; color: #fff; border: none;
+      padding: 14px 34px; border-radius: 12px; font-size: 1rem;
+      cursor: pointer; transition: 0.3s; margin: 5px;
     }
     .btn:hover { background: #333; transform: scale(1.05); }
-
-    footer {
-      margin-top: 100px;
-      padding: 20px;
-      color: #888;
-      font-size: 0.9rem;
-    }
-
-    @keyframes fadeInUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    footer { margin-top: 100px; padding: 20px; color: #888; font-size: 0.9rem; }
+    @keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
 
     /* --- Календарь --- */
-    .calendar-container {
-      display: none; /* скрыт по умолчанию */
-      flex-direction: column;
-      align-items: center;
-      animation: fadeInUp 0.6s ease forwards;
-    }
-
-    .calendar {
-      max-width: 340px;
-      display: grid;
-      grid-template-columns: repeat(7, 1fr);
-      gap: 8px;
-      margin-top: 20px;
-    }
-
+    .calendar-container { display:none; flex-direction:column; align-items:center; animation:fadeInUp 0.6s ease forwards; }
+    .calendar-header { margin-top: 20px; font-weight:600; font-size:1.3rem; }
+    .weekday-row, .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; max-width:340px; }
+    .weekday { font-size:0.9rem; color:#666; font-weight:600; }
     .day {
-      padding: 10px;
-      border-radius: 8px;
-      cursor: pointer;
-      transition: 0.2s;
-      font-size: 0.95rem;
-      user-select: none;
+      padding:10px; border-radius:8px; cursor:pointer;
+      transition:0.2s; font-size:0.95rem; user-select:none;
     }
-
-    .available {
-      background: #e7fbe7;
-      color: #0a0;
-    }
-
-    .available:hover {
-      background: #c6f5c6;
-      transform: scale(1.1);
-    }
-
-    .unavailable {
-      background: #ffcccc;
-      color: #a00;
-      font-weight: 600;
-      cursor: not-allowed;
-    }
-
-    .calendar-header {
-      margin-top: 20px;
-      font-weight: 600;
-      font-size: 1.3rem;
-    }
-
-    .legend {
-      margin-top: 15px;
-      font-size: 0.9rem;
-      color: #666;
-    }
+    .available { background:#e7fbe7; color:#0a0; }
+    .available:hover { background:#c6f5c6; transform:scale(1.1); }
+    .unavailable { background:#ffcccc; color:#a00; font-weight:600; cursor:not-allowed; }
+    .empty { visibility:hidden; }
+    .legend { margin-top:15px; font-size:0.9rem; color:#666; }
 
     /* --- Модалка --- */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      justify-content: center;
-      align-items: center;
-    }
-
+    .modal { display:none; position:fixed; z-index:10; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
     .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 360px;
-      text-align: left;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      background:#fff; padding:25px; border-radius:16px;
+      width:90%; max-width:360px; text-align:left; box-shadow:0 8px 20px rgba(0,0,0,0.2);
     }
-
-    .modal-content input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-    }
-
-    .book-btn {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 10px 20px;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      width: 100%;
-    }
-    .book-btn:hover { background: #333; }
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-      color: #aaa;
-    }
+    .modal-content input { width:100%; padding:10px; margin-bottom:12px; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
+    .book-btn { background:#000; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:1rem; cursor:pointer; width:100%; }
+    .book-btn:hover { background:#333; }
+    .close { float:right; font-size:20px; cursor:pointer; color:#aaa; }
   </style>
 </head>
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Уборка по фиксированной цене. Быстро, чисто, без лишнего.</p>
+    <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
     <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
     <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
   </header>
 
   <div class="calendar-container" id="calendarContainer">
     <div class="calendar-header" id="monthLabel"></div>
-    <div class="calendar" id="calendar"></div>
-    <div class="legend">
-      🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято
+    <div class="weekday-row">
+      <div class="weekday">Пн</div>
+      <div class="weekday">Вт</div>
+      <div class="weekday">Ср</div>
+      <div class="weekday">Чт</div>
+      <div class="weekday">Пт</div>
+      <div class="weekday">Сб</div>
+      <div class="weekday">Вс</div>
     </div>
+    <div class="calendar-grid" id="calendar"></div>
+    <div class="legend">🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято</div>
   </div>
 
   <footer>© 2025 Lowcost Cleaning</footer>
@@ -181,79 +91,73 @@
   </div>
 
   <script>
-    // 🔴 Занятые даты (15–17 октября)
-    const unavailableDates = ["2025-10-15", "2025-10-16", "2025-10-17"];
+    const unavailableDates = ["2025-10-15","2025-10-16","2025-10-17"];
     let selectedService = "";
     let selectedDate = "";
 
     function chooseService(service) {
       selectedService = service;
-      document.getElementById("calendarContainer").style.display = "flex"; // показать календарь
+      document.getElementById("calendarContainer").style.display = "flex";
       generateCalendar();
       window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 50, behavior: "smooth" });
     }
 
-    // === Генерация календаря ===
     function generateCalendar() {
       const calendar = document.getElementById("calendar");
       const monthLabel = document.getElementById("monthLabel");
       calendar.innerHTML = "";
 
-      const year = 2025;
-      const month = 9; // октябрь (0 = январь)
-      const date = new Date(year, month, 1);
-      const monthName = date.toLocaleString('ru-RU', { month: 'long', year: 'numeric' });
-      monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
+      const year = 2025, month = 9; // октябрь
+      const monthName = new Date(year, month).toLocaleString("ru-RU",{month:"long",year:"numeric"});
+      monthLabel.textContent = monthName.charAt(0).toUpperCase()+monthName.slice(1);
+      const firstDay = new Date(year, month, 1).getDay(); // 0 = вс
+      const offset = (firstDay === 0 ? 6 : firstDay - 1); // сдвиг под понедельник
       const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-      for (let i = 1; i <= daysInMonth; i++) {
-        const dayDate = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
-        const div = document.createElement("div");
-        div.classList.add("day");
+      // пустые ячейки перед первым числом
+      for(let i=0;i<offset;i++){
+        const empty=document.createElement("div");
+        empty.classList.add("day","empty");
+        calendar.appendChild(empty);
+      }
 
-        if (unavailableDates.includes(dayDate)) {
+      // дни месяца
+      for(let i=1;i<=daysInMonth;i++){
+        const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
+        const div=document.createElement("div");
+        div.classList.add("day");
+        div.innerText=i;
+        if(unavailableDates.includes(dateStr)){
           div.classList.add("unavailable");
-          div.innerText = i;
         } else {
           div.classList.add("available");
-          div.innerText = i;
-          div.onclick = () => openModal(dayDate);
+          div.onclick=()=>openModal(dateStr);
         }
-
         calendar.appendChild(div);
       }
     }
 
     // === Модальное окно ===
-    const modal = document.getElementById("bookingModal");
+    const modal=document.getElementById("bookingModal");
 
-    function openModal(date) {
-      selectedDate = date;
-      document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
-      modal.style.display = "flex";
+    function openModal(date){
+      selectedDate=date;
+      document.getElementById("modalTitle").innerText=`${selectedService}\n📅 ${date}`;
+      modal.style.display="flex";
     }
+    function closeModal(){ modal.style.display="none"; }
 
-    function closeModal() {
-      modal.style.display = "none";
-    }
-
-    function sendBooking() {
-      const name = document.getElementById("clientName").value.trim();
-      const phone = document.getElementById("clientPhone").value.trim();
-
-      if (!name || !phone) {
-        alert("Пожалуйста, заполните имя и телефон");
-        return;
-      }
-
-      const message = encodeURIComponent(
-        `🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
-      );
-      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`; // 👈 твой бот
-      window.open(telegramLink, "_blank");
+    function sendBooking(){
+      const name=document.getElementById("clientName").value.trim();
+      const phone=document.getElementById("clientPhone").value.trim();
+      if(!name||!phone){ alert("Пожалуйста, заполните имя и телефон"); return; }
+      const message=encodeURIComponent(`🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`);
+      const telegramLink=`https://t.me/kalendaruborok_bot?text=${message}`;
+      window.open(telegramLink,"_blank");
       closeModal();
     }
+
+    // по умолчанию создаём календарь при первом выборе
   </script>
 </body>
 </html>
