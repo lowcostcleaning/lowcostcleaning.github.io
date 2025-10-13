@@ -63,6 +63,48 @@
       transform: scale(1.05);
     }
 
+    /* --- Календарь --- */
+    .calendar-section {
+      margin-top: 60px;
+      animation: fadeInUp 1.2s ease forwards;
+      animation-delay: 0.8s;
+    }
+
+    .calendar-section h2 {
+      font-size: 1.6rem;
+      margin-bottom: 20px;
+    }
+
+    input[type="date"] {
+      padding: 10px 15px;
+      font-size: 1rem;
+      border: 1px solid #ccc;
+      border-radius: 10px;
+      outline: none;
+      transition: 0.3s;
+    }
+
+    input[type="date"]:focus {
+      border-color: #000;
+    }
+
+    .book-btn {
+      margin-top: 25px;
+      padding: 12px 28px;
+      font-size: 1rem;
+      border: none;
+      border-radius: 10px;
+      background: #111;
+      color: #fff;
+      cursor: pointer;
+      transition: 0.3s;
+    }
+
+    .book-btn:hover {
+      background: #333;
+      transform: scale(1.05);
+    }
+
     footer {
       opacity: 0;
       transform: translateY(20px);
@@ -74,21 +116,14 @@
       font-size: 0.9rem;
     }
 
-    /* --- Анимация появления --- */
     @keyframes fadeInUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
     }
 
-    /* --- Адаптив под телефон --- */
     @media (max-width: 600px) {
-      h1 {
-        font-size: 2rem;
-      }
-      .btn {
-        width: 100%;
-        max-width: 300px;
-      }
+      h1 { font-size: 2rem; }
+      .btn, input[type="date"], .book-btn { width: 90%; max-width: 300px; }
     }
   </style>
 </head>
@@ -101,10 +136,36 @@
       <button class="btn">🏠 Студия — 90₾</button>
       <button class="btn">🛏 1+1 — 120₾</button>
     </div>
+
+    <div class="calendar-section">
+      <h2>Запишитесь на уборку</h2>
+      <input type="date" id="bookingDate" min="">
+      <br>
+      <button class="book-btn" onclick="sendToTelegram()">Забронировать</button>
+    </div>
   </header>
 
   <footer>
     © 2025 Lowcost Cleaning. Все права чисты.
   </footer>
+
+  <script>
+    // Устанавливаем минимальную дату — сегодня
+    const dateInput = document.getElementById("bookingDate");
+    const today = new Date().toISOString().split("T")[0];
+    dateInput.setAttribute("min", today);
+
+    // Отправка выбранной даты в Telegram
+    function sendToTelegram() {
+      const date = dateInput.value;
+      if (!date) {
+        alert("Пожалуйста, выберите дату!");
+        return;
+      }
+      const message = encodeURIComponent(`🧹 Запись на уборку:\nДата: ${date}`);
+      const telegramLink = `https://t.me/your_username?text=${message}`;
+      window.open(telegramLink, "_blank");
+    }
+  </script>
 </body>
 </html>
