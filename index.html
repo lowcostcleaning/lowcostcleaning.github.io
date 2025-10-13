@@ -63,6 +63,7 @@
       cursor: pointer;
       transition: 0.2s;
       font-size: 0.95rem;
+      user-select: none;
     }
 
     .available {
@@ -75,9 +76,11 @@
       transform: scale(1.1);
     }
 
+    /* 🔴 Занятые даты */
     .unavailable {
-      background: #f2f2f2;
-      color: #aaa;
+      background: #ffcccc;
+      color: #a00;
+      font-weight: 600;
       cursor: not-allowed;
     }
 
@@ -161,7 +164,7 @@
   </div>
 
   <script>
-    // ❌ Занятые даты (15, 16, 17 октября)
+    // 🔴 Занятые даты (15, 16, 17 октября)
     const unavailableDates = ["2025-10-15", "2025-10-16", "2025-10-17"];
     let selectedService = "";
     let selectedDate = "";
