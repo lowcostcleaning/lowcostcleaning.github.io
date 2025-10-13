@@ -1,113 +1,231 @@
-<script>
-  const SHEET_ID = "1RuT1hrD76olFtMu4JDV5D9d5ocZ9Hlg5xQG3Wl9UInE";
-  const SHEET_RANGE = "A:B";
-  const SHEET_NAME = "Лист1"; // ⚠️ замени на своё имя листа, если другое
-  const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${SHEET_RANGE}`;
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lowcost Cleaning — Календарь уборок</title>
+  <style>
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center;
+      margin: 0;
+      background: #fff;
+      color: #111;
+    }
+    header {
+      padding: 80px 20px 40px;
+      animation: fadeIn 1s ease-in-out;
+    }
+    h1 { margin: 10px 0; font-size: 2rem; }
+    p { color: #555; margin-bottom: 30px; }
+    .btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 14px 34px;
+      border-radius: 12px;
+      font-size: 1rem;
+      cursor: pointer;
+      margin: 5px;
+      transition: all 0.3s;
+    }
+    .btn:hover { background: #333; transform: scale(1.05); }
 
-  let selectedService = "";
-  let selectedDate = "";
+    /* --- Календарь --- */
+    .calendar-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 30px;
+      animation: fadeIn 0.6s ease-in-out;
+    }
+    table { border-collapse: collapse; margin-top: 10px; }
+    th, td {
+      width: 42px; height: 42px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+    th { color: #666; font-weight: 600; }
+    .available { background: #e7fbe7; color: #0a0; cursor: pointer; transition: 0.2s; }
+    .available:hover { background: #c6f5c6; transform: scale(1.1); }
+    .unavailable { background: #ffcccc; color: #a00; cursor: not-allowed; }
+    .past { background: #eee; color: #999; cursor: not-allowed; }
+    .legend { margin-top: 15px; font-size: 0.9rem; color: #666; }
 
-  async function getBusyDates() {
-    try {
-      const res = await fetch(API_URL);
-      const text = await res.text();
-      if (!text.startsWith("/**/ google.visualization")) {
-        console.warn("⚠️ Ответ не похож на Google Sheets JSON:", text.slice(0, 100));
+    /* --- Модалка --- */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.6);
+      justify-content: center; align-items: center;
+    }
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 360px;
+      text-align: left;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
+      animation: fadeIn 0.4s ease-in-out;
+    }
+    .modal-content input {
+      width: 100%; padding: 10px; margin-bottom: 12px;
+      border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
+    }
+    .book-btn {
+      background: #000; color: #fff; border: none;
+      padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%;
+    }
+    .book-btn:hover { background: #333; }
+    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
+    footer { margin-top: 60px; padding: 20px; color: #888; font-size: 0.9rem; }
+    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
+  </style>
+</head>
+<body>
+  <header>
+    <h1>🧹 Lowcost Cleaning</h1>
+    <p>Уборка по фикс цене — выберите вариант:</p>
+    <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
+    <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
+  </header>
+
+  <div class="calendar-container" id="calendarContainer">
+    <h2 id="monthLabel"></h2>
+    <table id="calendar"></table>
+    <div class="legend">🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято &nbsp;&nbsp;&nbsp; ⚪ — прошло</div>
+  </div>
+
+  <footer>© 2025 Lowcost Cleaning</footer>
+
+  <!-- Модалка бронирования -->
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalTitle">Бронирование</h3>
+      <input type="text" id="clientName" placeholder="Ваше имя" />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    </div>
+  </div>
+
+  <script>
+    const SHEET_ID = "1RuT1hrD76olFtMu4JDV5D9d5ocZ9Hlg5xQG3Wl9UInE";
+    const SHEET_NAME = "Лист1"; // ⚠️ если у тебя другое имя листа — поменяй тут
+    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=A:B`;
+
+    let selectedService = "";
+    let selectedDate = "";
+
+    async function getBusyDates() {
+      try {
+        const res = await fetch(API_URL);
+        const text = await res.text();
+
+        if (!text.startsWith("/**/ google.visualization")) {
+          console.warn("⚠️ Некорректный ответ Google Sheets:", text.slice(0, 100));
+          return [];
+        }
+
+        const json = JSON.parse(text.substr(47).slice(0, -2));
+        const rows = json.table.rows;
+        const busy = [];
+
+        for (const r of rows) {
+          if (!r.c || !r.c[0] || !r.c[1]) continue;
+          const rawDate = r.c[0].v;
+          const status = (r.c[1].v || "").toLowerCase();
+          const d = new Date(rawDate);
+          if (isNaN(d)) continue;
+          const normalized = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+          if (status.includes("занято")) busy.push(normalized);
+        }
+
+        console.log("📅 Загружены занятые даты:", busy);
+        return busy;
+      } catch (err) {
+        console.error("Ошибка загрузки данных из Google Sheets:", err);
         return [];
       }
-      const json = JSON.parse(text.substr(47).slice(0, -2));
-      const rows = json.table.rows;
-      const busy = [];
+    }
 
-      for (const r of rows) {
-        if (!r.c || !r.c[0] || !r.c[1]) continue;
-        const rawDate = r.c[0].v;
-        const status = (r.c[1].v || "").toLowerCase();
+    async function chooseService(service) {
+      selectedService = service;
+      document.getElementById("calendarContainer").style.display = "flex";
+      await generateCalendar();
+      window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 30, behavior: "smooth" });
+    }
 
-        const d = new Date(rawDate);
-        if (isNaN(d)) continue;
-        const normalized = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
+    async function generateCalendar() {
+      const busyDates = await getBusyDates();
+      const calendar = document.getElementById("calendar");
+      const monthLabel = document.getElementById("monthLabel");
+      calendar.innerHTML = "";
 
-        if (status.includes("занято")) busy.push(normalized);
+      const year = 2025, month = 9;
+      const monthName = new Date(year, month).toLocaleString("ru-RU", { month: "long", year: "numeric" });
+      monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+      const firstDay = new Date(year, month, 1).getDay();
+      const offset = (firstDay === 0 ? 6 : firstDay - 1);
+      const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date();
+
+      let html = "<tr>";
+      const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+      html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
+
+      for (let i = 0; i < offset; i++) html += "<td></td>";
+
+      for (let i = 1; i <= daysInMonth; i++) {
+        const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+        const dateObj = new Date(dateStr);
+        let className = "available";
+        let click = `onclick="openModal('${dateStr}')"`;
+
+        if (busyDates.includes(dateStr)) {
+          className = "unavailable";
+          click = "";
+        } else if (dateObj < today) {
+          className = "past";
+          click = "";
+        }
+
+        html += `<td class="${className}" ${click}>${i}</td>`;
+        if ((i + offset) % 7 === 0) html += "</tr><tr>";
       }
 
-      console.log("📅 Загружены занятые даты:", busy);
-      return busy;
-    } catch (err) {
-      console.error("❌ Ошибка загрузки данных:", err);
-      return [];
+      html += "</tr>";
+      calendar.innerHTML = html;
     }
-  }
 
-  async function chooseService(service) {
-    selectedService = service;
-    document.getElementById("calendarContainer").style.display = "flex";
-    await generateCalendar();
-  }
+    const modal = document.getElementById("bookingModal");
+    function openModal(date) {
+      selectedDate = date;
+      document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
+      modal.style.display = "flex";
+    }
+    function closeModal() { modal.style.display = "none"; }
 
-  async function generateCalendar() {
-    const busyDates = await getBusyDates();
-    const calendar = document.getElementById("calendar");
-    const monthLabel = document.getElementById("monthLabel");
-    calendar.innerHTML = "";
-
-    const year = 2025, month = 9;
-    const monthName = new Date(year, month).toLocaleString("ru-RU", { month: "long", year: "numeric" });
-    monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-    const firstDay = new Date(year, month, 1).getDay();
-    const offset = (firstDay === 0 ? 6 : firstDay - 1);
-    const daysInMonth = new Date(year, month + 1, 0).getDate();
-    const today = new Date();
-
-    let html = "<tr>";
-    const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-    html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-
-    for (let i = 0; i < offset; i++) html += "<td></td>";
-
-    for (let i = 1; i <= daysInMonth; i++) {
-      const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
-      const dateObj = new Date(dateStr);
-      let className = "available";
-      let click = `onclick="openModal('${dateStr}')"`;
-
-      if (busyDates.includes(dateStr)) {
-        className = "unavailable";
-        click = "";
-      } else if (dateObj < today) {
-        className = "past";
-        click = "";
+    function sendBooking() {
+      const name = document.getElementById("clientName").value.trim();
+      const phone = document.getElementById("clientPhone").value.trim();
+      if (!name || !phone) {
+        alert("Пожалуйста, заполните имя и телефон");
+        return;
       }
-
-      html += `<td class="day ${className}" ${click}>${i}</td>`;
-      if ((i + offset) % 7 === 0) html += "</tr><tr>";
+      const message = encodeURIComponent(
+        `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+      );
+      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
+      window.open(telegramLink, "_blank");
+      closeModal();
     }
-
-    html += "</tr>";
-    calendar.innerHTML = html;
-  }
-
-  const modal = document.getElementById("bookingModal");
-  function openModal(date) {
-    selectedDate = date;
-    document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
-    modal.style.display = "flex";
-  }
-  function closeModal() { modal.style.display = "none"; }
-
-  function sendBooking() {
-    const name = document.getElementById("clientName").value.trim();
-    const phone = document.getElementById("clientPhone").value.trim();
-    if (!name || !phone) {
-      alert("Пожалуйста, заполните имя и телефон");
-      return;
-    }
-    const message = encodeURIComponent(
-      `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
-    );
-    const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
-    window.open(telegramLink, "_blank");
-    closeModal();
-  }
-</script>
+  </script>
+</body>
+</html>
