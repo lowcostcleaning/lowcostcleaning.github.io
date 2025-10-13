@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lowcost Cleaning — Календарь уборок</title>
+  <title>Lowcost Cleaning — Календарь</title>
   <style>
     body {
       font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
@@ -12,20 +12,14 @@
       background: #fff;
       color: #111;
     }
-    header {
-      padding: 80px 20px 40px;
-    }
+    header { padding: 80px 20px 40px; }
     h1 { margin: 10px 0; font-size: 2rem; }
     p { color: #555; margin-bottom: 30px; }
+
     .btn {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 14px 34px;
-      border-radius: 12px;
-      font-size: 1rem;
-      cursor: pointer;
-      margin: 5px;
+      background: #000; color: #fff; border: none;
+      padding: 14px 34px; border-radius: 12px;
+      font-size: 1rem; cursor: pointer; margin: 5px;
       transition: all 0.3s;
     }
     .btn:hover { background: #333; transform: scale(1.05); }
@@ -44,10 +38,8 @@
       font-size: 0.95rem;
     }
     th { color: #666; font-weight: 600; }
-
     .available { background: #e7fbe7; color: #0a0; cursor: pointer; transition: 0.2s; }
     .available:hover { background: #c6f5c6; transform: scale(1.1); }
-
     .unavailable { background: #ffcccc; color: #a00; cursor: not-allowed; }
     .past { background: #eee; color: #999; cursor: not-allowed; }
 
@@ -71,13 +63,14 @@
       text-align: left;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
-    .modal-content input {
+    .modal-content input, .modal-content select {
       width: 100%; padding: 10px; margin-bottom: 12px;
       border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
     }
     .book-btn {
       background: #000; color: #fff; border: none;
-      padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 1rem; cursor: pointer; width: 100%;
     }
     .book-btn:hover { background: #333; }
     .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
@@ -88,9 +81,9 @@
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Уборка по фиксированной цене — выберите вариант:</p>
-    <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
-    <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
+    <p>Выберите услугу:</p>
+    <button class="btn" onclick="chooseService('🧺 Химчистка мебели — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
+    <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
   </header>
 
   <div class="calendar-container" id="calendarContainer">
@@ -107,32 +100,41 @@
       <h3 id="modalTitle">Бронирование</h3>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <div id="timeContainer" style="display:none;">
+        <label for="timeSelect">Выберите время:</label>
+        <select id="timeSelect">
+          <option value="">-- выберите время --</option>
+          <option>10:00</option>
+          <option>12:00</option>
+          <option>14:00</option>
+          <option>16:00</option>
+          <option>18:00</option>
+        </select>
+      </div>
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
     </div>
   </div>
 
-<script>
-const API_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?output=csv";
+  <script>
+const BASE_URL =
+  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
+let selectedService = "", selectedDate = "", currentSheet = "";
 
-let selectedService = "";
-let selectedDate = "";
-let isLoading = false; // 👈 блокировка повторных нажатий
-let lastFetchId = 0;   // 👈 контроль актуального запроса
+async function getBusyDates(sheetName) {
+  const gids = { "Химчистка": "591986483", "Апартаменты": "1636464154" }; // 🔹 укажи GID листов (в URL после ?gid=)
+  const gid = gids[sheetName] || "0";
+  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
 
-async function getBusyDates(fetchId) {
   try {
-    const res = await fetch(API_URL + `&nocache=${Date.now()}`, { cache: "no-store" });
+    const res = await fetch(url, { cache: "no-store" });
     const text = await res.text();
     const rows = text.split("\n").map(r => r.split(","));
     const busy = [];
-
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       if (row.length < 2) continue;
       let date = row[0].trim().replace(/"/g, "");
       const status = row[1].trim().toLowerCase();
-
       if (status.includes("занято")) {
         if (date.includes(".")) {
           const [d, m, y] = date.split(".");
@@ -141,44 +143,22 @@ async function getBusyDates(fetchId) {
         busy.push(date);
       }
     }
-
-    // Если это всё ещё актуальный запрос, возвращаем данные
-    if (fetchId === lastFetchId) {
-      console.log("📅 Занятые даты:", busy);
-      return busy;
-    } else {
-      console.log("⏩ Пропущен устаревший ответ");
-      return [];
-    }
-
+    console.log(`📅 ${sheetName}:`, busy);
+    return busy;
   } catch (err) {
     console.error("Ошибка загрузки:", err);
     return [];
   }
 }
 
-async function chooseService(service) {
-  if (isLoading) return; // 🔒 не даём нажать повторно, пока грузится
-  isLoading = true;
+async function chooseService(service, sheet) {
   selectedService = service;
-  lastFetchId++; // 👈 новый идентификатор запроса
-
-  const container = document.getElementById("calendarContainer");
-  container.style.display = "flex";
-  container.scrollIntoView({ behavior: "smooth" });
+  currentSheet = sheet;
+  document.getElementById("calendarContainer").style.display = "flex";
   document.getElementById("calendar").innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-
-  const busyDates = await getBusyDates(lastFetchId);
-  if (busyDates.length === 0) {
-    console.warn("⚠️ Нет данных — повторная попытка через 1 сек.");
-    await new Promise(r => setTimeout(r, 1000));
-    const retry = await getBusyDates(lastFetchId);
-    generateCalendar(retry.length ? retry : []);
-  } else {
-    generateCalendar(busyDates);
-  }
-
-  isLoading = false; // ✅ снова можно нажимать
+  const busyDates = await getBusyDates(sheet);
+  generateCalendar(busyDates);
+  window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 20, behavior: "smooth" });
 }
 
 function generateCalendar(busyDates = []) {
@@ -197,7 +177,7 @@ function generateCalendar(busyDates = []) {
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
   let html = "<tr>";
-  const weekDays = ["Пн", "Вт", "Ср", "Чт", "Пт", "Сб", "Вс"];
+  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
   const normalizedBusy = busyDates.map(d => {
@@ -219,7 +199,7 @@ function generateCalendar(busyDates = []) {
     if (normalizedBusy.includes(dateStr)) {
       className = "unavailable";
       click = "";
-    } else if (dateObj < new Date().setHours(0, 0, 0, 0)) {
+    } else if (dateObj < new Date().setHours(0,0,0,0)) {
       className = "past";
       click = "";
     }
@@ -236,28 +216,25 @@ const modal = document.getElementById("bookingModal");
 function openModal(date) {
   selectedDate = date;
   document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
+  const timeBlock = document.getElementById("timeContainer");
+  timeBlock.style.display = currentSheet === "Апартаменты" ? "block" : "none";
   modal.style.display = "flex";
 }
-function closeModal() {
-  modal.style.display = "none";
-}
+function closeModal() { modal.style.display = "none"; }
 
 function sendBooking() {
   const name = document.getElementById("clientName").value.trim();
   const phone = document.getElementById("clientPhone").value.trim();
-  if (!name || !phone) {
-    alert("Пожалуйста, заполните имя и телефон");
-    return;
-  }
+  const time = document.getElementById("timeSelect").value;
+  if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
+
+  const timeText = time ? `🕐 Время: ${time}\n` : "";
   const message = encodeURIComponent(
-    `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+    `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}\n${timeText}👤 ${name}\n📞 ${phone}`
   );
-  const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
-  window.open(telegramLink, "_blank");
+  window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
   closeModal();
 }
-</script>
-
-
+  </script>
 </body>
 </html>
