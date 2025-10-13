@@ -187,9 +187,21 @@
         let className = "available";
         let click = `onclick="openModal('${dateStr}')"`;
 
-        if (busyDates.includes(dateStr)) {
-          className = "unavailable";
-          click = "";
+        // Преобразуем занятые даты из формата 15.10.2025 в ISO (2025-10-15)
+const normalizedBusy = busyDates.map(d => {
+  if (d.includes(".")) {
+    const [day, month, year] = d.split(".");
+    return `${year}-${month.padStart(2, "0")}-${day.padStart(2, "0")}`;
+
+  }
+  return d;
+});
+
+if (normalizedBusy.includes(dateStr)) {
+  className = "unavailable";
+  click = "";
+}
+;
         } else if (dateObj < new Date().setHours(0,0,0,0)) {
           className = "past";
           click = "";
