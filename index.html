@@ -119,29 +119,36 @@
     let selectedDate = "";
 
     async function getBusyDates() {
-      try {
-        const res = await fetch(API_URL);
-        const text = await res.text();
-        const rows = text.split("\n").map(r => r.split(","));
-        const busy = [];
+  try {
+    const res = await fetch(API_URL);
+    const text = await res.text();
+    const rows = text.split("\n").map(r => r.split(","));
+    const busy = [];
 
-        for (let i = 1; i < rows.length; i++) {
-          const row = rows[i];
-          if (row.length < 2) continue;
-          const date = row[0].trim();
-          const status = row[1].trim().toLowerCase();
-          if (status.includes("занято")) {
-            busy.push(date);
-          }
+    for (let i = 1; i < rows.length; i++) {
+      const row = rows[i];
+      if (row.length < 2) continue;
+      let date = row[0].trim().replace(/"/g, "");
+      const status = row[1].trim().toLowerCase();
+
+      if (status.includes("занято")) {
+        // поддержка формата 15.10.2025
+        if (date.includes(".")) {
+          const [d, m, y] = date.split(".");
+          date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
         }
-
-        console.log("📅 Занятые даты:", busy);
-        return busy;
-      } catch (err) {
-        console.error("Ошибка при получении данных таблицы:", err);
-        return [];
+        busy.push(date);
       }
     }
+
+    console.log("📅 Занятые даты:", busy);
+    return busy;
+  } catch (err) {
+    console.error("Ошибка при получении данных таблицы:", err);
+    return [];
+  }
+}
+
 
     async function chooseService(service) {
       selectedService = service;
