@@ -1,7 +1,8 @@
 <script>
   const SHEET_ID = "1RuT1hrD76olFtMu4JDV5D9d5ocZ9Hlg5xQG3Wl9UInE";
   const SHEET_RANGE = "A:B";
-  const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=Лист1&range=${SHEET_RANGE}`;
+  const SHEET_NAME = "Лист1"; // ⚠️ замени на своё имя листа, если другое
+  const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}&range=${SHEET_RANGE}`;
 
   let selectedService = "";
   let selectedDate = "";
@@ -10,17 +11,21 @@
     try {
       const res = await fetch(API_URL);
       const text = await res.text();
+      if (!text.startsWith("/**/ google.visualization")) {
+        console.warn("⚠️ Ответ не похож на Google Sheets JSON:", text.slice(0, 100));
+        return [];
+      }
       const json = JSON.parse(text.substr(47).slice(0, -2));
       const rows = json.table.rows;
       const busy = [];
 
       for (const r of rows) {
-        if (!r.c[0] || !r.c[1]) continue;
+        if (!r.c || !r.c[0] || !r.c[1]) continue;
         const rawDate = r.c[0].v;
         const status = (r.c[1].v || "").toLowerCase();
 
-        // преобразуем дату в формат YYYY-MM-DD
         const d = new Date(rawDate);
+        if (isNaN(d)) continue;
         const normalized = `${d.getFullYear()}-${String(d.getMonth() + 1).padStart(2, "0")}-${String(d.getDate()).padStart(2, "0")}`;
 
         if (status.includes("занято")) busy.push(normalized);
@@ -29,7 +34,7 @@
       console.log("📅 Загружены занятые даты:", busy);
       return busy;
     } catch (err) {
-      console.error("Ошибка загрузки данных из Google Sheets:", err);
+      console.error("❌ Ошибка загрузки данных:", err);
       return [];
     }
   }
@@ -38,12 +43,10 @@
     selectedService = service;
     document.getElementById("calendarContainer").style.display = "flex";
     await generateCalendar();
-    window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 50, behavior: "smooth" });
   }
 
   async function generateCalendar() {
     const busyDates = await getBusyDates();
-
     const calendar = document.getElementById("calendar");
     const monthLabel = document.getElementById("monthLabel");
     calendar.innerHTML = "";
@@ -57,12 +60,11 @@
     const daysInMonth = new Date(year, month + 1, 0).getDate();
     const today = new Date();
 
-    // шапка дней недели
     let html = "<tr>";
     const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-    html += weekDays.map(d => `<th>${d}</th>`).join("") + `</tr><tr>`;
+    html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-    for (let i = 0; i < offset; i++) html += `<td></td>`;
+    for (let i = 0; i < offset; i++) html += "<td></td>";
 
     for (let i = 1; i <= daysInMonth; i++) {
       const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
@@ -79,10 +81,10 @@
       }
 
       html += `<td class="day ${className}" ${click}>${i}</td>`;
-      if ((i + offset) % 7 === 0) html += `</tr><tr>`;
+      if ((i + offset) % 7 === 0) html += "</tr><tr>";
     }
 
-    html += `</tr>`;
+    html += "</tr>";
     calendar.innerHTML = html;
   }
 
@@ -97,8 +99,13 @@
   function sendBooking() {
     const name = document.getElementById("clientName").value.trim();
     const phone = document.getElementById("clientPhone").value.trim();
-    if (!name || !phone) { alert("Пожалуйста, заполните имя и телефон"); return; }
-    const message = encodeURIComponent(`🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`);
+    if (!name || !phone) {
+      alert("Пожалуйста, заполните имя и телефон");
+      return;
+    }
+    const message = encodeURIComponent(
+      `🧹 Новая запись на уборку:\n${selectedService}\n📅 ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+    );
     const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`;
     window.open(telegramLink, "_blank");
     closeModal();
