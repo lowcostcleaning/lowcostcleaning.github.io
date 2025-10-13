@@ -28,28 +28,93 @@
     @keyframes fadeInUp { from {opacity:0; transform:translateY(30px);} to {opacity:1; transform:translateY(0);} }
 
     /* --- Календарь --- */
-    .calendar-container { display:none; flex-direction:column; align-items:center; animation:fadeInUp 0.6s ease forwards; }
-    .calendar-header { margin-top: 20px; font-weight:600; font-size:1.3rem; }
-    .weekday-row, .calendar-grid { display:grid; grid-template-columns:repeat(7,1fr); gap:8px; max-width:340px; }
-    .weekday { font-size:0.9rem; color:#666; font-weight:600; }
-    .day {
-      padding:10px; border-radius:8px; cursor:pointer;
-      transition:0.2s; font-size:0.95rem; user-select:none;
+    .calendar-container {
+      display:none;
+      flex-direction:column;
+      align-items:center;
+      animation:fadeInUp 0.6s ease forwards;
     }
-    .available { background:#e7fbe7; color:#0a0; }
-    .available:hover { background:#c6f5c6; transform:scale(1.1); }
-    .unavailable { background:#ffcccc; color:#a00; font-weight:600; cursor:not-allowed; }
-    .empty { visibility:hidden; }
-    .legend { margin-top:15px; font-size:0.9rem; color:#666; }
+    .calendar-header {
+      margin-top: 20px;
+      font-weight:600;
+      font-size:1.3rem;
+    }
+
+    .calendar-table {
+      border-collapse: collapse;
+      margin-top: 20px;
+    }
+
+    th, td {
+      width: 40px;
+      height: 40px;
+      text-align: center;
+      border-radius: 8px;
+      font-size: 0.95rem;
+    }
+
+    th {
+      color: #666;
+      font-weight: 600;
+      padding-bottom: 6px;
+    }
+
+    td.day {
+      cursor: pointer;
+      transition: 0.2s;
+    }
+
+    .available {
+      background: #e7fbe7;
+      color: #0a0;
+    }
+    .available:hover {
+      background: #c6f5c6;
+      transform: scale(1.1);
+    }
+    .unavailable {
+      background: #ffcccc;
+      color: #a00;
+      font-weight: 600;
+      cursor: not-allowed;
+    }
+    .past {
+      background: #eee;
+      color: #999;
+      cursor: not-allowed;
+    }
+
+    .legend {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #666;
+    }
 
     /* --- Модалка --- */
-    .modal { display:none; position:fixed; z-index:10; left:0; top:0; width:100%; height:100%; background:rgba(0,0,0,0.6); justify-content:center; align-items:center; }
+    .modal {
+      display:none;
+      position:fixed;
+      z-index:10;
+      left:0; top:0;
+      width:100%; height:100%;
+      background:rgba(0,0,0,0.6);
+      justify-content:center;
+      align-items:center;
+    }
     .modal-content {
       background:#fff; padding:25px; border-radius:16px;
-      width:90%; max-width:360px; text-align:left; box-shadow:0 8px 20px rgba(0,0,0,0.2);
+      width:90%; max-width:360px; text-align:left;
+      box-shadow:0 8px 20px rgba(0,0,0,0.2);
     }
-    .modal-content input { width:100%; padding:10px; margin-bottom:12px; border-radius:8px; border:1px solid #ccc; font-size:1rem; }
-    .book-btn { background:#000; color:#fff; border:none; padding:10px 20px; border-radius:8px; font-size:1rem; cursor:pointer; width:100%; }
+    .modal-content input {
+      width:100%; padding:10px; margin-bottom:12px;
+      border-radius:8px; border:1px solid #ccc; font-size:1rem;
+    }
+    .book-btn {
+      background:#000; color:#fff; border:none;
+      padding:10px 20px; border-radius:8px;
+      font-size:1rem; cursor:pointer; width:100%;
+    }
     .book-btn:hover { background:#333; }
     .close { float:right; font-size:20px; cursor:pointer; color:#aaa; }
   </style>
@@ -64,17 +129,10 @@
 
   <div class="calendar-container" id="calendarContainer">
     <div class="calendar-header" id="monthLabel"></div>
-    <div class="weekday-row">
-      <div class="weekday">Пн</div>
-      <div class="weekday">Вт</div>
-      <div class="weekday">Ср</div>
-      <div class="weekday">Чт</div>
-      <div class="weekday">Пт</div>
-      <div class="weekday">Сб</div>
-      <div class="weekday">Вс</div>
+    <table class="calendar-table" id="calendar"></table>
+    <div class="legend">
+      🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято &nbsp;&nbsp;&nbsp; ⚪ — прошло
     </div>
-    <div class="calendar-grid" id="calendar"></div>
-    <div class="legend">🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято</div>
   </div>
 
   <footer>© 2025 Lowcost Cleaning</footer>
@@ -110,31 +168,43 @@
       const year = 2025, month = 9; // октябрь
       const monthName = new Date(year, month).toLocaleString("ru-RU",{month:"long",year:"numeric"});
       monthLabel.textContent = monthName.charAt(0).toUpperCase()+monthName.slice(1);
+
       const firstDay = new Date(year, month, 1).getDay(); // 0 = вс
-      const offset = (firstDay === 0 ? 6 : firstDay - 1); // сдвиг под понедельник
+      const offset = (firstDay === 0 ? 6 : firstDay - 1);
       const daysInMonth = new Date(year, month + 1, 0).getDate();
+      const today = new Date("2025-10-13"); // можно заменить new Date() на реальную текущую дату
+
+      let html = "<tr>";
+      const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+      html += weekDays.map(d => `<th>${d}</th>`).join("");
+      html += "</tr><tr>";
 
       // пустые ячейки перед первым числом
       for(let i=0;i<offset;i++){
-        const empty=document.createElement("div");
-        empty.classList.add("day","empty");
-        calendar.appendChild(empty);
+        html += "<td></td>";
       }
 
-      // дни месяца
       for(let i=1;i<=daysInMonth;i++){
         const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
-        const div=document.createElement("div");
-        div.classList.add("day");
-        div.innerText=i;
+        const dateObj = new Date(dateStr);
+        let className = "available";
+        let click = `onclick="openModal('${dateStr}')"`; 
+
         if(unavailableDates.includes(dateStr)){
-          div.classList.add("unavailable");
-        } else {
-          div.classList.add("available");
-          div.onclick=()=>openModal(dateStr);
+          className = "unavailable";
+          click = "";
+        } else if (dateObj < today) {
+          className = "past";
+          click = "";
         }
-        calendar.appendChild(div);
+
+        html += `<td class="day ${className}" ${click}>${i}</td>`;
+
+        if((i + offset) % 7 === 0) html += "</tr><tr>";
       }
+
+      html += "</tr>";
+      calendar.innerHTML = html;
     }
 
     // === Модальное окно ===
@@ -156,8 +226,6 @@
       window.open(telegramLink,"_blank");
       closeModal();
     }
-
-    // по умолчанию создаём календарь при первом выборе
   </script>
 </body>
 </html>
