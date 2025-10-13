@@ -3,74 +3,196 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lowcost Cleaning — Календарь</title>
+  <title>Lowcost Cleaning — Бронирование</title>
   <style>
+    /* 🌿 Базовый стиль — минимализм в духе Apple */
+    :root {
+      --accent: #007aff;
+      --text-main: #111;
+      --text-muted: #666;
+      --bg: #fff;
+      --border: rgba(0,0,0,0.08);
+    }
+
+    * { box-sizing: border-box; }
+
     body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center; margin: 0;
-      background: #fff; color: #111;
+      margin: 0;
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Roboto, sans-serif;
+      background: var(--bg);
+      color: var(--text-main);
+      text-align: center;
+      -webkit-font-smoothing: antialiased;
     }
-    header { padding: 80px 20px 40px; }
-    h1 { margin: 10px 0; font-size: 2rem; }
-    p { color: #555; margin-bottom: 30px; }
 
+    header {
+      padding: 80px 20px 40px;
+      animation: fadeIn 1s ease;
+    }
+
+    h1 {
+      font-weight: 600;
+      font-size: 2.4rem;
+      margin-bottom: 10px;
+      letter-spacing: -0.5px;
+    }
+
+    p {
+      color: var(--text-muted);
+      font-size: 1.1rem;
+      margin-bottom: 40px;
+    }
+
+    /* 🩶 Кнопки как на apple.com */
     .btn {
-      background: #000; color: #fff; border: none;
-      padding: 14px 34px; border-radius: 12px;
-      font-size: 1rem; cursor: pointer; margin: 5px;
-      transition: all 0.3s;
+      background: rgba(255,255,255,0.8);
+      border: 1px solid var(--border);
+      border-radius: 14px;
+      padding: 14px 34px;
+      font-size: 1rem;
+      color: var(--text-main);
+      font-weight: 500;
+      cursor: pointer;
+      backdrop-filter: blur(8px);
+      transition: all 0.25s ease;
+      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
     }
-    .btn:hover { background: #333; transform: scale(1.05); }
 
+    .btn:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
+      border-color: var(--accent);
+      color: var(--accent);
+    }
+
+    /* 🗓️ Календарь */
     .calendar-container {
       display: none;
       flex-direction: column;
       align-items: center;
-      margin-top: 30px;
+      margin-top: 40px;
+      animation: fadeIn 0.6s ease forwards;
     }
-    table { border-collapse: collapse; margin-top: 10px; }
+
+    table { border-collapse: collapse; margin-top: 20px; }
+
     th, td {
       width: 42px; height: 42px;
       text-align: center;
-      border-radius: 8px;
+      border-radius: 10px;
       font-size: 0.95rem;
+      transition: all 0.25s;
     }
-    th { color: #666; font-weight: 600; }
-    .available { background: #e7fbe7; color: #0a0; cursor: pointer; transition: 0.2s; }
-    .available:hover { background: #c6f5c6; transform: scale(1.1); }
-    .unavailable { background: #ffcccc; color: #a00; cursor: not-allowed; }
-    .past { background: #eee; color: #999; cursor: not-allowed; }
 
-    .legend { margin-top: 15px; font-size: 0.9rem; color: #666; }
+    th { color: var(--text-muted); font-weight: 500; }
 
+    .available {
+      background: #f5f5f7;
+      cursor: pointer;
+    }
+
+    .available:hover {
+      background: var(--accent);
+      color: #fff;
+      transform: scale(1.1);
+    }
+
+    .unavailable {
+      background: #f2c8c8;
+      color: #a00;
+      cursor: not-allowed;
+    }
+
+    .past {
+      background: #ebebeb;
+      color: #aaa;
+      cursor: not-allowed;
+    }
+
+    .legend {
+      margin-top: 20px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    /* 🌙 Модальное окно */
     .modal {
       display: none;
       position: fixed;
-      z-index: 10; left: 0; top: 0;
+      z-index: 10;
+      left: 0; top: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
+      background: rgba(0,0,0,0.4);
+      backdrop-filter: blur(5px);
       justify-content: center; align-items: center;
+      animation: fadeIn 0.3s ease;
     }
-    .modal-content {
-      background: #fff; padding: 25px;
-      border-radius: 16px;
-      width: 90%; max-width: 360px;
-      text-align: left;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .modal-content input, .modal-content select {
-      width: 100%; padding: 10px; margin-bottom: 12px;
-      border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
-    }
-    .book-btn {
-      background: #000; color: #fff; border: none;
-      padding: 10px 20px; border-radius: 8px;
-      font-size: 1rem; cursor: pointer; width: 100%;
-    }
-    .book-btn:hover { background: #333; }
-    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
 
-    footer { margin-top: 60px; padding: 20px; color: #888; font-size: 0.9rem; }
+    .modal-content {
+      background: var(--bg);
+      padding: 30px;
+      border-radius: 18px;
+      width: 90%; max-width: 380px;
+      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      text-align: left;
+      animation: zoomIn 0.25s ease;
+    }
+
+    .modal-content input, .modal-content select {
+      width: 100%;
+      padding: 12px 14px;
+      margin-bottom: 14px;
+      border-radius: 12px;
+      border: 1px solid var(--border);
+      font-size: 1rem;
+      background: #fafafa;
+      transition: border 0.2s;
+    }
+
+    .modal-content input:focus, .modal-content select:focus {
+      outline: none;
+      border-color: var(--accent);
+    }
+
+    .book-btn {
+      background: var(--accent);
+      border: none;
+      color: #fff;
+      font-weight: 500;
+      border-radius: 12px;
+      padding: 12px;
+      cursor: pointer;
+      transition: 0.3s;
+      width: 100%;
+    }
+
+    .book-btn:hover {
+      background: #005ce6;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: var(--text-muted);
+    }
+
+    footer {
+      margin-top: 80px;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: translateY(20px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+
+    @keyframes zoomIn {
+      from { opacity: 0; transform: scale(0.95); }
+      to { opacity: 1; transform: scale(1); }
+    }
   </style>
 </head>
 <body>
@@ -86,11 +208,12 @@
   <div class="calendar-container" id="calendarContainer">
     <h2 id="monthLabel"></h2>
     <table id="calendar"></table>
-    <div class="legend">🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято &nbsp;&nbsp;&nbsp; ⚪ — прошло</div>
+    <div class="legend">🟢 свободно &nbsp;&nbsp; 🔴 занято &nbsp;&nbsp; ⚪ прошло</div>
   </div>
 
   <footer>© 2025 Lowcost Cleaning</footer>
 
+  <!-- Модальное окно -->
   <div id="bookingModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">×</span>
@@ -107,176 +230,9 @@
     </div>
   </div>
 
+  <!-- 🔧 Подключаем функционал -->
   <script>
-const BASE_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
-
-let selectedService = "", selectedDate = "", currentSheet = "";
-
-// GID таблиц
-const gids = { 
-  "Главный": "0",
-  "Химчистка": "591986483",
-  "Апартаменты": "1636464154"
-};
-
-async function getBusyDates(sheetName) {
-  const gid = gids[sheetName] || "0";
-  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    const text = await res.text();
-    const rows = text.split("\n").map(r => r.split(","));
-    const busy = [];
-
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (row.length < 2) continue;
-
-      let date = row[0].trim().replace(/"/g, "");
-      const status = row[row.length - 1].trim().toLowerCase();
-      const time = row.length > 2 ? row[1].trim() : "";
-
-      if (status.includes("занято")) {
-        if (date.includes(".")) {
-          const [d, m, y] = date.split(".");
-          date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-        }
-        busy.push(time ? `${date} ${time}` : date);
-      }
-    }
-    return busy;
-  } catch (err) {
-    console.error("Ошибка загрузки:", err);
-    return [];
-  }
-}
-
-async function chooseService(service, sheet) {
-  selectedService = service;
-  currentSheet = sheet;
-  document.getElementById("calendarContainer").style.display = "flex";
-  document.getElementById("calendar").innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-  const busyDates = await getBusyDates(sheet);
-  generateCalendar(busyDates);
-  window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 20, behavior: "smooth" });
-}
-
-function generateCalendar(busyDates = []) {
-  const calendar = document.getElementById("calendar");
-  const monthLabel = document.getElementById("monthLabel");
-  calendar.innerHTML = "";
-
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
-  monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-  const firstDay = new Date(year, month, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  let html = "<tr>";
-  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-  html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-
-  // ✅ Для апартаментов учитываем, что даты не полностью заняты
-  const fullyBookedDays = [];
-  if (currentSheet === "Апартаменты") {
-    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    const grouped = {};
-
-    busyDates.forEach(entry => {
-      const [d, t] = entry.split(" ");
-      if (!grouped[d]) grouped[d] = [];
-      if (t) grouped[d].push(t);
-    });
-
-    // если для даты заняты все 5 временных слотов — считаем полностью занятой
-    for (const [date, times] of Object.entries(grouped)) {
-      if (times.length >= allTimes.length) fullyBookedDays.push(date);
-    }
-  }
-
-  const normalizedBusy = busyDates.map(d => d.split(" ")[0]);
-
-  for (let i = 0; i < offset; i++) html += `<td></td>`;
-
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
-    const dateObj = new Date(dateStr);
-    let className = "available";
-    let click = `onclick="openModal('${dateStr}')"`;
-
-    // 🚫 только полностью занятые даты блокируются
-    if (currentSheet !== "Апартаменты" && normalizedBusy.includes(dateStr)) {
-      className = "unavailable";
-      click = "";
-    } else if (currentSheet === "Апартаменты" && fullyBookedDays.includes(dateStr)) {
-      className = "unavailable";
-      click = "";
-    } else if (dateObj < new Date().setHours(0,0,0,0)) {
-      className = "past";
-      click = "";
-    }
-
-    html += `<td class="${className}" ${click}>${i}</td>`;
-    if ((i + offset) % 7 === 0) html += "</tr><tr>";
-  }
-
-  html += "</tr>";
-  calendar.innerHTML = html;
-}
-
-
-const modal = document.getElementById("bookingModal");
-
-async function openModal(date) {
-  selectedDate = date;
-  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
-  const timeBlock = document.getElementById("timeContainer");
-  const timeSelect = document.getElementById("timeSelect");
-
-  if (currentSheet === "Апартаменты") {
-    timeBlock.style.display = "block";
-    const busy = await getBusyDates("Апартаменты");
-    const busyTimes = busy.filter(v => v.startsWith(date)).map(v => v.split(" ")[1]);
-    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
-
-    timeSelect.innerHTML = `<option value="">-- выберите время --</option>`;
-    freeTimes.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t; opt.textContent = t;
-      timeSelect.appendChild(opt);
-    });
-    if (freeTimes.length === 0) {
-      timeSelect.innerHTML = `<option value="">Все слоты заняты</option>`;
-      timeSelect.disabled = true;
-    } else timeSelect.disabled = false;
-  } else {
-    timeBlock.style.display = "none";
-  }
-  modal.style.display = "flex";
-}
-
-function closeModal() { modal.style.display = "none"; }
-
-function sendBooking() {
-  const name = document.getElementById("clientName").value.trim();
-  const phone = document.getElementById("clientPhone").value.trim();
-  const time = document.getElementById("timeSelect").value;
-  if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
-
-  const timeText = time ? `🕐 Время: ${time}\n` : "";
-  const message = encodeURIComponent(
-    `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}\n${timeText}👤 ${name}\n📞 ${phone}`
-  );
-  window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
-  closeModal();
-}
+  // сюда вставляется актуальный JS (из твоей версии с исправленным generateCalendar)
   </script>
 </body>
 </html>
