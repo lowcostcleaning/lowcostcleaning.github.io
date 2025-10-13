@@ -5,13 +5,16 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lowcost Cleaning — Бронирование</title>
   <style>
-    /* 🌿 Базовый стиль — минимализм в духе Apple */
+    /* 🌿 Apple clean design */
     :root {
       --accent: #007aff;
-      --text-main: #111;
-      --text-muted: #666;
-      --bg: #fff;
-      --border: rgba(0,0,0,0.08);
+      --text-main: #1c1c1e;
+      --text-muted: #6e6e73;
+      --bg: #f9f9fb;
+      --white: #fff;
+      --border: rgba(0, 0, 0, 0.1);
+      --radius: 14px;
+      --shadow: 0 4px 12px rgba(0,0,0,0.05);
     }
 
     * { box-sizing: border-box; }
@@ -31,9 +34,9 @@
     }
 
     h1 {
-      font-weight: 600;
       font-size: 2.4rem;
-      margin-bottom: 10px;
+      font-weight: 600;
+      margin: 0 0 10px;
       letter-spacing: -0.5px;
     }
 
@@ -43,29 +46,29 @@
       margin-bottom: 40px;
     }
 
-    /* 🩶 Кнопки как на apple.com */
+    /* 🍏 Кнопки — стеклянные, с мягкими тенями */
     .btn {
       background: rgba(255,255,255,0.8);
       border: 1px solid var(--border);
-      border-radius: 14px;
+      border-radius: var(--radius);
       padding: 14px 34px;
+      margin: 6px;
       font-size: 1rem;
-      color: var(--text-main);
       font-weight: 500;
+      color: var(--text-main);
       cursor: pointer;
-      backdrop-filter: blur(8px);
       transition: all 0.25s ease;
-      box-shadow: 0 2px 4px rgba(0,0,0,0.05);
+      box-shadow: var(--shadow);
+      backdrop-filter: blur(8px);
     }
 
     .btn:hover {
       transform: translateY(-2px);
-      box-shadow: 0 4px 8px rgba(0,0,0,0.08);
-      border-color: var(--accent);
       color: var(--accent);
+      border-color: var(--accent);
+      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
     }
 
-    /* 🗓️ Календарь */
     .calendar-container {
       display: none;
       flex-direction: column;
@@ -81,14 +84,19 @@
       text-align: center;
       border-radius: 10px;
       font-size: 0.95rem;
-      transition: all 0.25s;
+      transition: all 0.25s ease;
     }
 
-    th { color: var(--text-muted); font-weight: 500; }
+    th {
+      color: var(--text-muted);
+      font-weight: 500;
+      padding-bottom: 8px;
+    }
 
     .available {
-      background: #f5f5f7;
+      background: #f2f2f7;
       cursor: pointer;
+      color: #1c1c1e;
     }
 
     .available:hover {
@@ -98,14 +106,14 @@
     }
 
     .unavailable {
-      background: #f2c8c8;
-      color: #a00;
+      background: #ffdad4;
+      color: #a40000;
       cursor: not-allowed;
     }
 
     .past {
-      background: #ebebeb;
-      color: #aaa;
+      background: #e5e5ea;
+      color: #8e8e93;
       cursor: not-allowed;
     }
 
@@ -115,7 +123,14 @@
       color: var(--text-muted);
     }
 
-    /* 🌙 Модальное окно */
+    footer {
+      margin-top: 80px;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    /* 🪩 Модалка */
     .modal {
       display: none;
       position: fixed;
@@ -124,18 +139,26 @@
       width: 100%; height: 100%;
       background: rgba(0,0,0,0.4);
       backdrop-filter: blur(5px);
-      justify-content: center; align-items: center;
+      justify-content: center;
+      align-items: center;
       animation: fadeIn 0.3s ease;
     }
 
     .modal-content {
-      background: var(--bg);
+      background: var(--white);
       padding: 30px;
-      border-radius: 18px;
-      width: 90%; max-width: 380px;
-      box-shadow: 0 8px 30px rgba(0,0,0,0.15);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 380px;
       text-align: left;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
       animation: zoomIn 0.25s ease;
+    }
+
+    .modal-content h3 {
+      margin-top: 0;
+      font-size: 1.2rem;
+      color: var(--text-main);
     }
 
     .modal-content input, .modal-content select {
@@ -145,8 +168,8 @@
       border-radius: 12px;
       border: 1px solid var(--border);
       font-size: 1rem;
-      background: #fafafa;
-      transition: border 0.2s;
+      background: #f9f9fb;
+      transition: border-color 0.2s;
     }
 
     .modal-content input:focus, .modal-content select:focus {
@@ -156,13 +179,14 @@
 
     .book-btn {
       background: var(--accent);
-      border: none;
       color: #fff;
-      font-weight: 500;
+      border: none;
       border-radius: 12px;
       padding: 12px;
+      font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
-      transition: 0.3s;
+      transition: background 0.3s;
       width: 100%;
     }
 
@@ -175,13 +199,6 @@
       font-size: 20px;
       cursor: pointer;
       color: var(--text-muted);
-    }
-
-    footer {
-      margin-top: 80px;
-      padding: 20px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
     }
 
     @keyframes fadeIn {
@@ -213,7 +230,6 @@
 
   <footer>© 2025 Lowcost Cleaning</footer>
 
-  <!-- Модальное окно -->
   <div id="bookingModal" class="modal">
     <div class="modal-content">
       <span class="close" onclick="closeModal()">×</span>
@@ -230,9 +246,9 @@
     </div>
   </div>
 
-  <!-- 🔧 Подключаем функционал -->
+  <!-- 👇 Подключаем весь твой рабочий JavaScript -->
   <script>
-  // сюда вставляется актуальный JS (из твоей версии с исправленным generateCalendar)
+  /* Вставь сюда твой JS из текущей рабочей версии (тот, что выше) */
   </script>
 </body>
 </html>
