@@ -48,13 +48,19 @@
     }
 
     /* --- Календарь --- */
+    .calendar-container {
+      display: none; /* скрыт по умолчанию */
+      flex-direction: column;
+      align-items: center;
+      animation: fadeInUp 0.6s ease forwards;
+    }
+
     .calendar {
       max-width: 340px;
-      margin: 0 auto;
       display: grid;
       grid-template-columns: repeat(7, 1fr);
       gap: 8px;
-      margin-top: 30px;
+      margin-top: 20px;
     }
 
     .day {
@@ -76,7 +82,6 @@
       transform: scale(1.1);
     }
 
-    /* 🔴 Занятые даты */
     .unavailable {
       background: #ffcccc;
       color: #a00;
@@ -85,9 +90,15 @@
     }
 
     .calendar-header {
-      margin-top: 30px;
+      margin-top: 20px;
       font-weight: 600;
       font-size: 1.3rem;
+    }
+
+    .legend {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #666;
     }
 
     /* --- Модалка --- */
@@ -101,6 +112,7 @@
       justify-content: center;
       align-items: center;
     }
+
     .modal-content {
       background: #fff;
       padding: 25px;
@@ -110,6 +122,7 @@
       text-align: left;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
+
     .modal-content input {
       width: 100%;
       padding: 10px;
@@ -118,6 +131,7 @@
       border: 1px solid #ccc;
       font-size: 1rem;
     }
+
     .book-btn {
       background: #000;
       color: #fff;
@@ -140,14 +154,17 @@
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Выберите тип уборки и доступную дату</p>
+    <p>Уборка по фикс цене. Быстро, чисто, без лишнего.</p>
     <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
     <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
   </header>
 
-  <div class="calendar-container">
+  <div class="calendar-container" id="calendarContainer">
     <div class="calendar-header" id="monthLabel"></div>
     <div class="calendar" id="calendar"></div>
+    <div class="legend">
+      🟢 — свободно &nbsp;&nbsp;&nbsp; 🔴 — занято
+    </div>
   </div>
 
   <footer>© 2025 Lowcost Cleaning</footer>
@@ -164,14 +181,16 @@
   </div>
 
   <script>
-    // 🔴 Занятые даты (15, 16, 17 октября)
+    // 🔴 Занятые даты (15–17 октября)
     const unavailableDates = ["2025-10-15", "2025-10-16", "2025-10-17"];
     let selectedService = "";
     let selectedDate = "";
 
     function chooseService(service) {
       selectedService = service;
+      document.getElementById("calendarContainer").style.display = "flex"; // показать календарь
       generateCalendar();
+      window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 50, behavior: "smooth" });
     }
 
     // === Генерация календаря ===
@@ -228,14 +247,13 @@
         return;
       }
 
-      const message = encodeURIComponent(`🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`);
-      const telegramLink = `https://t.me/@kalendaruborok_bot?text=${message}`; // 👈 твой бот
+      const message = encodeURIComponent(
+        `🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`
+      );
+      const telegramLink = `https://t.me/kalendaruborok_bot?text=${message}`; // 👈 твой бот
       window.open(telegramLink, "_blank");
       closeModal();
     }
-
-    // автоинициализация
-    generateCalendar();
   </script>
 </body>
 </html>
