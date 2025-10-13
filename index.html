@@ -200,8 +200,7 @@ const normalizedBusy = busyDates.map(d => {
 if (normalizedBusy.includes(dateStr)) {
   className = "unavailable";
   click = "";
-}
-;
+
         } else if (dateObj < new Date().setHours(0,0,0,0)) {
           className = "past";
           click = "";
