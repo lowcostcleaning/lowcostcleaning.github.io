@@ -137,7 +137,7 @@
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Выберите тип уборки и дату</p>
+    <p>Выберите тип уборки и доступную дату</p>
     <button class="btn" onclick="chooseService('🏠 Студия — 90₾')">🏠 Студия — 90₾</button>
     <button class="btn" onclick="chooseService('🛏 1+1 — 120₾')">🛏 1+1 — 120₾</button>
   </header>
@@ -161,7 +161,8 @@
   </div>
 
   <script>
-    const availableDates = ["2025-10-15", "2025-10-17", "2025-10-20", "2025-10-22", "2025-10-25"];
+    // ❌ Занятые даты (15, 16, 17 октября)
+    const unavailableDates = ["2025-10-15", "2025-10-16", "2025-10-17"];
     let selectedService = "";
     let selectedDate = "";
 
@@ -189,13 +190,13 @@
         const div = document.createElement("div");
         div.classList.add("day");
 
-        if (availableDates.includes(dayDate)) {
+        if (unavailableDates.includes(dayDate)) {
+          div.classList.add("unavailable");
+          div.innerText = i;
+        } else {
           div.classList.add("available");
           div.innerText = i;
           div.onclick = () => openModal(dayDate);
-        } else {
-          div.classList.add("unavailable");
-          div.innerText = i;
         }
 
         calendar.appendChild(div);
