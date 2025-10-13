@@ -12,15 +12,11 @@
       background: #fff;
       color: #111;
     }
-
     header {
       padding: 80px 20px 40px;
-      animation: fadeIn 1s ease-in-out;
     }
-
     h1 { margin: 10px 0; font-size: 2rem; }
     p { color: #555; margin-bottom: 30px; }
-
     .btn {
       background: #000;
       color: #fff;
@@ -32,7 +28,6 @@
       margin: 5px;
       transition: all 0.3s;
     }
-
     .btn:hover { background: #333; transform: scale(1.05); }
 
     .calendar-container {
@@ -40,9 +35,7 @@
       flex-direction: column;
       align-items: center;
       margin-top: 30px;
-      animation: fadeIn 0.6s ease-in-out;
     }
-
     table { border-collapse: collapse; margin-top: 10px; }
     th, td {
       width: 42px; height: 42px;
@@ -50,7 +43,6 @@
       border-radius: 8px;
       font-size: 0.95rem;
     }
-
     th { color: #666; font-weight: 600; }
 
     .available { background: #e7fbe7; color: #0a0; cursor: pointer; transition: 0.2s; }
@@ -70,7 +62,6 @@
       background: rgba(0,0,0,0.6);
       justify-content: center; align-items: center;
     }
-
     .modal-content {
       background: #fff;
       padding: 25px;
@@ -79,26 +70,19 @@
       max-width: 360px;
       text-align: left;
       box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-      animation: fadeIn 0.4s ease-in-out;
     }
-
     .modal-content input {
       width: 100%; padding: 10px; margin-bottom: 12px;
       border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
     }
-
     .book-btn {
       background: #000; color: #fff; border: none;
       padding: 10px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%;
     }
-
     .book-btn:hover { background: #333; }
-
     .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
 
     footer { margin-top: 60px; padding: 20px; color: #888; font-size: 0.9rem; }
-
-    @keyframes fadeIn { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 <body>
@@ -128,9 +112,8 @@
   </div>
 
   <script>
-    const SHEET_ID = "1RuT1hrD76olFtMu4JDV5D9d5ocZ9Hlg5xQG3Wl9UInE";
-    const SHEET_NAME = "Лист1";
-    const API_URL = `https://docs.google.com/spreadsheets/d/${SHEET_ID}/gviz/tq?tqx=out:json&sheet=${SHEET_NAME}`;
+    // Используем твою опубликованную таблицу
+    const API_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?output=csv";
 
     let selectedService = "";
     let selectedDate = "";
@@ -139,38 +122,23 @@
       try {
         const res = await fetch(API_URL);
         const text = await res.text();
-
-        // Проверяем формат
-        if (!text.startsWith("/**/ google.visualization")) {
-          console.warn("Некорректный ответ Google Sheets:", text.slice(0, 100));
-          return [];
-        }
-
-        // Извлекаем JSON из обертки
-        const jsonText = text.substring(text.indexOf("(") + 1, text.lastIndexOf(")"));
-        const data = JSON.parse(jsonText);
-        const rows = data.table.rows;
+        const rows = text.split("\n").map(r => r.split(","));
         const busy = [];
 
-        for (const row of rows) {
-          if (!row.c || !row.c[0] || !row.c[1]) continue;
-          const rawDate = JSON.stringify(row.c[0]);
-          const status = (row.c[1].v || "").toLowerCase();
-
-          const match = /Date\((\d+),(\d+),(\d+)\)/.exec(rawDate);
-          if (match) {
-            const y = parseInt(match[1]);
-            const m = parseInt(match[2]) + 1;
-            const d = parseInt(match[3]);
-            const formatted = `${y}-${String(m).padStart(2, "0")}-${String(d).padStart(2, "0")}`;
-            if (status.includes("занято")) busy.push(formatted);
+        for (let i = 1; i < rows.length; i++) {
+          const row = rows[i];
+          if (row.length < 2) continue;
+          const date = row[0].trim();
+          const status = row[1].trim().toLowerCase();
+          if (status.includes("занято")) {
+            busy.push(date);
           }
         }
 
         console.log("📅 Занятые даты:", busy);
         return busy;
       } catch (err) {
-        console.error("Ошибка загрузки из Google Sheets:", err);
+        console.error("Ошибка при получении данных таблицы:", err);
         return [];
       }
     }
@@ -190,7 +158,7 @@
 
       const now = new Date();
       const year = now.getFullYear();
-      const month = now.getMonth();
+      const month = now.getMonth(); // текущий месяц
       const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
       monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
 
@@ -202,7 +170,9 @@
       const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
       html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-      for (let i = 0; i < offset; i++) html += "<td></td>";
+      for (let i = 0; i < offset; i++) {
+        html += `<td></td>`;
+      }
 
       for (let i = 1; i <= daysInMonth; i++) {
         const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
@@ -219,7 +189,9 @@
         }
 
         html += `<td class="${className}" ${click}>${i}</td>`;
-        if ((i + offset) % 7 === 0) html += "</tr><tr>";
+        if ((i + offset) % 7 === 0) {
+          html += "</tr><tr>";
+        }
       }
 
       html += "</tr>";
@@ -232,7 +204,9 @@
       document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
       modal.style.display = "flex";
     }
-    function closeModal() { modal.style.display = "none"; }
+    function closeModal() {
+      modal.style.display = "none";
+    }
 
     function sendBooking() {
       const name = document.getElementById("clientName").value.trim();
