@@ -1,81 +1,8 @@
- (cd "$(git rev-parse --show-toplevel)" && git apply --3way <<'EOF' 
 diff --git a/index.html b/index.html
-index df52977013a657fc540e91a04ef8deb4616afff6..e94724e6aaa564acbf9c47122aae9a99021907d7 100644
+index df52977013a657fc540e91a04ef8deb4616afff6..2b48d1e7363da522f4efae15bb9eaaa0c04f3e7c 100644
 --- a/index.html
 +++ b/index.html
-@@ -41,70 +41,118 @@
-       justify-content: center;
-       gap: 20px;
-       flex-wrap: wrap;
-       opacity: 0;
-       transform: translateY(20px);
-       animation: fadeInUp 1.6s ease forwards;
-       animation-delay: 0.6s;
-     }
- 
-     .btn {
-       background: #000;
-       color: #fff;
-       border: none;
-       padding: 14px 34px;
-       border-radius: 12px;
-       font-size: 1rem;
-       cursor: pointer;
-       transition: all 0.3s ease;
-     }
- 
-     .btn:hover {
-       background: #333;
-       transform: scale(1.05);
-     }
- 
-+    .cta {
-+      margin-top: 36px;
-+      opacity: 0;
-+      transform: translateY(15px);
-+      animation: fadeInUp 1.6s ease forwards;
-+      animation-delay: 0.9s;
-+    }
-+
-+    .cta__link {
-+      display: inline-flex;
-+      align-items: center;
-+      gap: 10px;
-+      padding: 14px 28px;
-+      border-radius: 999px;
-+      background: #00a86b;
-+      color: #fff;
-+      font-size: 1rem;
-+      font-weight: 600;
-+      text-decoration: none;
-+      box-shadow: 0 14px 30px rgba(0, 168, 107, 0.25);
-+      transition: transform 0.3s ease, box-shadow 0.3s ease, background 0.3s ease;
-+    }
-+
-+    .cta__link:hover,
-+    .cta__link:focus {
-+      background: #00915c;
-+      transform: translateY(-2px);
-+      box-shadow: 0 16px 34px rgba(0, 168, 107, 0.35);
-+    }
-+
-+    .cta__link:focus {
-+      outline: none;
-+      box-shadow: 0 0 0 3px rgba(0, 168, 107, 0.35);
-+    }
-+
-     footer {
-       opacity: 0;
-       transform: translateY(20px);
-       animation: fadeInUp 1.2s ease forwards;
-       animation-delay: 1.2s;
-       margin-top: 100px;
-       padding: 20px;
-       color: #888;
-       font-size: 0.9rem;
-     }
- 
-     /* --- Анимация появления --- */
+@@ -78,33 +78,34 @@
      @keyframes fadeInUp {
        from { opacity: 0; transform: translateY(30px); }
        to { opacity: 1; transform: translateY(0); }
@@ -90,14 +17,6 @@ index df52977013a657fc540e91a04ef8deb4616afff6..e94724e6aaa564acbf9c47122aae9a99
          width: 100%;
          max-width: 300px;
        }
-+      .cta {
-+        margin-top: 28px;
-+      }
-+      .cta__link {
-+        width: 100%;
-+        max-width: 320px;
-+        justify-content: center;
-+      }
      }
    </style>
  </head>
@@ -110,10 +29,6 @@ index df52977013a657fc540e91a04ef8deb4616afff6..e94724e6aaa564acbf9c47122aae9a99
        <button class="btn">🏠 Студия — 90₾</button>
        <button class="btn">🛏 1+1 — 120₾</button>
 +      <button class="btn">🧼 Химчистка — 50₾</button>
-+    </div>
-+
-+    <div class="cta">
-+      <a class="cta__link" href="tel:+995598123456">📞 Заказать уборку</a>
      </div>
    </header>
  
@@ -122,6 +37,3 @@ index df52977013a657fc540e91a04ef8deb4616afff6..e94724e6aaa564acbf9c47122aae9a99
    </footer>
  </body>
  </html>
- 
-EOF
-)
