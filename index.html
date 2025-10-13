@@ -111,25 +111,25 @@
     </div>
   </div>
 
- <script>
+<script>
 const API_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?output=csv";
 
 let selectedService = "";
 let selectedDate = "";
+let isLoading = false; // 👈 блокировка повторных нажатий
+let lastFetchId = 0;   // 👈 контроль актуального запроса
 
-async function getBusyDates() {
+async function getBusyDates(fetchId) {
   try {
-    // 👇 добавляем принудительный "анти-кэш" и повтор при сбое
-    const response = await fetch(API_URL + `&nocache=${Date.now()}`, { cache: "no-store" });
-    const text = await response.text();
+    const res = await fetch(API_URL + `&nocache=${Date.now()}`, { cache: "no-store" });
+    const text = await res.text();
     const rows = text.split("\n").map(r => r.split(","));
     const busy = [];
 
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
-      if (!row[0] || !row[1]) continue;
-
+      if (row.length < 2) continue;
       let date = row[0].trim().replace(/"/g, "");
       const status = row[1].trim().toLowerCase();
 
@@ -142,32 +142,43 @@ async function getBusyDates() {
       }
     }
 
-    console.log("📅 Занятые даты:", busy);
-    return busy;
+    // Если это всё ещё актуальный запрос, возвращаем данные
+    if (fetchId === lastFetchId) {
+      console.log("📅 Занятые даты:", busy);
+      return busy;
+    } else {
+      console.log("⏩ Пропущен устаревший ответ");
+      return [];
+    }
+
   } catch (err) {
-    console.error("Ошибка загрузки таблицы:", err);
+    console.error("Ошибка загрузки:", err);
     return [];
   }
 }
 
 async function chooseService(service) {
+  if (isLoading) return; // 🔒 не даём нажать повторно, пока грузится
+  isLoading = true;
   selectedService = service;
+  lastFetchId++; // 👈 новый идентификатор запроса
+
   const container = document.getElementById("calendarContainer");
   container.style.display = "flex";
   container.scrollIntoView({ behavior: "smooth" });
-
-  // ⏳ показываем сообщение "Загрузка"
   document.getElementById("calendar").innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
 
-  // 🔁 гарантированный перезапрос до успеха (2 попытки)
-  let busyDates = await getBusyDates();
-  if (!busyDates.length) {
-    console.warn("🔁 Повторный запрос к таблице...");
-    await new Promise(r => setTimeout(r, 1200));
-    busyDates = await getBusyDates();
+  const busyDates = await getBusyDates(lastFetchId);
+  if (busyDates.length === 0) {
+    console.warn("⚠️ Нет данных — повторная попытка через 1 сек.");
+    await new Promise(r => setTimeout(r, 1000));
+    const retry = await getBusyDates(lastFetchId);
+    generateCalendar(retry.length ? retry : []);
+  } else {
+    generateCalendar(busyDates);
   }
 
-  generateCalendar(busyDates);
+  isLoading = false; // ✅ снова можно нажимать
 }
 
 function generateCalendar(busyDates = []) {
@@ -246,6 +257,7 @@ function sendBooking() {
   closeModal();
 }
 </script>
+
 
 </body>
 </html>
