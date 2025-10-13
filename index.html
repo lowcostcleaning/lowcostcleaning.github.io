@@ -66,10 +66,29 @@
       transition: all 0.25s ease;
     }
     th { color: var(--text-muted); font-weight: 500; padding-bottom: 8px; }
-    .available { background: #f2f2f7; cursor: pointer; color: #1c1c1e; }
-    .available:hover { background: var(--accent); color: #fff; transform: scale(1.1); }
-    .unavailable { background: #ffdad4; color: #a40000; cursor: not-allowed; }
-    .past { background: #e5e5ea; color: #8e8e93; cursor: not-allowed; }
+    .available {
+  background: rgba(52, 199, 89, 0.15); /* прозрачный зелёный */
+  color: #007a1c;
+  cursor: pointer;
+  transition: all 0.25s ease;
+}
+.available:hover {
+  background: rgba(52, 199, 89, 0.3);
+  transform: scale(1.1);
+}
+
+.unavailable {
+  background: rgba(255, 59, 48, 0.15); /* прозрачный красный */
+  color: #a40000;
+  cursor: not-allowed;
+}
+
+.past {
+  background: rgba(142, 142, 147, 0.2); /* мягкий серый */
+  color: #8e8e93;
+  cursor: not-allowed;
+}
+
     .legend { margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); }
     footer { margin-top: 80px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; }
 
