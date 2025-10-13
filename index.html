@@ -229,7 +229,7 @@
       }
 
       const message = encodeURIComponent(`🧹 Новая запись на уборку:\n${selectedService}\n📅 Дата: ${selectedDate}\n👤 Имя: ${name}\n📞 Телефон: ${phone}`);
-      const telegramLink = `https://t.me/lowcost_cleaning_bot?text=${message}`; // 👈 твой бот
+      const telegramLink = `https://t.me/@kalendaruborok_bot?text=${message}`; // 👈 твой бот
       window.open(telegramLink, "_blank");
       closeModal();
     }
