@@ -82,6 +82,8 @@
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
     <p>Выберите услугу:</p>
+    <button class="btn" onclick="chooseService('🏠 Студия — 90₾', 'Главный')">🏠 Студия — 90₾</button>
+    <button class="btn" onclick="chooseService('🛏 1+1 — 120₾', 'Главный')">🛏 1+1 — 120₾</button>
     <button class="btn" onclick="chooseService('🧺 Химчистка мебели — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
     <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
   </header>
@@ -118,10 +120,17 @@
   <script>
 const BASE_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
+
 let selectedService = "", selectedDate = "", currentSheet = "";
 
+// 🔧 Подставь реальные GID листов:
+const gids = { 
+  "Главный": "0",          // ← лист для студии и 1+1
+  "Химчистка": "591986483", // ← GID листа "Химчистка"
+  "Апартаменты": "1636464154" // ← GID листа "Апартаменты"
+};
+
 async function getBusyDates(sheetName) {
-  const gids = { "Химчистка": "591986483", "Апартаменты": "1636464154" }; // 🔹 укажи GID листов (в URL после ?gid=)
   const gid = gids[sheetName] || "0";
   const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
 
@@ -130,11 +139,13 @@ async function getBusyDates(sheetName) {
     const text = await res.text();
     const rows = text.split("\n").map(r => r.split(","));
     const busy = [];
+
     for (let i = 1; i < rows.length; i++) {
       const row = rows[i];
       if (row.length < 2) continue;
       let date = row[0].trim().replace(/"/g, "");
       const status = row[1].trim().toLowerCase();
+
       if (status.includes("занято")) {
         if (date.includes(".")) {
           const [d, m, y] = date.split(".");
