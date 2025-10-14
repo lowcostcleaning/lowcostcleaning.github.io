@@ -5,103 +5,223 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lowcost Cleaning — Календарь</title>
   <style>
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-      text-align: center; margin: 0;
-      background: #fff; color: #111;
-    }
-    header { padding: 80px 20px 40px; }
-    h1 { margin: 10px 0; font-size: 2rem; }
-    p { color: #555; margin-bottom: 30px; }
+    :root {
+  --bg-light: #fafafa;
+  --text-primary: #111;
+  --text-muted: #666;
+  --accent: #000;
+  --radius: 14px;
+  --shadow-soft: 0 8px 20px rgba(0,0,0,0.08);
+}
 
-    .btn {
-      background: #000; color: #fff; border: none;
-      padding: 14px 34px; border-radius: 12px;
-      font-size: 1rem; cursor: pointer; margin: 5px;
-      transition: all 0.3s;
-    }
-    .btn:hover { background: #333; transform: scale(1.05); }
+/* ====== ОСНОВНОЕ ====== */
+body {
+  font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+  text-align: center;
+  margin: 0;
+  background: var(--bg-light);
+  color: var(--text-primary);
+  -webkit-font-smoothing: antialiased;
+}
 
-    .calendar-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 30px;
-    }
-    table { border-collapse: collapse; margin-top: 10px; }
-    th, td {
-      width: 80px; height: 80px;
-      text-align: center;
-      border-radius: 12px;
-      vertical-align: top;
-      font-size: 0.9rem;
-      position: relative;
-      padding-top: 5px;
-    }
-    th { color: #666; font-weight: 600; }
+header {
+  padding: 80px 20px 40px;
+}
 
-    .available { background: rgba(52,199,89,0.15); color: #007a1c; cursor: pointer; transition: 0.2s; }
-    .available:hover { background: rgba(52,199,89,0.3); transform: scale(1.03); }
-    .unavailable { background: rgba(255,59,48,0.15); color: #a40000; cursor: not-allowed; }
-    .past { background: rgba(142,142,147,0.2); color: #8e8e93; cursor: not-allowed; }
+h1 {
+  margin: 10px 0;
+  font-size: 2.2rem;
+  font-weight: 700;
+  letter-spacing: -0.5px;
+}
 
-    .slot {
-      display: inline-block;
-      font-size: 0.65rem;
-      margin: 2px;
-      padding: 2px 5px;
-      border-radius: 6px;
-      transition: 0.2s;
-    }
-    .slot.free { background: rgba(52,199,89,0.2); color: #007a1c; cursor: pointer; }
-    .slot.busy { background: rgba(255,59,48,0.25); color: #a40000; }
-    .slot.free:hover { background: rgba(52,199,89,0.35); }
+p {
+  color: var(--text-muted);
+  margin-bottom: 30px;
+}
 
-    .legend {
-      margin-top: 15px;
-      font-size: 0.9rem;
-      color: #666;
-    }
-    .dot {
-      display: inline-block;
-      width: 12px; height: 12px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
-      border: 1px solid rgba(0,0,0,0.15);
-    }
-    .dot.free { background: rgba(52,199,89,0.4); border-color: rgba(52,199,89,0.5); }
-    .dot.busy { background: rgba(255,59,48,0.4); border-color: rgba(255,59,48,0.5); }
-    .dot.past { background: rgba(142,142,147,0.3); border-color: rgba(142,142,147,0.4); }
+/* ====== КНОПКИ ====== */
+.btn {
+  background: var(--accent);
+  color: #fff;
+  border: none;
+  padding: 14px 34px;
+  border-radius: var(--radius);
+  font-size: 1rem;
+  cursor: pointer;
+  margin: 5px;
+  transition: all 0.3s ease;
+  box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+}
+.btn:hover {
+  background: #222;
+  transform: scale(1.04);
+}
 
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10; left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.6);
-      justify-content: center; align-items: center;
-    }
-    .modal-content {
-      background: #fff; padding: 25px;
-      border-radius: 16px;
-      width: 90%; max-width: 360px;
-      text-align: left;
-      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
-    }
-    .modal-content input {
-      width: 100%; padding: 10px; margin-bottom: 12px;
-      border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
-    }
-    .book-btn {
-      background: #000; color: #fff; border: none;
-      padding: 10px 20px; border-radius: 8px;
-      font-size: 1rem; cursor: pointer; width: 100%;
-    }
-    .book-btn:hover { background: #333; }
-    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
+/* ====== КАЛЕНДАРЬ ====== */
+.calendar-container {
+  display: none;
+  flex-direction: column;
+  align-items: center;
+  margin-top: 30px;
+}
 
-    footer { margin-top: 60px; padding: 20px; color: #888; font-size: 0.9rem; }
+table {
+  border-collapse: collapse;
+  margin-top: 10px;
+  box-shadow: var(--shadow-soft);
+  border-radius: var(--radius);
+  background: #fff;
+}
+
+th, td {
+  width: 80px;
+  height: 80px;
+  text-align: center;
+  border-radius: 10px;
+  vertical-align: top;
+  font-size: 0.9rem;
+  padding-top: 6px;
+  transition: 0.2s ease;
+}
+th {
+  color: var(--text-muted);
+  font-weight: 600;
+}
+
+/* ====== СТАТУСЫ ====== */
+.available {
+  background: rgba(52,199,89,0.15);
+  color: #007a1c;
+  cursor: pointer;
+}
+.available:hover {
+  background: rgba(52,199,89,0.3);
+  transform: scale(1.03);
+}
+.unavailable {
+  background: rgba(255,59,48,0.25);
+  color: #a40000;
+  cursor: not-allowed;
+}
+.past {
+  background: rgba(142,142,147,0.25);
+  color: #8e8e93;
+  cursor: not-allowed;
+}
+
+/* ====== СЛОТЫ ====== */
+.slot {
+  display: inline-block;
+  font-size: 0.65rem;
+  margin: 2px;
+  padding: 2px 5px;
+  border-radius: 6px;
+  transition: 0.2s;
+}
+.slot.free {
+  background: rgba(52,199,89,0.2);
+  color: #007a1c;
+  cursor: pointer;
+}
+.slot.busy {
+  background: rgba(255,59,48,0.25);
+  color: #a40000;
+}
+.slot.free:hover {
+  background: rgba(52,199,89,0.35);
+}
+
+/* ====== ПОДСКАЗКА ====== */
+.legend {
+  margin-top: 15px;
+  font-size: 0.9rem;
+  color: var(--text-muted);
+}
+.dot {
+  display: inline-block;
+  width: 12px; height: 12px;
+  border-radius: 50%;
+  margin-right: 6px;
+  vertical-align: middle;
+  border: 1px solid rgba(0,0,0,0.15);
+}
+.dot.free {
+  background: rgba(52, 199, 89, 0.4);
+  border-color: rgba(52, 199, 89, 0.5);
+}
+.dot.busy {
+  background: rgba(255, 59, 48, 0.4);
+  border-color: rgba(255, 59, 48, 0.5);
+}
+.dot.past {
+  background: rgba(142, 142, 147, 0.3);
+  border-color: rgba(142, 142, 147, 0.4);
+}
+
+/* ====== МОДАЛКА ====== */
+.modal {
+  display: none;
+  position: fixed;
+  z-index: 10;
+  left: 0; top: 0;
+  width: 100%; height: 100%;
+  background: rgba(0,0,0,0.5);
+  backdrop-filter: blur(8px);
+  justify-content: center;
+  align-items: center;
+}
+
+.modal-content {
+  background: #fff;
+  padding: 25px;
+  border-radius: 16px;
+  width: 90%;
+  max-width: 360px;
+  text-align: left;
+  box-shadow: var(--shadow-soft);
+  animation: fadeIn 0.3s ease;
+}
+.modal-content input {
+  width: 100%;
+  padding: 10px;
+  margin-bottom: 12px;
+  border-radius: 8px;
+  border: 1px solid #ccc;
+  font-size: 1rem;
+  transition: border-color 0.2s ease;
+}
+.modal-content input:focus {
+  outline: none;
+  border-color: #007aff;
+}
+
+.book-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 12px 20px;
+  border-radius: 8px;
+  font-size: 1rem;
+  cursor: pointer;
+  width: 100%;
+  transition: background 0.3s ease;
+}
+.book-btn:hover { background: #333; }
+.close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
+
+footer {
+  margin-top: 80px;
+  padding: 20px;
+  color: var(--text-muted);
+  font-size: 0.9rem;
+}
+
+/* ====== АНИМАЦИЯ ====== */
+@keyframes fadeIn {
+  from { opacity: 0; transform: scale(0.98); }
+  to { opacity: 1; transform: scale(1); }
+}
   </style>
 </head>
 <body>
