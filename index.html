@@ -3,168 +3,105 @@
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-  <title>Lowcost Cleaning — Бронирование</title>
+  <title>Lowcost Cleaning — Календарь</title>
   <style>
-    :root {
-      --accent: #007aff;
-      --text-main: #1c1c1e;
-      --text-muted: #6e6e73;
-      --bg: #f9f9fb;
-      --white: #fff;
-      --border: rgba(0, 0, 0, 0.1);
-      --radius: 14px;
-      --shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-    * { box-sizing: border-box; }
     body {
-      margin: 0;
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", "SF Pro Text", Roboto, sans-serif;
-      background: var(--bg);
-      color: var(--text-main);
-      text-align: center;
-      -webkit-font-smoothing: antialiased;
+      font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+      text-align: center; margin: 0;
+      background: #fff; color: #111;
     }
-    header { padding: 80px 20px 40px; animation: fadeIn 1s ease; }
-    h1 { font-size: 2.4rem; font-weight: 600; margin: 0 0 10px; letter-spacing: -0.5px; }
-    p { color: var(--text-muted); font-size: 1.1rem; margin-bottom: 40px; }
+    header { padding: 80px 20px 40px; }
+    h1 { margin: 10px 0; font-size: 2rem; }
+    p { color: #555; margin-bottom: 30px; }
 
     .btn {
-      background: rgba(255,255,255,0.8);
-      border: 1px solid var(--border);
-      border-radius: var(--radius);
-      padding: 14px 34px;
-      margin: 6px;
-      font-size: 1rem;
-      font-weight: 500;
-      color: var(--text-main);
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: var(--shadow);
-      backdrop-filter: blur(8px);
+      background: #000; color: #fff; border: none;
+      padding: 14px 34px; border-radius: 12px;
+      font-size: 1rem; cursor: pointer; margin: 5px;
+      transition: all 0.3s;
     }
-    .btn:hover {
-      transform: translateY(-2px);
-      color: var(--accent);
-      border-color: var(--accent);
-      box-shadow: 0 6px 18px rgba(0,0,0,0.08);
-    }
+    .btn:hover { background: #333; transform: scale(1.05); }
 
     .calendar-container {
       display: none;
       flex-direction: column;
       align-items: center;
-      margin-top: 40px;
-      animation: fadeIn 0.6s ease forwards;
+      margin-top: 30px;
     }
-
-    table { border-collapse: collapse; margin-top: 20px; }
+    table { border-collapse: collapse; margin-top: 10px; }
     th, td {
-      width: 42px; height: 42px;
+      width: 80px; height: 80px;
       text-align: center;
-      border-radius: 10px;
-      font-size: 0.95rem;
-      transition: all 0.25s ease;
+      border-radius: 12px;
+      vertical-align: top;
+      font-size: 0.9rem;
+      position: relative;
+      padding-top: 5px;
     }
-    th { color: var(--text-muted); font-weight: 500; padding-bottom: 8px; }
-    .available {
-  background: rgba(52, 199, 89, 0.15); /* прозрачный зелёный */
-  color: #007a1c;
-  cursor: pointer;
-  transition: all 0.25s ease;
-}
-.available:hover {
-  background: rgba(52, 199, 89, 0.3);
-  transform: scale(1.1);
-}
+    th { color: #666; font-weight: 600; }
 
-.unavailable {
-  background: rgba(255, 59, 48, 0.15); /* прозрачный красный */
-  color: #a40000;
-  cursor: not-allowed;
-}
+    .available { background: rgba(52,199,89,0.15); color: #007a1c; cursor: pointer; transition: 0.2s; }
+    .available:hover { background: rgba(52,199,89,0.3); transform: scale(1.03); }
+    .unavailable { background: rgba(255,59,48,0.15); color: #a40000; cursor: not-allowed; }
+    .past { background: rgba(142,142,147,0.2); color: #8e8e93; cursor: not-allowed; }
 
-.past {
-  background: rgba(142, 142, 147, 0.2); /* мягкий серый */
-  color: #8e8e93;
-  cursor: not-allowed;
-}
+    .slot {
+      display: inline-block;
+      font-size: 0.65rem;
+      margin: 2px;
+      padding: 2px 5px;
+      border-radius: 6px;
+      transition: 0.2s;
+    }
+    .slot.free { background: rgba(52,199,89,0.2); color: #007a1c; cursor: pointer; }
+    .slot.busy { background: rgba(255,59,48,0.25); color: #a40000; }
+    .slot.free:hover { background: rgba(52,199,89,0.35); }
 
-    .legend { margin-top: 20px; font-size: 0.9rem; color: var(--text-muted); }
+    .legend {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: #666;
+    }
     .dot {
-  display: inline-block;
-  width: 12px;
-  height: 12px;
-  border-radius: 50%;
-  margin-right: 6px;
-  vertical-align: middle;
-  border: 1px solid rgba(0,0,0,0.15);
-}
-
-.dot.free {
-  background: rgba(52, 199, 89, 0.4); /* прозрачный зелёный */
-  border-color: rgba(52, 199, 89, 0.5);
-}
-
-.dot.busy {
-  background: rgba(255, 59, 48, 0.4); /* прозрачный красный */
-  border-color: rgba(255, 59, 48, 0.5);
-}
-
-.dot.past {
-  background: rgba(142, 142, 147, 0.3); /* серый */
-  border-color: rgba(142, 142, 147, 0.4);
-}
-
-    footer { margin-top: 80px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; }
+      display: inline-block;
+      width: 12px; height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+    .dot.free { background: rgba(52,199,89,0.4); border-color: rgba(52,199,89,0.5); }
+    .dot.busy { background: rgba(255,59,48,0.4); border-color: rgba(255,59,48,0.5); }
+    .dot.past { background: rgba(142,142,147,0.3); border-color: rgba(142,142,147,0.4); }
 
     .modal {
       display: none;
       position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
+      z-index: 10; left: 0; top: 0;
       width: 100%; height: 100%;
-      background: rgba(0,0,0,0.4);
-      backdrop-filter: blur(5px);
+      background: rgba(0,0,0,0.6);
       justify-content: center; align-items: center;
-      animation: fadeIn 0.3s ease;
     }
     .modal-content {
-      background: var(--white);
-      padding: 30px;
-      border-radius: 20px;
-      width: 90%; max-width: 380px;
+      background: #fff; padding: 25px;
+      border-radius: 16px;
+      width: 90%; max-width: 360px;
       text-align: left;
-      box-shadow: 0 10px 30px rgba(0,0,0,0.15);
-      animation: zoomIn 0.25s ease;
+      box-shadow: 0 8px 20px rgba(0,0,0,0.2);
     }
-    .modal-content input, .modal-content select {
-      width: 100%; padding: 12px 14px; margin-bottom: 14px;
-      border-radius: 12px; border: 1px solid var(--border);
-      font-size: 1rem; background: #f9f9fb;
-      transition: border-color 0.2s;
-    }
-    .modal-content input:focus, .modal-content select:focus {
-      outline: none; border-color: var(--accent);
+    .modal-content input {
+      width: 100%; padding: 10px; margin-bottom: 12px;
+      border-radius: 8px; border: 1px solid #ccc; font-size: 1rem;
     }
     .book-btn {
-      background: var(--accent);
-      color: #fff;
-      border: none; border-radius: 12px;
-      padding: 12px; font-size: 1rem;
-      font-weight: 500; cursor: pointer;
-      transition: background 0.3s; width: 100%;
+      background: #000; color: #fff; border: none;
+      padding: 10px 20px; border-radius: 8px;
+      font-size: 1rem; cursor: pointer; width: 100%;
     }
-    .book-btn:hover { background: #005ce6; }
-    .close { float: right; font-size: 20px; cursor: pointer; color: var(--text-muted); }
+    .book-btn:hover { background: #333; }
+    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: translateY(20px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
-    @keyframes zoomIn {
-      from { opacity: 0; transform: scale(0.95); }
-      to { opacity: 1; transform: scale(1); }
-    }
+    footer { margin-top: 60px; padding: 20px; color: #888; font-size: 0.9rem; }
   </style>
 </head>
 <body>
@@ -173,7 +110,7 @@
     <p>Выберите услугу:</p>
     <button class="btn" onclick="chooseService('🏠 Студия — 90₾', 'Главный')">🏠 Студия — 90₾</button>
     <button class="btn" onclick="chooseService('🛏 1+1 — 120₾', 'Главный')">🛏 1+1 — 120₾</button>
-    <button class="btn" onclick="chooseService('🧺 Химчистка мебели — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
+    <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
     <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
   </header>
 
@@ -181,12 +118,10 @@
     <h2 id="monthLabel"></h2>
     <table id="calendar"></table>
     <div class="legend">
-  <span class="dot free"></span> свободно &nbsp;&nbsp;
-  <span class="dot busy"></span> занято &nbsp;&nbsp;
-  <span class="dot past"></span> прошло
-</div>
-
-
+      <span class="dot free"></span> свободно &nbsp;&nbsp;
+      <span class="dot busy"></span> занято &nbsp;&nbsp;
+      <span class="dot past"></span> прошло
+    </div>
   </div>
 
   <footer>© 2025 Lowcost Cleaning</footer>
@@ -197,10 +132,6 @@
       <h3 id="modalTitle">Бронирование</h3>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
-      <div id="timeContainer" style="display:none;">
-        <label for="timeSelect">Выберите время:</label>
-        <select id="timeSelect"><option value="">-- выберите время --</option></select>
-      </div>
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
     </div>
   </div>
@@ -209,40 +140,36 @@
 const BASE_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
 
-let selectedService = "", selectedDate = "", currentSheet = "";
 const gids = { 
   "Главный": "0",
   "Химчистка": "591986483",
   "Апартаменты": "1636464154"
 };
 
+let selectedService = "", selectedDate = "", selectedTime = "", currentSheet = "";
+
 async function getBusyDates(sheetName) {
-  const gid = gids[sheetName] || "0";
+  const gid = gids[sheetName];
   const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  try {
-    const res = await fetch(url, { cache: "no-store" });
-    const text = await res.text();
-    const rows = text.split("\n").map(r => r.split(","));
-    const busy = [];
-    for (let i = 1; i < rows.length; i++) {
-      const row = rows[i];
-      if (row.length < 2) continue;
-      let date = row[0].trim().replace(/"/g, "");
-      const status = row[row.length - 1].trim().toLowerCase();
-      const time = row.length > 2 ? row[1].trim() : "";
-      if (status.includes("занято")) {
-        if (date.includes(".")) {
-          const [d, m, y] = date.split(".");
-          date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-        }
-        busy.push(time ? `${date} ${time}` : date);
+  const res = await fetch(url);
+  const text = await res.text();
+  const rows = text.split("\n").map(r => r.split(","));
+  const busy = [];
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (r.length < 2) continue;
+    let date = r[0].trim().replace(/"/g, "");
+    const time = r[1] ? r[1].trim() : "";
+    const status = r[r.length - 1].trim().toLowerCase();
+    if (status.includes("занято")) {
+      if (date.includes(".")) {
+        const [d, m, y] = date.split(".");
+        date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
       }
+      busy.push(time ? `${date} ${time}` : date);
     }
-    return busy;
-  } catch (err) {
-    console.error("Ошибка загрузки:", err);
-    return [];
   }
+  return busy;
 }
 
 async function chooseService(service, sheet) {
@@ -255,50 +182,61 @@ async function chooseService(service, sheet) {
   window.scrollTo({ top: document.getElementById("calendarContainer").offsetTop - 20, behavior: "smooth" });
 }
 
-function generateCalendar(busyDates = []) {
+function generateCalendar(busyDates) {
   const calendar = document.getElementById("calendar");
   const monthLabel = document.getElementById("monthLabel");
   calendar.innerHTML = "";
-  const now = new Date(), year = now.getFullYear(), month = now.getMonth();
+
+  const now = new Date();
+  const year = now.getFullYear();
+  const month = now.getMonth();
   const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
   monthLabel.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
   const firstDay = new Date(year, month, 1).getDay();
   const offset = firstDay === 0 ? 6 : firstDay - 1;
   const daysInMonth = new Date(year, month + 1, 0).getDate();
 
-  let html = "<tr>", weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  let html = "<tr>";
+  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  const fullyBookedDays = [];
-  if (currentSheet === "Апартаменты") {
-    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    const grouped = {};
-    busyDates.forEach(entry => {
-      const [d, t] = entry.split(" ");
-      if (!grouped[d]) grouped[d] = [];
-      if (t) grouped[d].push(t);
-    });
-    for (const [date, times] of Object.entries(grouped)) {
-      if (times.length >= allTimes.length) fullyBookedDays.push(date);
-    }
-  }
-
   const normalizedBusy = busyDates.map(d => d.split(" ")[0]);
-  for (let i = 0; i < offset; i++) html += `<td></td>`;
+  const grouped = {};
+  busyDates.forEach(v => {
+    const [d, t] = v.split(" ");
+    if (!grouped[d]) grouped[d] = [];
+    if (t) grouped[d].push(t);
+  });
+
+  const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+
+  for (let i = 0; i < offset; i++) html += "<td></td>";
 
   for (let i = 1; i <= daysInMonth; i++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2, "0")}-${String(i).padStart(2, "0")}`;
+    const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
-    let className = "available", click = `onclick="openModal('${dateStr}')"`;
+    let className = "available";
+    let content = `<div>${i}</div>`;
 
-    if (currentSheet !== "Апартаменты" && normalizedBusy.includes(dateStr)) {
-      className = "unavailable"; click = "";
-    } else if (currentSheet === "Апартаменты" && fullyBookedDays.includes(dateStr)) {
-      className = "unavailable"; click = "";
-    } else if (dateObj < new Date().setHours(0,0,0,0)) {
-      className = "past"; click = "";
+    if (currentSheet === "Апартаменты") {
+      let slots = "";
+      const busyTimes = grouped[dateStr] || [];
+      allTimes.forEach(time => {
+        const isBusy = busyTimes.includes(time);
+        slots += `<div class="slot ${isBusy ? "busy" : "free"}" 
+          ${isBusy ? "" : `onclick="openModal('${dateStr}','${time}')"`}>${time.replace(":00","")}</div>`;
+      });
+      content = `<div>${i}</div><div>${slots}</div>`;
+      if (dateObj < new Date().setHours(0,0,0,0)) className = "past";
+    } else {
+      let click = `onclick="openModal('${dateStr}','')"`;
+      if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
+      else if (dateObj < new Date().setHours(0,0,0,0)) className = "past", click = "";
+      content = `<div ${click}>${i}</div>`;
     }
-    html += `<td class="${className}" ${click}>${i}</td>`;
+
+    html += `<td class="${className}">${content}</td>`;
     if ((i + offset) % 7 === 0) html += "</tr><tr>";
   }
   html += "</tr>";
@@ -307,30 +245,10 @@ function generateCalendar(busyDates = []) {
 
 const modal = document.getElementById("bookingModal");
 
-async function openModal(date) {
+function openModal(date, time) {
   selectedDate = date;
-  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
-  const timeBlock = document.getElementById("timeContainer");
-  const timeSelect = document.getElementById("timeSelect");
-
-  if (currentSheet === "Апартаменты") {
-    timeBlock.style.display = "block";
-    const busy = await getBusyDates("Апартаменты");
-    const busyTimes = busy.filter(v => v.startsWith(date)).map(v => v.split(" ")[1]);
-    const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
-    timeSelect.innerHTML = `<option value="">-- выберите время --</option>`;
-    freeTimes.forEach(t => {
-      const opt = document.createElement("option");
-      opt.value = t; opt.textContent = t; timeSelect.appendChild(opt);
-    });
-    if (freeTimes.length === 0) {
-      timeSelect.innerHTML = `<option value="">Все слоты заняты</option>`;
-      timeSelect.disabled = true;
-    } else timeSelect.disabled = false;
-  } else {
-    timeBlock.style.display = "none";
-  }
+  selectedTime = time;
+  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}${time ? " 🕐 "+time : ""}`;
   modal.style.display = "flex";
 }
 
@@ -339,11 +257,10 @@ function closeModal() { modal.style.display = "none"; }
 function sendBooking() {
   const name = document.getElementById("clientName").value.trim();
   const phone = document.getElementById("clientPhone").value.trim();
-  const time = document.getElementById("timeSelect").value;
   if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
-  const timeText = time ? `🕐 Время: ${time}\n` : "";
+
   const message = encodeURIComponent(
-    `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}\n${timeText}👤 ${name}\n📞 ${phone}`
+    `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}${selectedTime ? " 🕐 "+selectedTime : ""}\n👤 ${name}\n📞 ${phone}`
   );
   window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
   closeModal();
