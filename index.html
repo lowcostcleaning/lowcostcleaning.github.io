@@ -6,15 +6,14 @@
   <title>Lowcost Cleaning — Календарь</title>
   <style>
     :root {
-      --bg-light: #fafafa;
+      --bg-light: #f8f8f8;
       --text-primary: #111;
       --text-muted: #666;
       --accent: #000;
       --radius: 14px;
-      --shadow-soft: 0 8px 20px rgba(0,0,0,0.08);
+      --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
     }
 
-    /* ====== ОСНОВНОЕ ====== */
     body {
       font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
       text-align: center;
@@ -25,53 +24,89 @@
     }
 
     header {
-      padding: 80px 20px 40px;
+      padding: 70px 20px 40px;
       animation: fadeIn 0.6s ease forwards;
     }
 
     h1 {
-      margin: 10px 0;
-      font-size: 2.2rem;
+      margin: 0;
+      font-size: 2rem;
       font-weight: 700;
-      letter-spacing: -0.5px;
+      letter-spacing: -0.3px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
     }
 
     p {
       color: var(--text-muted);
+      margin-top: 10px;
       margin-bottom: 30px;
     }
 
-    /* ====== КНОПКИ ====== */
+    /* === Группы услуг === */
+    .service-group {
+      background: rgba(255,255,255,0.7);
+      border-radius: 18px;
+      padding: 25px 20px 35px;
+      margin: 25px auto;
+      width: 90%;
+      max-width: 620px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .service-group:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .service-group h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: #000;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* === Кнопки === */
     .btn {
-  background: rgba(255,255,255,0.7);
-  color: #111;
-  border: 1px solid rgba(0,0,0,0.08);
-  padding: 14px 30px;
-  border-radius: var(--radius);
-  font-size: 1rem;
-  cursor: pointer;
-  margin: 5px;
-  transition: all 0.25s ease;
-  box-shadow: 0 4px 12px rgba(0,0,0,0.06);
-  backdrop-filter: blur(10px);
-}
-.btn:hover {
-  background: rgba(255,255,255,0.9);
-  transform: translateY(-2px);
-  box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-}
-.btn:active {
-  transform: scale(0.97);
-  box-shadow: 0 3px 8px rgba(0,0,0,0.1) inset;
-}
+      background: rgba(255,255,255,0.8);
+      color: #111;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+    }
 
+    .btn:hover {
+      background: rgba(255,255,255,0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
 
-    /* ====== КАЛЕНДАРЬ ====== */
+    .btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1) inset;
+    }
+
+    /* === Календарь === */
     .calendar-container {
       display: none;
       flex-direction: column;
       align-items: center;
-      margin-top: 30px;
+      margin-top: 40px;
       opacity: 0;
       transform: translateY(20px);
       animation: fadeUp 0.6s ease forwards;
@@ -96,82 +131,68 @@
       padding-top: 6px;
       transition: 0.2s ease;
     }
+
     th {
       color: var(--text-muted);
       font-weight: 600;
     }
 
-    /* ====== СТАТУСЫ ====== */
     .available {
       background: rgba(52,199,89,0.15);
       color: #007a1c;
       cursor: pointer;
     }
+
     .available:hover {
       background: rgba(52,199,89,0.3);
       transform: scale(1.03);
     }
+
     .unavailable {
       background: rgba(255,59,48,0.25);
       color: #a40000;
       cursor: not-allowed;
     }
+
     .past {
       background: rgba(142,142,147,0.25);
       color: #8e8e93;
       cursor: not-allowed;
     }
 
-    /* ====== СЛОТЫ ====== */
-    .slot {
-      display: inline-block;
-      font-size: 0.65rem;
-      margin: 2px;
-      padding: 2px 5px;
-      border-radius: 6px;
-      transition: 0.2s;
-    }
-    .slot.free {
-      background: rgba(52,199,89,0.2);
-      color: #007a1c;
-      cursor: pointer;
-    }
-    .slot.busy {
-      background: rgba(255,59,48,0.25);
-      color: #a40000;
-    }
-    .slot.free:hover {
-      background: rgba(52,199,89,0.35);
-    }
-
-    /* ====== ПОДСКАЗКА ====== */
+    /* === Подсказки === */
     .legend {
       margin-top: 15px;
       font-size: 0.9rem;
       color: var(--text-muted);
     }
+
     .dot {
       display: inline-block;
-      width: 12px; height: 12px;
+      width: 12px;
+      height: 12px;
       border-radius: 50%;
       margin-right: 6px;
       vertical-align: middle;
       border: 1px solid rgba(0,0,0,0.15);
     }
+
     .dot.free {
-      background: rgba(52, 199, 89, 0.4);
-      border-color: rgba(52, 199, 89, 0.5);
-    }
-    .dot.busy {
-      background: rgba(255, 59, 48, 0.4);
-      border-color: rgba(255, 59, 48, 0.5);
-    }
-    .dot.past {
-      background: rgba(142, 142, 147, 0.3);
-      border-color: rgba(142, 142, 147, 0.4);
+      background: rgba(52,199,89,0.4);
+      border-color: rgba(52,199,89,0.5);
     }
 
-    /* ====== МОДАЛКА ====== */
+    .dot.busy {
+      background: rgba(255,59,48,0.4);
+      border-color: rgba(255,59,48,0.5);
+    }
+
+    .dot.past {
+      background: rgba(142,142,147,0.3);
+      border-color: rgba(142,142,147,0.4);
+    }
+
+    /* === Модалка === */
     .modal {
       display: none;
       position: fixed;
@@ -194,6 +215,7 @@
       box-shadow: var(--shadow-soft);
       animation: fadeIn 0.3s ease;
     }
+
     .modal-content input {
       width: 100%;
       padding: 10px;
@@ -203,6 +225,7 @@
       font-size: 1rem;
       transition: border-color 0.2s ease;
     }
+
     .modal-content input:focus {
       outline: none;
       border-color: #007aff;
@@ -219,8 +242,17 @@
       width: 100%;
       transition: background 0.3s ease;
     }
-    .book-btn:hover { background: #333; }
-    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
+
+    .book-btn:hover {
+      background: #333;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #aaa;
+    }
 
     footer {
       margin-top: 80px;
@@ -229,11 +261,12 @@
       font-size: 0.9rem;
     }
 
-    /* ====== АНИМАЦИЯ ====== */
+    /* === Анимация === */
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.98); }
       to { opacity: 1; transform: scale(1); }
     }
+
     @keyframes fadeUp {
       from { opacity: 0; transform: translateY(30px); }
       to { opacity: 1; transform: translateY(0); }
@@ -244,11 +277,23 @@
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
-    <p>Выберите услугу:</p>
-    <button class="btn" onclick="chooseService('🏠 Студия — 90₾', 'Главный')">🏠 Студия — 90₾</button>
-    <button class="btn" onclick="chooseService('🛏 1+1 — 120₾', 'Главный')">🛏 1+1 — 120₾</button>
-    <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
-    <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
+    <p>Выберите категорию:</p>
+
+    <div class="service-group">
+      <h3>👤 Для частных лиц</h3>
+      <div class="button-row">
+        <button class="btn" onclick="chooseService('🏠 Студия — 90₾', 'Главный')">🏠 Студия — 90₾</button>
+        <button class="btn" onclick="chooseService('🛏 1+1 — 120₾', 'Главный')">🛏 1+1 — 120₾</button>
+        <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
+      </div>
+    </div>
+
+    <div class="service-group">
+      <h3>🏢 Для управляющих компаний</h3>
+      <div class="button-row">
+        <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
+      </div>
+    </div>
   </header>
 
   <div class="calendar-container" id="calendarContainer">
@@ -301,7 +346,7 @@ async function getBusyDates(sheetName) {
     if (status.includes("занято")) {
       if (date.includes(".")) {
         const [d, m, y] = date.split(".");
-        date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
+        date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
       }
       busy.push(time ? `${date} ${time}` : date);
     }
@@ -353,7 +398,7 @@ function generateCalendar(busyDates) {
     if (t) grouped[d].push(t);
   });
 
-  const allTimes = ["10:00", "12:00", "14:00", "16:00", "18:00"];
+  const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
 
   for (let i = 0; i < offset; i++) html += "<td></td>";
 
@@ -361,38 +406,24 @@ function generateCalendar(busyDates) {
     const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
     let className = "available";
-    let content = `<div>${i}</div>`;
+    let click = `onclick="openModal('${dateStr}')`;
 
-    if (currentSheet === "Апартаменты") {
-      let slots = "";
-      const busyTimes = grouped[dateStr] || [];
-      allTimes.forEach(time => {
-        const isBusy = busyTimes.includes(time);
-        slots += `<div class="slot ${isBusy ? "busy" : "free"}" 
-          ${isBusy ? "" : `onclick="openModal('${dateStr}','${time}')"`}>${time.replace(":00","")}</div>`;
-      });
-      content = `<div>${i}</div><div>${slots}</div>`;
-      if (dateObj < new Date().setHours(0,0,0,0)) className = "past";
-    } else {
-      let click = `onclick="openModal('${dateStr}','')"`;
-      if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
-      else if (dateObj < new Date().setHours(0,0,0,0)) className = "past", click = "";
-      content = `<div ${click}>${i}</div>`;
-    }
+    if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
+    else if (dateObj < new Date().setHours(0,0,0,0)) className = "past", click = "";
 
-    html += `<td class="${className}">${content}</td>`;
+    html += `<td class="${className}" ${click}>${i}</td>`;
     if ((i + offset) % 7 === 0) html += "</tr><tr>";
   }
+
   html += "</tr>";
   calendar.innerHTML = html;
 }
 
 const modal = document.getElementById("bookingModal");
 
-function openModal(date, time) {
+function openModal(date) {
   selectedDate = date;
-  selectedTime = time;
-  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}${time ? " 🕐 "+time : ""}`;
+  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
   modal.style.display = "flex";
 }
 
@@ -402,11 +433,8 @@ function sendBooking() {
   const name = document.getElementById("clientName").value.trim();
   const phone = document.getElementById("clientPhone").value.trim();
   if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
-
-  const message = encodeURIComponent(
-    `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}${selectedTime ? " 🕐 "+selectedTime : ""}\n👤 ${name}\n📞 ${phone}`
-  );
-  window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
+  const message = encodeURIComponent(`🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}\n👤 ${name}\n📞 ${phone}`);
+  window.open(`https://t.me/kalendaruborok_bot?text=${message}`,"_blank");
   closeModal();
 }
   </script>
