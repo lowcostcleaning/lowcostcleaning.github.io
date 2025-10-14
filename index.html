@@ -122,28 +122,27 @@
     }
 
     th, td {
-  width: calc(100% / 7);
-  height: 70px;
-  text-align: center;
-  border-radius: 12px;
-  vertical-align: middle;
-  font-size: 0.9rem;
-  transition: 0.2s ease;
-  box-sizing: border-box;
-}
+      width: calc(100% / 7);
+      height: 70px;
+      text-align: center;
+      border-radius: 12px;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      transition: 0.2s ease;
+      box-sizing: border-box;
+    }
 
-table {
-  width: 100%;
-  max-width: 640px;
-  border-collapse: separate;
-  border-spacing: 6px;
-  margin: 10px auto;
-  background: #fff;
-  border-radius: 20px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-  overflow: hidden;
-}
-
+    table {
+      width: 100%;
+      max-width: 640px;
+      border-collapse: separate;
+      border-spacing: 6px;
+      margin: 10px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
 
     th {
       color: var(--text-muted);
@@ -267,6 +266,11 @@ table {
       color: #aaa;
     }
 
+    .time-btn.active {
+      background: #000 !important;
+      color: #fff !important;
+    }
+
     footer {
       margin-top: 80px;
       padding: 20px;
@@ -274,7 +278,11 @@ table {
       font-size: 0.9rem;
     }
 
-    /* === Анимация === */
+    @media (max-width: 480px) {
+      th, td { height: 50px; font-size: 0.8rem; }
+      .btn { padding: 10px 18px; font-size: 0.9rem; }
+    }
+
     @keyframes fadeIn {
       from { opacity: 0; transform: scale(0.98); }
       to { opacity: 1; transform: scale(1); }
@@ -389,7 +397,6 @@ async function chooseService(service, sheet) {
   }, 150);
 }
 
-
 function generateCalendar(busyDates) {
   const calendar = document.getElementById("calendar");
   const monthLabel = document.getElementById("monthLabel");
@@ -427,7 +434,6 @@ function generateCalendar(busyDates) {
     let className = "available";
     let click = `onclick="openModal('${dateStr}')"`; 
 
-
     if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
     else if (dateObj < new Date(new Date().setHours(0,0,0,0))) className = "past", click = "";
 
@@ -443,20 +449,57 @@ const modal = document.getElementById("bookingModal");
 
 function openModal(date) {
   selectedDate = date;
-  document.getElementById("modalTitle").innerText = `${selectedService}\n📅 ${date}`;
+  const content = document.querySelector(".modal-content");
+
+  if (currentSheet === "Апартаменты") {
+    const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
+    const slotButtons = timeSlots.map(
+      t => `<button class="btn time-btn" onclick="selectTime('${t}', event)">${t}</button>`
+    ).join("");
+
+    content.innerHTML = `
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalTitle">${selectedService}\n📅 ${date}</h3>
+      <div style="margin: 15px 0; text-align:center;">${slotButtons}</div>
+      <input type="text" id="clientName" placeholder="Ваше имя" />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    `;
+  } else {
+    content.innerHTML = `
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalTitle">${selectedService}\n📅 ${date}</h3>
+      <input type="text" id="clientName" placeholder="Ваше имя" />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    `;
+  }
+
   modal.style.display = "flex";
+}
+
+function selectTime(time, event) {
+  selectedTime = time;
+  document.querySelectorAll(".time-btn").forEach(b => b.classList.remove("active"));
+  event.target.classList.add("active");
 }
 
 function closeModal() { modal.style.display = "none"; }
 
 function sendBooking() {
-  const name = document.getElementById("clientName").value.trim();
-  const phone = document.getElementById("clientPhone").value.trim();
-  if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
-  const message = encodeURIComponent(`🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}\n👤 ${name}\n📞 ${phone}`);
-  window.open(`https://t.me/kalendaruborok_bot?text=${message}`,"_blank");
-  closeModal();
+  const name = document.getElement
+ById("clientName").value.trim();
+const phone = document.getElementById("clientPhone").value.trim();
+if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
+
+let msg = 🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate};
+if (selectedTime) msg += ⏰ ${selectedTime};
+msg += \n👤 ${name}\n📞 ${phone};
+
+const message = encodeURIComponent(msg);
+window.open(https://t.me/kalendaruborok_bot?text=${message}, "_blank");
+closeModal();
 }
-  </script>
-</body>
-</html>
+</script>
+
+</body> </html>
