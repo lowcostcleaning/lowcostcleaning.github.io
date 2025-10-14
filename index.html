@@ -464,10 +464,23 @@ function generateCalendar(busyDates) {
       dotsHTML += `<span class="slot-dot ${busy ? 'busy' : 'free'}"></span>`;
     });
 
-    let className = "available";
-    let click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
-    if (isPast) className = "past", click = "";
-    else if (busyTimes.length === allTimes.length) className = "unavailable", click = "";
+    let className = "";
+let click = "";
+
+// Прошедшие дни
+if (isPast) {
+  className = "past";
+}
+// Если все слоты заняты — день недоступен
+else if (busyTimes.length === allTimes.length) {
+  className = "unavailable";
+}
+// Если есть хотя бы один свободный слот — можно кликнуть
+else {
+  className = "available";
+  click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
+}
+
 
     html += `
       <td class="${className}" ${click}>
