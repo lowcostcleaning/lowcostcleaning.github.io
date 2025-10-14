@@ -438,20 +438,18 @@ function generateCalendar(busyDates) {
   const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  // Подготовка занятости
   const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
   let groupedByDate = {};
   let busyDaysSet = new Set();
 
   if (isApts) {
-    // группируем "YYYY-MM-DD HH:MM" -> { [date]: ["HH:MM", ...] }
     busyDates.forEach(v => {
-      const [d, t] = v.split(" ");
-      if (!groupedByDate[d]) groupedByDate[d] = [];
-      if (t) groupedByDate[d].push(t);
+      const [d, t] = v.trim().split(" ");
+      if (!d) return;
+      if (!groupedByDate[d]) groupedByDate[d] = new Set();
+      if (t) groupedByDate[d].add(t.trim());
     });
   } else {
-    // в обычных листах учитываем только день целиком
     busyDates.forEach(v => busyDaysSet.add(v.split(" ")[0]));
   }
 
@@ -467,10 +465,10 @@ function generateCalendar(busyDates) {
     let inner = `<div>${day}</div>`;
 
     if (isApts) {
-      const busyTimes = groupedByDate[dateStr] || [];
-      const allBusy = busyTimes.length === allTimes.length;
+      const busyTimes = Array.from(groupedByDate[dateStr] || []);
+      const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
+      const allBusy = freeTimes.length === 0;
 
-      // рисуем точки слотов только для апартаментов
       const dots = allTimes.map(t => `<span class="slot-dot ${busyTimes.includes(t) ? 'busy' : 'free'}"></span>`).join("");
       inner += `<div class="slots-row">${dots}</div>`;
 
@@ -500,6 +498,7 @@ function generateCalendar(busyDates) {
   html += "</tr>";
   calendar.innerHTML = html;
 }
+
 
 const modal = document.getElementById("bookingModal");
 
