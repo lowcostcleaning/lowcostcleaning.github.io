@@ -432,7 +432,8 @@ function generateCalendar(busyDates) {
     const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
     let className = "available";
-    let click = `onclick="openModal('${dateStr}')"`; 
+    let click = `onclick="openModal('${dateStr}', ${JSON.stringify(grouped[dateStr] || [])})"`;
+ 
 
     if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
     else if (dateObj < new Date(new Date().setHours(0,0,0,0))) className = "past", click = "";
@@ -447,15 +448,17 @@ function generateCalendar(busyDates) {
 
 const modal = document.getElementById("bookingModal");
 
-function openModal(date) {
+function openModal(date, busyTimes = []) {
   selectedDate = date;
   const content = document.querySelector(".modal-content");
 
   if (currentSheet === "Апартаменты") {
     const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
-    const slotButtons = timeSlots.map(
-      t => `<button class="btn time-btn" onclick="selectTime('${t}', event)">${t}</button>`
-    ).join("");
+    const slotButtons = timeSlots.map(t => {
+      const isBusy = busyTimes.includes(t);
+      const disabled = isBusy ? "disabled style='opacity:0.4;cursor:not-allowed;'" : "";
+      return `<button class="btn time-btn" onclick="selectTime('${t}', event)" ${disabled}>${t}</button>`;
+    }).join("");
 
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
@@ -477,6 +480,7 @@ function openModal(date) {
 
   modal.style.display = "flex";
 }
+
 
 function selectTime(time, event) {
   selectedTime = time;
