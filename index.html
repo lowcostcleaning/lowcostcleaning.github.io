@@ -488,11 +488,6 @@ function closeModal() { modal.style.display = "none"; }
 
 function sendBooking() {
   const name = document.getElementById("clientName").value.trim();
-const phone = document.getElementById("clientPhone").value.trim();
-if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
-
-function sendBooking() {
-  const name = document.getElementById("clientName").value.trim();
   const phone = document.getElementById("clientPhone").value.trim();
   if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
 
@@ -504,6 +499,7 @@ function sendBooking() {
   window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
   closeModal();
 }
+
 
 </script>
 
