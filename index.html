@@ -425,10 +425,11 @@ function generateCalendar(busyDates) {
     const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
     let className = "available";
-    let click = `onclick="openModal('${dateStr}')`;
+    let click = `onclick="openModal('${dateStr}')"`; 
+
 
     if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
-    else if (dateObj < new Date().setHours(0,0,0,0)) className = "past", click = "";
+    else if (dateObj < new Date(new Date().setHours(0,0,0,0))) className = "past", click = "";
 
     html += `<td class="${className}" ${click}>${i}</td>`;
     if ((i + offset) % 7 === 0) html += "</tr><tr>";
