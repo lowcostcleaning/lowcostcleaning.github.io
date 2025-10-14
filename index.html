@@ -376,7 +376,7 @@ let selectedService = "", selectedDate = "", selectedTime = "", currentSheet = "
 async function getBusyDates(sheetName) {
   const gid = gids[sheetName];
   const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: "no-store" });
   const text = await res.text();
   const rows = text.split("\n").map(r => r.split(","));
   const busy = [];
@@ -386,13 +386,14 @@ async function getBusyDates(sheetName) {
     let date = r[0].trim().replace(/"/g, "");
     const time = r[1] ? r[1].trim() : "";
     const status = r[r.length - 1].trim().toLowerCase();
-    if (status.includes("занято")) {
-      if (date.includes(".")) {
-        const [d, m, y] = date.split(".");
-        date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
-      }
-      busy.push(time ? `${date} ${time}` : date);
+    if (!status.includes("занято")) continue;
+
+    // 15.10.2025 -> 2025-10-15
+    if (date.includes(".")) {
+      const [d, m, y] = date.split(".");
+      date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
     }
+    busy.push(time ? `${date} ${time}` : date);
   }
   return busy;
 }
@@ -400,6 +401,7 @@ async function getBusyDates(sheetName) {
 async function chooseService(service, sheet) {
   selectedService = service;
   currentSheet = sheet;
+  selectedTime = "";
 
   const container = document.getElementById("calendarContainer");
   container.style.display = "flex";
@@ -409,17 +411,15 @@ async function chooseService(service, sheet) {
   const busyDates = await getBusyDates(sheet);
   generateCalendar(busyDates);
 
-  setTimeout(() => {
-    container.style.transition = "all 0.6s ease";
+  requestAnimationFrame(() => {
+    container.style.transition = "opacity .4s ease";
     container.style.opacity = "1";
-    window.scrollTo({
-      top: container.offsetTop - 40,
-      behavior: "smooth"
-    });
-  }, 150);
+    window.scrollTo({ top: container.offsetTop - 40, behavior: "smooth" });
+  });
 }
 
 function generateCalendar(busyDates) {
+  const isApts = currentSheet === "Апартаменты";
   const calendar = document.getElementById("calendar");
   const monthLabel = document.getElementById("monthLabel");
   calendar.innerHTML = "";
@@ -438,52 +438,63 @@ function generateCalendar(busyDates) {
   const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  const grouped = {};
-  busyDates.forEach(v => {
-    const [d, t] = v.split(" ");
-    if (!grouped[d]) grouped[d] = [];
-    if (t) grouped[d].push(t);
-  });
-
+  // Подготовка занятости
   const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
+  let groupedByDate = {};
+  let busyDaysSet = new Set();
+
+  if (isApts) {
+    // группируем "YYYY-MM-DD HH:MM" -> { [date]: ["HH:MM", ...] }
+    busyDates.forEach(v => {
+      const [d, t] = v.split(" ");
+      if (!groupedByDate[d]) groupedByDate[d] = [];
+      if (t) groupedByDate[d].push(t);
+    });
+  } else {
+    // в обычных листах учитываем только день целиком
+    busyDates.forEach(v => busyDaysSet.add(v.split(" ")[0]));
+  }
 
   for (let i = 0; i < offset; i++) html += "<td></td>";
 
-  for (let i = 1; i <= daysInMonth; i++) {
-    const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
+  for (let day = 1; day <= daysInMonth; day++) {
+    const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
     const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
 
-    const busyTimes = grouped[dateStr] || [];
-    const availableTimes = allTimes.filter(t => !busyTimes.includes(t));
-
-    // отображаем точки
-    let dotsHTML = "";
-    allTimes.forEach(t => {
-      const busy = busyTimes.includes(t);
-      dotsHTML += `<span class="slot-dot ${busy ? 'busy' : 'free'}"></span>`;
-    });
-
     let className = "";
     let click = "";
+    let inner = `<div>${day}</div>`;
 
-    if (isPast) {
-      className = "past";
-    } else if (busyTimes.length === allTimes.length) {
-      className = "unavailable";
+    if (isApts) {
+      const busyTimes = groupedByDate[dateStr] || [];
+      const allBusy = busyTimes.length === allTimes.length;
+
+      // рисуем точки слотов только для апартаментов
+      const dots = allTimes.map(t => `<span class="slot-dot ${busyTimes.includes(t) ? 'busy' : 'free'}"></span>`).join("");
+      inner += `<div class="slots-row">${dots}</div>`;
+
+      if (isPast) {
+        className = "past";
+      } else if (allBusy) {
+        className = "unavailable";
+      } else {
+        className = "available";
+        click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
+      }
     } else {
-      className = "available";
-      click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
+      if (isPast) {
+        className = "past";
+      } else if (busyDaysSet.has(dateStr)) {
+        className = "unavailable";
+      } else {
+        className = "available";
+        click = `onclick="openModal('${dateStr}')"`;
+      }
     }
 
-    html += `
-      <td class="${className}" ${click}>
-        <div>${i}</div>
-        <div class="slots-row">${dotsHTML}</div>
-      </td>
-    `;
-
-    if ((i + offset) % 7 === 0) html += "</tr><tr>";
+    html += `<td class="${className}" ${click}>${inner}</td>`;
+    if ((day + offset) % 7 === 0) html += "</tr><tr>";
   }
 
   html += "</tr>";
@@ -494,20 +505,24 @@ const modal = document.getElementById("bookingModal");
 
 function openModal(date, busyTimes = []) {
   selectedDate = date;
+  selectedTime = "";
+  const isApts = currentSheet === "Апартаменты";
   const content = document.querySelector(".modal-content");
 
-  if (currentSheet === "Апартаменты") {
+  if (isApts) {
     const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
     const slotButtons = timeSlots.map(t => {
       const isBusy = busyTimes.includes(t);
-      const disabled = isBusy ? "disabled style='opacity:0.4;cursor:not-allowed;'" : "";
-      return `<button class="btn time-btn" onclick="selectTime('${t}', event)" ${disabled}>${t}</button>`;
+      const dis = isBusy ? "disabled style='opacity:.4;cursor:not-allowed;'" : "";
+      return `<button class="btn time-btn" onclick="selectTime('${t}', event)" ${dis}>${t}</button>`;
     }).join("");
 
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
       <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
-      <div style="margin: 15px 0; text-align:center;">${slotButtons}</div>
+      <div style="margin: 14px 0; text-align:center; display:flex; gap:8px; flex-wrap:wrap; justify-content:center;">
+        ${slotButtons}
+      </div>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
@@ -525,10 +540,10 @@ function openModal(date, busyTimes = []) {
   modal.style.display = "flex";
 }
 
-function selectTime(time, event) {
+function selectTime(time, e) {
   selectedTime = time;
   document.querySelectorAll(".time-btn").forEach(b => b.classList.remove("active"));
-  event.target.classList.add("active");
+  e.target.classList.add("active");
 }
 
 function closeModal() { modal.style.display = "none"; }
@@ -542,11 +557,11 @@ function sendBooking() {
   if (selectedTime) msg += ` ⏰ ${selectedTime}`;
   msg += `\n👤 ${name}\n📞 ${phone}`;
 
-  const message = encodeURIComponent(msg);
-  window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
+  window.open(`https://t.me/kalendaruborok_bot?text=${encodeURIComponent(msg)}`, "_blank");
   closeModal();
 }
 </script>
+
 
 
 </body> </html>
