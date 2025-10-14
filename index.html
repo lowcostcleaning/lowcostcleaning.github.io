@@ -1,3 +1,366 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Lowcost Cleaning — Календарь</title>
+  <style>
+    :root {
+      --bg-light: #f8f8f8;
+      --text-primary: #111;
+      --text-muted: #666;
+      --accent: #000;
+      --radius: 14px;
+      --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
+    }
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+      text-align: center;
+      margin: 0;
+      background: var(--bg-light);
+      color: var(--text-primary);
+      -webkit-font-smoothing: antialiased;
+    }
+
+    header {
+      padding: 70px 20px 40px;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+      display: flex;
+      justify-content: center;
+      align-items: center;
+      gap: 6px;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    /* === Группы услуг === */
+    .service-group {
+      background: rgba(255,255,255,0.7);
+      border-radius: 18px;
+      padding: 25px 20px 35px;
+      margin: 25px auto;
+      width: 90%;
+      max-width: 620px;
+      box-shadow: var(--shadow-soft);
+      backdrop-filter: blur(10px);
+      transition: 0.3s;
+    }
+
+    .service-group:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
+
+    .service-group h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 18px;
+      color: #000;
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    /* === Кнопки === */
+    .btn {
+      background: rgba(255,255,255,0.8);
+      color: #111;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+      backdrop-filter: blur(10px);
+    }
+
+    .btn:hover {
+      background: rgba(255,255,255,0.95);
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
+    }
+
+    .btn:active {
+      transform: scale(0.97);
+      box-shadow: 0 3px 8px rgba(0,0,0,0.1) inset;
+    }
+
+    /* === Календарь === */
+    .calendar-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+      opacity: 0;
+      transform: translateY(20px);
+      animation: fadeUp 0.6s ease forwards;
+    }
+
+    table {
+      border-collapse: collapse;
+      margin-top: 10px;
+      box-shadow: var(--shadow-soft);
+      border-radius: var(--radius);
+      background: #fff;
+      overflow: hidden;
+    }
+
+    th, td {
+      width: calc(100% / 7);
+      height: 70px;
+      text-align: center;
+      border-radius: 12px;
+      vertical-align: middle;
+      font-size: 0.9rem;
+      transition: 0.2s ease;
+      box-sizing: border-box;
+    }
+
+    table {
+      width: 100%;
+      max-width: 640px;
+      border-collapse: separate;
+      border-spacing: 6px;
+      margin: 10px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+      overflow: hidden;
+    }
+
+    th {
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .available {
+      background: rgba(52,199,89,0.15);
+      color: #007a1c;
+      cursor: pointer;
+    }
+
+    .available:hover {
+      background: rgba(52,199,89,0.3);
+      transform: scale(1.03);
+    }
+
+    .unavailable {
+      background: rgba(255,59,48,0.25);
+      color: #a40000;
+      cursor: not-allowed;
+    }
+
+    .past {
+      background: rgba(142,142,147,0.25);
+      color: #8e8e93;
+      cursor: not-allowed;
+    }
+
+    /* === Подсказки === */
+    .legend {
+      margin-top: 15px;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .dot {
+      display: inline-block;
+      width: 12px;
+      height: 12px;
+      border-radius: 50%;
+      margin-right: 6px;
+      vertical-align: middle;
+      border: 1px solid rgba(0,0,0,0.15);
+    }
+
+    .dot.free {
+      background: rgba(52,199,89,0.4);
+      border-color: rgba(52,199,89,0.5);
+    }
+
+    .dot.busy {
+      background: rgba(255,59,48,0.4);
+      border-color: rgba(255,59,48,0.5);
+    }
+
+    .dot.past {
+      background: rgba(142,142,147,0.3);
+      border-color: rgba(142,142,147,0.4);
+    }
+
+    .slots-row {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.slot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.slot-dot.free {
+  background: rgba(52,199,89,0.6);
+}
+
+.slot-dot.busy {
+  background: rgba(255,59,48,0.7);
+}
+
+
+    /* === Модалка === */
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 360px;
+      text-align: left;
+      box-shadow: var(--shadow-soft);
+      animation: fadeIn 0.3s ease;
+    }
+
+    .modal-content input {
+      width: 100%;
+      padding: 10px;
+      margin-bottom: 12px;
+      border-radius: 8px;
+      border: 1px solid #ccc;
+      font-size: 1rem;
+      transition: border-color 0.2s ease;
+    }
+
+    .modal-content input:focus {
+      outline: none;
+      border-color: #007aff;
+    }
+
+    .book-btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 12px 20px;
+      border-radius: 8px;
+      font-size: 1rem;
+      cursor: pointer;
+      width: 100%;
+      transition: background 0.3s ease;
+    }
+
+    .book-btn:hover {
+      background: #333;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    .time-btn.active {
+      background: #000 !important;
+      color: #fff !important;
+    }
+
+    footer {
+      margin-top: 80px;
+      padding: 20px;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    @media (max-width: 480px) {
+      th, td { height: 50px; font-size: 0.8rem; }
+      .btn { padding: 10px 18px; font-size: 0.9rem; }
+    }
+
+    @keyframes fadeIn {
+      from { opacity: 0; transform: scale(0.98); }
+      to { opacity: 1; transform: scale(1); }
+    }
+
+    @keyframes fadeUp {
+      from { opacity: 0; transform: translateY(30px); }
+      to { opacity: 1; transform: translateY(0); }
+    }
+  </style>
+</head>
+
+<body>
+  <header>
+    <h1>🧹 Lowcost Cleaning</h1>
+    <p>Выберите категорию:</p>
+
+    <div class="service-group">
+      <h3>👤 Для частных лиц</h3>
+      <div class="button-row">
+        <button class="btn" onclick="chooseService('🏠 Студия — 90₾', 'Главный')">🏠 Студия — 90₾</button>
+        <button class="btn" onclick="chooseService('🛏 1+1 — 120₾', 'Главный')">🛏 1+1 — 120₾</button>
+        <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾', 'Химчистка')">🧺 Химчистка — 50₾</button>
+      </div>
+    </div>
+
+    <div class="service-group">
+      <h3>🏢 Для управляющих компаний</h3>
+      <div class="button-row">
+        <button class="btn" onclick="chooseService('🏢 Уборка апартаментов', 'Апартаменты')">🏢 Уборка апартаментов</button>
+      </div>
+    </div>
+  </header>
+
+  <div class="calendar-container" id="calendarContainer">
+    <h2 id="monthLabel"></h2>
+    <table id="calendar"></table>
+    <div class="legend">
+      <span class="dot free"></span> свободно &nbsp;&nbsp;
+      <span class="dot busy"></span> занято &nbsp;&nbsp;
+      <span class="dot past"></span> прошло
+    </div>
+  </div>
+
+  <footer>© 2025 Lowcost Cleaning</footer>
+
+  <div id="bookingModal" class="modal">
+    <div class="modal-content">
+      <span class="close" onclick="closeModal()">×</span>
+      <h3 id="modalTitle">Бронирование</h3>
+      <input type="text" id="clientName" placeholder="Ваше имя" />
+      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    </div>
+  </div>
+
 <script>
 const BASE_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
@@ -219,3 +582,8 @@ function sendBooking() {
   closeModal();
 }
 </script>
+
+
+
+
+</body> </html>
