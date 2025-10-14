@@ -204,6 +204,28 @@
       border-color: rgba(142,142,147,0.4);
     }
 
+    .slots-row {
+  margin-top: 6px;
+  display: flex;
+  justify-content: center;
+  gap: 4px;
+}
+
+.slot-dot {
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+}
+
+.slot-dot.free {
+  background: rgba(52,199,89,0.6);
+}
+
+.slot-dot.busy {
+  background: rgba(255,59,48,0.7);
+}
+
+
     /* === Модалка === */
     .modal {
       display: none;
@@ -416,7 +438,6 @@ function generateCalendar(busyDates) {
   const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
   html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  const normalizedBusy = busyDates.map(d => d.split(" ")[0]);
   const grouped = {};
   busyDates.forEach(v => {
     const [d, t] = v.split(" ");
@@ -431,20 +452,37 @@ function generateCalendar(busyDates) {
   for (let i = 1; i <= daysInMonth; i++) {
     const dateStr = `${year}-${String(month + 1).padStart(2,"0")}-${String(i).padStart(2,"0")}`;
     const dateObj = new Date(dateStr);
+    const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
+
+    // Определяем какие слоты заняты
+    const busyTimes = grouped[dateStr] || [];
+    const availableTimes = allTimes.filter(t => !busyTimes.includes(t));
+
+    let dotsHTML = "";
+    allTimes.forEach(t => {
+      const busy = busyTimes.includes(t);
+      dotsHTML += `<span class="slot-dot ${busy ? 'busy' : 'free'}"></span>`;
+    });
+
     let className = "available";
-    let click = `onclick="openModal('${dateStr}', ${JSON.stringify(grouped[dateStr] || [])})"`;
- 
+    let click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
+    if (isPast) className = "past", click = "";
+    else if (busyTimes.length === allTimes.length) className = "unavailable", click = "";
 
-    if (normalizedBusy.includes(dateStr)) className = "unavailable", click = "";
-    else if (dateObj < new Date(new Date().setHours(0,0,0,0))) className = "past", click = "";
+    html += `
+      <td class="${className}" ${click}>
+        <div>${i}</div>
+        <div class="slots-row">${dotsHTML}</div>
+      </td>
+    `;
 
-    html += `<td class="${className}" ${click}>${i}</td>`;
     if ((i + offset) % 7 === 0) html += "</tr><tr>";
   }
 
   html += "</tr>";
   calendar.innerHTML = html;
 }
+
 
 const modal = document.getElementById("bookingModal");
 
