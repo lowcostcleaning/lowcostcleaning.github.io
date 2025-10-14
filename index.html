@@ -487,19 +487,24 @@ function selectTime(time, event) {
 function closeModal() { modal.style.display = "none"; }
 
 function sendBooking() {
-  const name = document.getElement
-ById("clientName").value.trim();
+  const name = document.getElementById("clientName").value.trim();
 const phone = document.getElementById("clientPhone").value.trim();
 if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
 
-let msg = 🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate};
-if (selectedTime) msg += ⏰ ${selectedTime};
-msg += \n👤 ${name}\n📞 ${phone};
+function sendBooking() {
+  const name = document.getElementById("clientName").value.trim();
+  const phone = document.getElementById("clientPhone").value.trim();
+  if (!name || !phone) return alert("Пожалуйста, заполните имя и телефон");
 
-const message = encodeURIComponent(msg);
-window.open(https://t.me/kalendaruborok_bot?text=${message}, "_blank");
-closeModal();
+  let msg = `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}`;
+  if (selectedTime) msg += ` ⏰ ${selectedTime}`;
+  msg += `\n👤 ${name}\n📞 ${phone}`;
+
+  const message = encodeURIComponent(msg);
+  window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
+  closeModal();
 }
+
 </script>
 
 </body> </html>
