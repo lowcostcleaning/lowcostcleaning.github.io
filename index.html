@@ -361,7 +361,7 @@
     </div>
   </div>
 
-  <script>
+ <script>
 const BASE_URL =
   "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
 
@@ -454,10 +454,10 @@ function generateCalendar(busyDates) {
     const dateObj = new Date(dateStr);
     const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
 
-    // Определяем какие слоты заняты
     const busyTimes = grouped[dateStr] || [];
     const availableTimes = allTimes.filter(t => !busyTimes.includes(t));
 
+    // отображаем точки
     let dotsHTML = "";
     allTimes.forEach(t => {
       const busy = busyTimes.includes(t);
@@ -465,23 +465,16 @@ function generateCalendar(busyDates) {
     });
 
     let className = "";
-let click = "";
+    let click = "";
 
-// прошедшие даты неактивны
-if (isPast) {
-  className = "past";
-}
-// если заняты все слоты — недоступно
-else if (busyTimes.length === allTimes.length) {
-  className = "unavailable";
-}
-// если есть хотя бы один свободный слот — можно кликнуть
-else {
-  className = "available";
-  click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
-}
-
-
+    if (isPast) {
+      className = "past";
+    } else if (busyTimes.length === allTimes.length) {
+      className = "unavailable";
+    } else {
+      className = "available";
+      click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
+    }
 
     html += `
       <td class="${className}" ${click}>
@@ -496,7 +489,6 @@ else {
   html += "</tr>";
   calendar.innerHTML = html;
 }
-
 
 const modal = document.getElementById("bookingModal");
 
@@ -514,7 +506,7 @@ function openModal(date, busyTimes = []) {
 
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">${selectedService}\n📅 ${date}</h3>
+      <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
       <div style="margin: 15px 0; text-align:center;">${slotButtons}</div>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
@@ -523,7 +515,7 @@ function openModal(date, busyTimes = []) {
   } else {
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">${selectedService}\n📅 ${date}</h3>
+      <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
@@ -532,7 +524,6 @@ function openModal(date, busyTimes = []) {
 
   modal.style.display = "flex";
 }
-
 
 function selectTime(time, event) {
   selectedTime = time;
@@ -555,8 +546,7 @@ function sendBooking() {
   window.open(`https://t.me/kalendaruborok_bot?text=${message}`, "_blank");
   closeModal();
 }
-
-
 </script>
+
 
 </body> </html>
