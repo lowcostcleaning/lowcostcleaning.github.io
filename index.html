@@ -467,19 +467,20 @@ function generateCalendar(busyDates) {
     let className = "";
 let click = "";
 
-// Прошедшие дни
+// прошедшие даты неактивны
 if (isPast) {
   className = "past";
 }
-// Если все слоты заняты — день недоступен
+// если заняты все слоты — недоступно
 else if (busyTimes.length === allTimes.length) {
   className = "unavailable";
 }
-// Если есть хотя бы один свободный слот — можно кликнуть
+// если есть хотя бы один свободный слот — можно кликнуть
 else {
   className = "available";
   click = `onclick="openModal('${dateStr}', ${JSON.stringify(busyTimes)})"`;
 }
+
 
 
     html += `
