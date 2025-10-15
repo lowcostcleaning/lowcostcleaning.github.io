@@ -194,7 +194,7 @@ const gids = {
   "Химчистка": "591986483",
   "Апартаменты": "1636464154"
 };
-let selectedService = "", selectedDate = "", selectedTime = "", currentSheet = "";
+let selectedService = "", selectedDate = "", currentSheet = "";
 
 /* ---- Загрузка занятых дат ---- */
 async function getBusyDates(sheetName) {
@@ -204,13 +204,18 @@ async function getBusyDates(sheetName) {
   const text = await res.text();
   const rows = text.split("\n").map(r => r.split(","));
   const busy = [];
+
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
-    if (!r || r.length < 3) continue;
+    if (!r || r.length < 2) continue;
+
     let date = (r[0] || "").trim().replace(/"/g, "");
     const time = (r[1] || "").trim();
-    const status = (r[2] || "").trim().toLowerCase(); // исправлено
+    // универсальный вариант: если 3-й столбец есть — берём его, иначе последний
+    const status = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
+
     if (!date || !status.includes("занято")) continue;
+
     if (date.includes(".")) {
       const [d, m, y] = date.split(".");
       date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
@@ -296,42 +301,57 @@ const modal = document.getElementById("bookingModal");
 function openModal(date, busyTimes = []) {
   selectedDate = date;
   const content = document.querySelector(".modal-content");
+
   if (currentSheet === "Апартаменты") {
     const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
     const slotOptions = timeSlots.map(t => {
       const disabled = busyTimes.includes(t) ? "disabled style='opacity:.45;cursor:not-allowed;'" : "";
       return `<option value="${t}" ${disabled}>${t}</option>`;
     }).join("");
+
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
-      <h3>${selectedService}<br>📅 ${date}</h3>
+      <h3 style="margin-top:0;">${selectedService}<br>📅 ${date}</h3>
       <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" style="margin-top:14px;">
         <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
         <select name="time" required style="width:100%;margin-bottom:12px;">${slotOptions}</select>
-        <label>ЖК:</label>
-        <input type="text" name="complex" placeholder="Например: Orbi City" required>
-        <label>Апартамент:</label>
-        <input type="text" name="apartment" placeholder="Например: B-1210" required>
+
+        <div style="display:flex;gap:6px;">
+          <div style="flex:1;">
+            <label>ЖК:</label>
+            <input type="text" name="complex" placeholder="Orbi City" required style="width:100%;margin-bottom:10px;">
+          </div>
+          <div style="flex:1;">
+            <label>Апартамент:</label>
+            <input type="text" name="apartment" placeholder="B-1210" required style="width:100%;margin-bottom:10px;">
+          </div>
+        </div>
+
         <label>Управляющая компания:</label>
-        <input type="text" name="company" placeholder="Например: Orbi Group" required>
+        <input type="text" name="company" placeholder="Orbi Group" required style="width:100%;margin-bottom:12px;">
+
         <button type="submit" class="book-btn">Отправить</button>
       </form>
     `;
   } else {
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
-      <h3>${selectedService}<br>📅 ${date}</h3>
-      <input type="text" id="clientName" placeholder="Ваше имя" />
-      <input type="tel" id="clientPhone" placeholder="Телефон" />
+      <h3 style="margin-top:0;">${selectedService}<br>📅 ${date}</h3>
+      <div style="display:flex;gap:6px;">
+        <input type="text" id="clientName" placeholder="Ваше имя" style="flex:1;">
+        <input type="tel" id="clientPhone" placeholder="Телефон" style="flex:1;">
+      </div>
       <button class="book-btn" onclick="sendBooking()">Забронировать</button>
     `;
   }
+
   modal.style.display = "flex";
 }
 
 function closeModal() { modal.style.display = "none"; }
-function sendBooking() { alert("Отправка через Telegram работает как раньше"); }
+function sendBooking() { alert("Заявка отправлена через Telegram"); }
 </script>
+
 </body>
 </html>
