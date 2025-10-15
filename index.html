@@ -150,10 +150,11 @@
       color: #aaa;
     }
 
-    .modal-content form {
+    /* === Apple style for forms (refined) === */
+.modal-content form {
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .modal-content label {
@@ -169,10 +170,11 @@
   width: 100%;
   padding: 12px 14px;
   border-radius: 12px;
-  border: 1px solid #e0e0e0;
+  border: 1px solid #e5e5e5;
   font-size: 1rem;
   background: #fafafa;
   transition: all 0.25s ease;
+  box-sizing: border-box;
 }
 
 .modal-content input:focus,
@@ -187,7 +189,16 @@
   font-size: 1.15rem;
   font-weight: 600;
   text-align: center;
-  margin-bottom: 16px;
+  margin-bottom: 20px;
+}
+
+.modal-content form .row {
+  display: flex;
+  gap: 8px;
+}
+
+.modal-content form .row input {
+  flex: 1;
 }
 
 .book-btn {
@@ -195,8 +206,9 @@
   color: #fff;
   border: none;
   padding: 14px;
-  border-radius: 12px;
+  border-radius: 14px;
   font-size: 1rem;
+  font-weight: 500;
   cursor: pointer;
   transition: all 0.3s ease;
 }
@@ -209,6 +221,7 @@
 .book-btn:active {
   transform: scale(0.98);
 }
+
 
   </style>
 </head>
@@ -383,16 +396,17 @@ function openModal(date, busyTimes = []) {
         <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
         <select name="time" required style="width:100%;margin-bottom:12px;">${slotOptions}</select>
-        <div style="display:flex;gap:6px;">
-          <div style="flex:1;">
-            <label>ЖК:</label>
-            <input type="text" name="complex" placeholder="Orbi City" required style="width:100%;margin-bottom:10px;">
-          </div>
-          <div style="flex:1;">
-            <label>Апартамент:</label>
-            <input type="text" name="apartment" placeholder="B-1210" required style="width:100%;margin-bottom:10px;">
-          </div>
-        </div>
+        <div class="row">
+  <div>
+    <label>ЖК:</label>
+    <input type="text" name="complex" placeholder="Orbi City" required>
+  </div>
+  <div>
+    <label>Апартамент:</label>
+    <input type="text" name="apartment" placeholder="B-1210" required>
+  </div>
+</div>
+
         <label>Управляющая компания:</label>
         <input type="text" name="company" placeholder="Orbi Group" required style="width:100%;margin-bottom:12px;">
         <button type="submit" class="book-btn">Отправить</button>
