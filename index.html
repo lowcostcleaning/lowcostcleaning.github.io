@@ -39,7 +39,31 @@
     .modal-content input,.modal-content select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e5e5;font-size:1rem;background:#fafafa;transition:all .25s ease;}
     .modal-content input:focus,.modal-content select:focus{outline:none;border-color:#000;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.05);}
     .modal-content h3{font-size:1.15rem;font-weight:600;text-align:center;margin-bottom:20px;}
-    .modal-content form .row{display:flex;gap:8px;}
+    .modal-content form .row {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 10px;
+  align-items: end;
+}
+
+.modal-content form .row input {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e5e5e5;
+  font-size: 1rem;
+  background: #fafafa;
+  transition: all 0.25s ease;
+  box-sizing: border-box;
+}
+
+.modal-content form .row input:focus {
+  outline: none;
+  border-color: #000;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
     .modal-content form .row input{flex:1;}
     .book-btn:hover{background:#111;transform:translateY(-1px);}
     .book-btn:active{transform:scale(0.98);}
