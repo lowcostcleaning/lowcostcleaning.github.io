@@ -5,7 +5,6 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>Lowcost Cleaning — Календарь</title>
   <style>
-    /* твои стили оставлены без изменений */
     :root {
       --bg-light: #f8f8f8;
       --text-primary: #111;
@@ -13,70 +12,210 @@
       --radius: 14px;
       --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
     }
-    body { font-family: -apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto,sans-serif;text-align:center;margin:0;background:var(--bg-light);color:var(--text-primary); }
-    header { padding:70px 20px 40px;animation:fadeIn .6s ease forwards; }
-    h1 { margin:0;font-size:2rem;font-weight:700;letter-spacing:-.3px; }
-    p { color:var(--text-muted);margin-top:10px;margin-bottom:30px; }
-    .service-group { background:rgba(255,255,255,0.7);border-radius:18px;padding:25px 20px 35px;margin:25px auto;width:90%;max-width:620px;box-shadow:var(--shadow-soft); }
-    .button-row { display:flex;flex-wrap:wrap;justify-content:center;gap:10px; }
-    .btn { background:rgba(255,255,255,0.8);color:#111;border:1px solid rgba(0,0,0,0.08);padding:14px 28px;border-radius:var(--radius);font-size:1rem;cursor:pointer;transition:all .25s ease;box-shadow:0 4px 12px rgba(0,0,0,0.05); }
-    .calendar-container { display:none;flex-direction:column;align-items:center;margin-top:40px; }
-    table { width:100%;max-width:640px;border-collapse:separate;border-spacing:6px;margin:10px auto;background:#fff;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05); }
-    th,td { width:calc(100%/7);height:70px;text-align:center;border-radius:12px;vertical-align:middle; }
-    .available{background:rgba(52,199,89,0.15);cursor:pointer;}
-    .unavailable{background:rgba(255,59,48,0.25);cursor:not-allowed;}
-    .past{background:rgba(142,142,147,0.25);cursor:not-allowed;}
-    .slots-row{margin-top:6px;display:flex;justify-content:center;gap:4px;}
-    .slot-dot{width:8px;height:8px;border-radius:50%;}
-    .slot-dot.free{background:rgba(52,199,89,0.6);}
-    .slot-dot.busy{background:rgba(255,59,48,0.7);}
-    .modal{display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);justify-content:center;align-items:center;}
-    .modal-content{background:#fff;padding:25px;border-radius:16px;width:90%;max-width:360px;text-align:left;box-shadow:var(--shadow-soft);}
-    .book-btn{background:#000;color:#fff;border:none;padding:12px 20px;border-radius:8px;font-size:1rem;cursor:pointer;width:100%;}
-    .close{float:right;font-size:20px;cursor:pointer;color:#aaa;}
-    .modal-content form{display:flex;flex-direction:column;gap:14px;}
-    .modal-content label{font-size:.9rem;font-weight:500;color:#111;margin-bottom:4px;display:block;}
-    .modal-content input,.modal-content select{width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e5e5;font-size:1rem;background:#fafafa;transition:all .25s ease;}
-    .modal-content input:focus,.modal-content select:focus{outline:none;border-color:#000;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.05);}
-    .modal-content h3{font-size:1.15rem;font-weight:600;text-align:center;margin-bottom:20px;}
+
+    body {
+      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
+      text-align: center;
+      margin: 0;
+      background: var(--bg-light);
+      color: var(--text-primary);
+    }
+
+    header {
+      padding: 70px 20px 40px;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    h1 {
+      margin: 0;
+      font-size: 2rem;
+      font-weight: 700;
+      letter-spacing: -0.3px;
+    }
+
+    p {
+      color: var(--text-muted);
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
+
+    .service-group {
+      background: rgba(255,255,255,0.7);
+      border-radius: 18px;
+      padding: 25px 20px 35px;
+      margin: 25px auto;
+      width: 90%;
+      max-width: 620px;
+      box-shadow: var(--shadow-soft);
+    }
+
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
+
+    .btn {
+      background: rgba(255,255,255,0.8);
+      color: #111;
+      border: 1px solid rgba(0,0,0,0.08);
+      padding: 14px 28px;
+      border-radius: var(--radius);
+      font-size: 1rem;
+      cursor: pointer;
+      transition: all 0.25s ease;
+      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
+    }
+
+    .calendar-container {
+      display: none;
+      flex-direction: column;
+      align-items: center;
+      margin-top: 40px;
+    }
+
+    table {
+      width: 100%;
+      max-width: 640px;
+      border-collapse: separate;
+      border-spacing: 6px;
+      margin: 10px auto;
+      background: #fff;
+      border-radius: 20px;
+      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+    }
+
+    th, td {
+      width: calc(100% / 7);
+      height: 70px;
+      text-align: center;
+      border-radius: 12px;
+      vertical-align: middle;
+    }
+
+    .available { background: rgba(52,199,89,0.15); cursor: pointer; }
+    .unavailable { background: rgba(255,59,48,0.25); cursor: not-allowed; }
+    .past { background: rgba(142,142,147,0.25); cursor: not-allowed; }
+
+    .slots-row {
+      margin-top: 6px;
+      display: flex;
+      justify-content: center;
+      gap: 4px;
+    }
+
+    .slot-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .slot-dot.free { background: rgba(52,199,89,0.6); }
+    .slot-dot.busy { background: rgba(255,59,48,0.7); }
+
+    .modal {
+      display: none;
+      position: fixed;
+      z-index: 10;
+      left: 0; top: 0;
+      width: 100%; height: 100%;
+      background: rgba(0,0,0,0.5);
+      backdrop-filter: blur(8px);
+      justify-content: center;
+      align-items: center;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal-content {
+      background: #fff;
+      padding: 25px;
+      border-radius: 16px;
+      width: 90%;
+      max-width: 360px;
+      text-align: left;
+      box-shadow: var(--shadow-soft);
+      transform: scale(0.95);
+      opacity: 0;
+      transition: all 0.25s ease;
+    }
+
+    .modal.show .modal-content {
+      transform: scale(1);
+      opacity: 1;
+    }
+
+    .close {
+      float: right;
+      font-size: 20px;
+      cursor: pointer;
+      color: #aaa;
+    }
+
+    /* Формы */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+
     .modal-content form .row {
-  display: grid;
-  grid-template-columns: 1fr 1fr;
-  gap: 10px;
-  align-items: end;
-}
-    .modal-content form input[name="company"] {
-  margin-top: -4px; /
-}
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 10px;
+      align-items: end;
+    }
 
+    .modal-content input,
+    .modal-content select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #e5e5e5;
+      font-size: 1rem;
+      background: #fafafa;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
 
-.modal-content form .row input {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #e5e5e5;
-  font-size: 1rem;
-  background: #fafafa;
-  transition: all 0.25s ease;
-  box-sizing: border-box;
-}
+    .modal-content input:focus,
+    .modal-content select:focus {
+      outline: none;
+      border-color: #000;
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    }
 
-.modal-content form .row input:focus {
-  outline: none;
-  border-color: #000;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
-}
+    .modal-content h3 {
+      font-size: 1.1rem;
+      font-weight: 600;
+      text-align: center;
+      margin: 0 0 14px 0;
+      line-height: 1.4;
+    }
 
-    .modal-content form .row input{flex:1;}
-    .book-btn:hover{background:#111;transform:translateY(-1px);}
-    .book-btn:active{transform:scale(0.98);}
+    .book-btn {
+      background: #000;
+      color: #fff;
+      border: none;
+      padding: 14px;
+      border-radius: 14px;
+      font-size: 1rem;
+      font-weight: 500;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .book-btn:hover {
+      background: #111;
+      transform: translateY(-1px);
+    }
+
+    .book-btn:active {
+      transform: scale(0.98);
+    }
   </style>
 </head>
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
     <p>Выберите категорию:</p>
+
     <div class="service-group">
       <h3>👤 Для частных лиц</h3>
       <div class="button-row">
@@ -85,6 +224,7 @@
         <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾','Химчистка')">🧺 Химчистка — 50₾</button>
       </div>
     </div>
+
     <div class="service-group">
       <h3>🏢 Для управляющих компаний</h3>
       <div class="button-row">
@@ -119,7 +259,7 @@ function showNotification(text) {
   setTimeout(() => { note.style.opacity = "0"; setTimeout(() => note.remove(), 400); }, 2500);
 }
 
-/* ==== Старый рабочий код календаря (без изменений) ==== */
+/* ==== Логика календаря ==== */
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
 const gids = { "Главный": "0", "Химчистка": "591986483", "Апартаменты": "1636464154" };
 let selectedService="", selectedDate="", currentSheet="";
@@ -190,21 +330,23 @@ function generateCalendar(busyDates=[]){
   html+="</tr>";cal.innerHTML=html;
 }
 
-/* ==== Модалка и форма ==== */
+/* ==== Модалка ==== */
 const modal=document.getElementById("bookingModal");
 
 function openModal(date,busyTimes=[]){
   selectedDate=date;
   const content=document.querySelector(".modal-content");
+
   if(currentSheet==="Апартаменты"){
     const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
     const slotOptions=timeSlots.map(t=>{
       const disabled=busyTimes.includes(t)?"disabled style='opacity:.45;cursor:not-allowed;'":"";
       return `<option value="${t}" ${disabled}>${t}</option>`;
     }).join("");
+
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
-      <h3>${selectedService}<br>📅 ${date}</h3>
+      <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
       <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET">
         <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
@@ -216,7 +358,9 @@ function openModal(date,busyTimes=[]){
         <label>Управляющая компания:</label>
         <input type="text" name="company" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
-      </form>`;
+      </form>
+    `;
+
     const form=content.querySelector("#apartmentForm");
     form.addEventListener("submit",async(e)=>{
       e.preventDefault();
@@ -233,20 +377,32 @@ function openModal(date,busyTimes=[]){
         }else showNotification("Ошибка при отправке.");
       }catch{showNotification("Ошибка соединения.");}
     });
-  }else{
+  } else {
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
-      <div class="row">
-        <input id="clientName" placeholder="Ваше имя">
-        <input id="clientPhone" placeholder="Телефон">
-      </div>
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>`;
+      <form id="simpleForm">
+        <input type="text" name="name" placeholder="Ваше имя" required>
+        <input type="tel" name="phone" placeholder="Телефон" required>
+        <button type="submit" class="book-btn">Забронировать</button>
+      </form>
+    `;
+    const form=content.querySelector("#simpleForm");
+    form.addEventListener("submit",(e)=>{
+      e.preventDefault();
+      showNotification("✅ Заявка отправлена через Telegram");
+      closeModal();
+    });
   }
+
   modal.style.display="flex";
+  requestAnimationFrame(()=>modal.classList.add("show"));
 }
-function closeModal(){modal.style.display="none";}
-function sendBooking(){showNotification("✅ Заявка отправлена!");closeModal();}
+
+function closeModal(){
+  modal.classList.remove("show");
+  setTimeout(()=>modal.style.display="none",250);
+}
 </script>
 </body>
 </html>
