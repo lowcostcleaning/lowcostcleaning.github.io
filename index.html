@@ -23,7 +23,10 @@
       -webkit-font-smoothing: antialiased;
     }
 
-    header { padding: 70px 20px 40px; animation: fadeIn 0.6s ease forwards; }
+    header {
+      padding: 70px 20px 40px;
+      animation: fadeIn 0.6s ease forwards;
+    }
 
     h1 {
       margin: 0;
@@ -35,7 +38,11 @@
       gap: 6px;
     }
 
-    p { color: var(--text-muted); margin-top: 10px; margin-bottom: 30px; }
+    p {
+      color: var(--text-muted);
+      margin-top: 10px;
+      margin-bottom: 30px;
+    }
 
     .service-group {
       background: rgba(255,255,255,0.7);
@@ -49,9 +56,16 @@
       transition: 0.3s;
     }
 
-    .service-group:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+    .service-group:hover {
+      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
+    }
 
-    .button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
+    .button-row {
+      display: flex;
+      flex-wrap: wrap;
+      justify-content: center;
+      gap: 10px;
+    }
 
     .btn {
       background: rgba(255,255,255,0.8);
@@ -66,7 +80,10 @@
       backdrop-filter: blur(10px);
     }
 
-    .btn:hover { background: rgba(255,255,255,0.95); transform: translateY(-2px); }
+    .btn:hover {
+      background: rgba(255,255,255,0.95);
+      transform: translateY(-2px);
+    }
 
     .calendar-container {
       display: none;
@@ -109,7 +126,6 @@
     .legend { margin-top: 15px; font-size: 0.9rem; color: var(--text-muted); }
 
     .dot { width: 12px; height: 12px; border-radius: 50%; display: inline-block; margin-right: 6px; }
-
     .dot.free { background: rgba(52,199,89,0.4); }
     .dot.busy { background: rgba(255,59,48,0.4); }
     .dot.past { background: rgba(142,142,147,0.3); }
@@ -222,10 +238,7 @@ async function chooseService(service,sheet){
   container.style.display="flex";calendar.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
   const busyDates=await getBusyDates(sheet);
   generateCalendar(busyDates);
-  requestAnimationFrame(()=>{
-    container.style.opacity="1";
-    window.scrollTo({top:container.offsetTop-40,behavior:"smooth"});
-  });
+  requestAnimationFrame(()=>{container.style.opacity="1";window.scrollTo({top:container.offsetTop-40,behavior:"smooth"});});
 }
 
 function generateCalendar(busyDates=[]){
@@ -279,16 +292,15 @@ function openModal(date,busyTimes=[]){
   const content=document.querySelector(".modal-content");
   if(currentSheet==="Апартаменты"){
     const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
-    const slotOpts=timeSlots.map(t=>{
-      const disabled=busyTimes.includes(t)?"disabled":"";
-      return `<option value="${t}" ${disabled}>${t}</option>`;
-    }).join("");
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
-      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="POST">
+      <form action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" target="_blank" style="margin-top:14px;">
+        <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
-        <select name="time" required>${slotOpts}</select>
+        <select name="time" required style="width:100%;margin-bottom:12px;">
+          ${timeSlots.map(t=>`<option value="${t}">${t}</option>`).join("")}
+        </select>
         <label>ЖК:</label>
         <input type="text" name="complex" placeholder="Например: Orbi City" required>
         <label>Апартамент:</label>
@@ -296,25 +308,16 @@ function openModal(date,busyTimes=[]){
         <label>Управляющая компания:</label>
         <input type="text" name="company" placeholder="Например: Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
-      </form>`;
-    const form=content.querySelector("#apartmentForm");
-    form.addEventListener("submit",async(e)=>{
-      e.preventDefault();
-      const formData=new FormData(form);
-      const json=Object.fromEntries(formData.entries());
-      try{
-        const res=await fetch(form.action,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(json)});
-        if(res.ok){alert("✅ Заявка отправлена!");closeModal();}
-        else alert("Ошибка при отправке.");
-      }catch{alert("Ошибка соединения.");}
-    });
+      </form>
+    `;
   } else {
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
       <input type="text" id="clientName" placeholder="Ваше имя" />
       <input type="tel" id="clientPhone" placeholder="Телефон" />
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>`;
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+    `;
   }
   selectedTime="";modal.style.display="flex";
 }
