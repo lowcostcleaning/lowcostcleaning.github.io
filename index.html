@@ -295,7 +295,7 @@ function openModal(date,busyTimes=[]){
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
-      <form action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" target="_blank" style="margin-top:14px;">
+      <form action="https://vm62681.vpsone.xyz/webhook-test/apartments-booking" method="GET" target="_blank" style="margin-top:14px;">
         <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
         <select name="time" required style="width:100%;margin-bottom:12px;">
