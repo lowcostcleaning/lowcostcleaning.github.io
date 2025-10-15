@@ -106,12 +106,7 @@
       gap: 4px;
     }
 
-    .slot-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-    }
-
+    .slot-dot { width: 8px; height: 8px; border-radius: 50%; }
     .slot-dot.free { background: rgba(52,199,89,0.6); }
     .slot-dot.busy { background: rgba(255,59,48,0.7); }
 
@@ -204,18 +199,13 @@ async function getBusyDates(sheetName) {
   const text = await res.text();
   const rows = text.split("\n").map(r => r.split(","));
   const busy = [];
-
   for (let i = 1; i < rows.length; i++) {
     const r = rows[i];
     if (!r || r.length < 2) continue;
-
     let date = (r[0] || "").trim().replace(/"/g, "");
     const time = (r[1] || "").trim();
-    // универсальный вариант: если 3-й столбец есть — берём его, иначе последний
     const status = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
-
     if (!date || !status.includes("занято")) continue;
-
     if (date.includes(".")) {
       const [d, m, y] = date.split(".");
       date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
@@ -316,7 +306,6 @@ function openModal(date, busyTimes = []) {
         <input type="hidden" name="date" value="${date}">
         <label>Время:</label>
         <select name="time" required style="width:100%;margin-bottom:12px;">${slotOptions}</select>
-
         <div style="display:flex;gap:6px;">
           <div style="flex:1;">
             <label>ЖК:</label>
@@ -327,13 +316,32 @@ function openModal(date, busyTimes = []) {
             <input type="text" name="apartment" placeholder="B-1210" required style="width:100%;margin-bottom:10px;">
           </div>
         </div>
-
         <label>Управляющая компания:</label>
         <input type="text" name="company" placeholder="Orbi Group" required style="width:100%;margin-bottom:12px;">
-
         <button type="submit" class="book-btn">Отправить</button>
       </form>
     `;
+
+    // Перехватываем отправку формы, чтобы сделать красивое завершение
+    const form = content.querySelector("#apartmentForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const params = new URLSearchParams(new FormData(form)).toString();
+      try {
+        const res = await fetch(`${form.action}?${params}`);
+        if (res.ok) {
+          alert("✅ Заявка отправлена!");
+          closeModal();
+          document.getElementById("calendarContainer").style.display = "none";
+          window.scrollTo({ top: 0, behavior: "smooth" });
+        } else {
+          alert("Ошибка при отправке.");
+        }
+      } catch {
+        alert("Ошибка соединения.");
+      }
+    });
+
   } else {
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
@@ -352,6 +360,5 @@ function openModal(date, busyTimes = []) {
 function closeModal() { modal.style.display = "none"; }
 function sendBooking() { alert("Заявка отправлена через Telegram"); }
 </script>
-
 </body>
 </html>
