@@ -45,7 +45,6 @@
       margin-bottom: 30px;
     }
 
-    /* === Группы услуг === */
     .service-group {
       background: rgba(255,255,255,0.7);
       border-radius: 18px;
@@ -58,25 +57,10 @@
       transition: 0.3s;
     }
 
-    .service-group:hover {
-      box-shadow: 0 12px 30px rgba(0,0,0,0.08);
-    }
+    .service-group:hover { box-shadow: 0 12px 30px rgba(0,0,0,0.08); }
+    .service-group h3 { font-size: 1.1rem; font-weight: 600; margin-bottom: 18px; color: #000; }
+    .button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
 
-    .service-group h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      margin-bottom: 18px;
-      color: #000;
-    }
-
-    .button-row {
-      display: flex;
-      flex-wrap: wrap;
-      justify-content: center;
-      gap: 10px;
-    }
-
-    /* === Кнопки === */
     .btn {
       background: rgba(255,255,255,0.8);
       color: #111;
@@ -89,231 +73,52 @@
       box-shadow: 0 4px 12px rgba(0,0,0,0.05);
       backdrop-filter: blur(10px);
     }
+    .btn:hover { background: rgba(255,255,255,0.95); transform: translateY(-2px); box-shadow: 0 8px 20px rgba(0,0,0,0.08); }
+    .btn:active { transform: scale(0.97); box-shadow: 0 3px 8px rgba(0,0,0,0.1) inset; }
 
-    .btn:hover {
-      background: rgba(255,255,255,0.95);
-      transform: translateY(-2px);
-      box-shadow: 0 8px 20px rgba(0,0,0,0.08);
-    }
+    .calendar-container { display: none; flex-direction: column; align-items: center; margin-top: 40px; opacity: 0; transform: translateY(20px); animation: fadeUp 0.6s ease forwards; }
 
-    .btn:active {
-      transform: scale(0.97);
-      box-shadow: 0 3px 8px rgba(0,0,0,0.1) inset;
-    }
+    table { border-collapse: collapse; margin-top: 10px; box-shadow: var(--shadow-soft); border-radius: var(--radius); background: #fff; overflow: hidden; }
+    th, td { width: calc(100% / 7); height: 70px; text-align: center; border-radius: 12px; vertical-align: middle; font-size: 0.9rem; transition: 0.2s ease; box-sizing: border-box; }
+    table { width: 100%; max-width: 640px; border-collapse: separate; border-spacing: 6px; margin: 10px auto; background: #fff; border-radius: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.05); overflow: hidden; }
+    th { color: var(--text-muted); font-weight: 600; }
 
-    /* === Календарь === */
-    .calendar-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 40px;
-      opacity: 0;
-      transform: translateY(20px);
-      animation: fadeUp 0.6s ease forwards;
-    }
+    .available { background: rgba(52,199,89,0.15); color: #007a1c; cursor: pointer; }
+    .available:hover { background: rgba(52,199,89,0.3); transform: scale(1.03); }
+    .unavailable { background: rgba(255,59,48,0.25); color: #a40000; cursor: not-allowed; }
+    .past { background: rgba(142,142,147,0.25); color: #8e8e93; cursor: not-allowed; }
 
-    table {
-      border-collapse: collapse;
-      margin-top: 10px;
-      box-shadow: var(--shadow-soft);
-      border-radius: var(--radius);
-      background: #fff;
-      overflow: hidden;
-    }
+    .legend { margin-top: 15px; font-size: 0.9rem; color: var(--text-muted); }
+    .dot { display: inline-block; width: 12px; height: 12px; border-radius: 50%; margin-right: 6px; vertical-align: middle; border: 1px solid rgba(0,0,0,0.15); }
+    .dot.free { background: rgba(52,199,89,0.4); border-color: rgba(52,199,89,0.5); }
+    .dot.busy { background: rgba(255,59,48,0.4); border-color: rgba(255,59,48,0.5); }
+    .dot.past { background: rgba(142,142,147,0.3); border-color: rgba(142,142,147,0.4); }
 
-    th, td {
-      width: calc(100% / 7);
-      height: 70px;
-      text-align: center;
-      border-radius: 12px;
-      vertical-align: middle;
-      font-size: 0.9rem;
-      transition: 0.2s ease;
-      box-sizing: border-box;
-    }
+    .slots-row { margin-top: 6px; display: flex; justify-content: center; gap: 4px; }
+    .slot-dot { width: 8px; height: 8px; border-radius: 50%; }
+    .slot-dot.free { background: rgba(52,199,89,0.6); }
+    .slot-dot.busy { background: rgba(255,59,48,0.7); }
 
-    table {
-      width: 100%;
-      max-width: 640px;
-      border-collapse: separate;
-      border-spacing: 6px;
-      margin: 10px auto;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-      overflow: hidden;
-    }
+    .modal { display: none; position: fixed; z-index: 10; left: 0; top: 0; width: 100%; height: 100%; background: rgba(0,0,0,0.5); backdrop-filter: blur(8px); justify-content: center; align-items: center; }
+    .modal-content { background: #fff; padding: 25px; border-radius: 16px; width: 90%; max-width: 360px; text-align: left; box-shadow: var(--shadow-soft); animation: fadeIn 0.3s ease; }
+    .modal-content input, .modal-content select { width: 100%; padding: 10px; margin-bottom: 12px; border-radius: 8px; border: 1px solid #ccc; font-size: 1rem; transition: border-color 0.2s ease; }
+    .modal-content input:focus, .modal-content select:focus { outline: none; border-color: #007aff; }
 
-    th {
-      color: var(--text-muted);
-      font-weight: 600;
-    }
+    .book-btn { background: #000; color: #fff; border: none; padding: 12px 20px; border-radius: 8px; font-size: 1rem; cursor: pointer; width: 100%; transition: background 0.3s ease; }
+    .book-btn:hover { background: #333; }
 
-    .available {
-      background: rgba(52,199,89,0.15);
-      color: #007a1c;
-      cursor: pointer;
-    }
+    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
+    .time-btn.active { background: #000 !important; color: #fff !important; }
 
-    .available:hover {
-      background: rgba(52,199,89,0.3);
-      transform: scale(1.03);
-    }
-
-    .unavailable {
-      background: rgba(255,59,48,0.25);
-      color: #a40000;
-      cursor: not-allowed;
-    }
-
-    .past {
-      background: rgba(142,142,147,0.25);
-      color: #8e8e93;
-      cursor: not-allowed;
-    }
-
-    /* === Подсказки === */
-    .legend {
-      margin-top: 15px;
-      font-size: 0.9rem;
-      color: var(--text-muted);
-    }
-
-    .dot {
-      display: inline-block;
-      width: 12px;
-      height: 12px;
-      border-radius: 50%;
-      margin-right: 6px;
-      vertical-align: middle;
-      border: 1px solid rgba(0,0,0,0.15);
-    }
-
-    .dot.free {
-      background: rgba(52,199,89,0.4);
-      border-color: rgba(52,199,89,0.5);
-    }
-
-    .dot.busy {
-      background: rgba(255,59,48,0.4);
-      border-color: rgba(255,59,48,0.5);
-    }
-
-    .dot.past {
-      background: rgba(142,142,147,0.3);
-      border-color: rgba(142,142,147,0.4);
-    }
-
-    .slots-row {
-  margin-top: 6px;
-  display: flex;
-  justify-content: center;
-  gap: 4px;
-}
-
-.slot-dot {
-  width: 8px;
-  height: 8px;
-  border-radius: 50%;
-}
-
-.slot-dot.free {
-  background: rgba(52,199,89,0.6);
-}
-
-.slot-dot.busy {
-  background: rgba(255,59,48,0.7);
-}
-
-
-    /* === Модалка === */
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-      justify-content: center;
-      align-items: center;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 360px;
-      text-align: left;
-      box-shadow: var(--shadow-soft);
-      animation: fadeIn 0.3s ease;
-    }
-
-    .modal-content input {
-      width: 100%;
-      padding: 10px;
-      margin-bottom: 12px;
-      border-radius: 8px;
-      border: 1px solid #ccc;
-      font-size: 1rem;
-      transition: border-color 0.2s ease;
-    }
-
-    .modal-content input:focus {
-      outline: none;
-      border-color: #007aff;
-    }
-
-    .book-btn {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
-      font-size: 1rem;
-      cursor: pointer;
-      width: 100%;
-      transition: background 0.3s ease;
-    }
-
-    .book-btn:hover {
-      background: #333;
-    }
-
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-      color: #aaa;
-    }
-
-    .time-btn.active {
-      background: #000 !important;
-      color: #fff !important;
-    }
-
-    footer {
-      margin-top: 80px;
-      padding: 20px;
-      color: var(--text-muted);
-      font-size: 0.9rem;
-    }
+    footer { margin-top: 80px; padding: 20px; color: var(--text-muted); font-size: 0.9rem; }
 
     @media (max-width: 480px) {
       th, td { height: 50px; font-size: 0.8rem; }
       .btn { padding: 10px 18px; font-size: 0.9rem; }
     }
 
-    @keyframes fadeIn {
-      from { opacity: 0; transform: scale(0.98); }
-      to { opacity: 1; transform: scale(1); }
-    }
-
-    @keyframes fadeUp {
-      from { opacity: 0; transform: translateY(30px); }
-      to { opacity: 1; transform: translateY(0); }
-    }
+    @keyframes fadeIn { from { opacity: 0; transform: scale(0.98); } to { opacity: 1; transform: scale(1); } }
+    @keyframes fadeUp { from { opacity: 0; transform: translateY(30px); } to { opacity: 1; transform: translateY(0); } }
   </style>
 </head>
 
@@ -352,273 +157,157 @@
   <footer>© 2025 Lowcost Cleaning</footer>
 
   <div id="bookingModal" class="modal">
-    <div class="modal-content">
-      <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">Бронирование</h3>
-      <input type="text" id="clientName" placeholder="Ваше имя" />
-      <input type="tel" id="clientPhone" placeholder="Телефон" />
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
-    </div>
+    <div class="modal-content"></div>
   </div>
 
 <script>
-const BASE_URL =
-  "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
+const BASE_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
+const gids={"Главный":"0","Химчистка":"591986483","Апартаменты":"1636464154"};
+let selectedService="",selectedDate="",selectedTime="",currentSheet="";
 
-const gids = {
-  "Главный": "0",
-  "Химчистка": "591986483",
-  "Апартаменты": "1636464154"
-};
-
-let selectedService = "";
-let selectedDate = "";
-let selectedTime  = "";
-let currentSheet  = "";
-
-/* ---- Загрузка занятых дат ---- */
-async function getBusyDates(sheetName) {
-  const gid = gids[sheetName] || "0";
-  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  const res  = await fetch(url, { cache: "no-store" });
-  const text = await res.text();
-
-  const rows = text.split("\n").map(r => r.split(","));
-  const busy = [];
-
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 2) continue;
-
-    let date = (r[0] || "").trim().replace(/"/g, "");
-    const time   = (r[1] || "").trim();
-    const status = (r[r.length - 1] || "").trim().toLowerCase();
-
-    if (!date || !status.includes("занято")) continue;
-
-    // поддержка формата 15.10.2025
-    if (date.includes(".")) {
-      const [d, m, y] = date.split(".");
-      date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
-    }
-    busy.push(time ? `${date} ${time}` : date);
+/* --- получение данных --- */
+async function getBusyDates(sheetName){
+  const gid=gids[sheetName]||"0";
+  const url=`${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
+  const res=await fetch(url,{cache:"no-store"});
+  const text=await res.text();
+  const rows=text.split("\n").map(r=>r.split(","));
+  const busy=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||r.length<2)continue;
+    let date=(r[0]||"").trim().replace(/"/g,"");
+    const time=(r[1]||"").trim();
+    const status=(r[r.length-1]||"").trim().toLowerCase();
+    if(!date||!status.includes("занято"))continue;
+    if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
+    busy.push(time?`${date} ${time}`:date);
   }
   return busy;
 }
 
-/* ---- Выбор услуги ---- */
-async function chooseService(service, sheet) {
-  selectedService = service;
-  currentSheet = sheet;
-
-  const container = document.getElementById("calendarContainer");
-  const calendar  = document.getElementById("calendar");
-
-  container.style.display = "flex";
-  container.style.opacity = "0";
-  calendar.innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-
-  const busyDates = await getBusyDates(sheet);
+async function chooseService(service,sheet){
+  selectedService=service;currentSheet=sheet;
+  const container=document.getElementById("calendarContainer");
+  const calendar=document.getElementById("calendar");
+  container.style.display="flex";container.style.opacity="0";
+  calendar.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
+  const busyDates=await getBusyDates(sheet);
   generateCalendar(busyDates);
-
-  // плавный скролл к календарю
-  requestAnimationFrame(() => {
-    container.style.transition = "opacity .6s ease";
-    container.style.opacity = "1";
-    window.scrollTo({ top: container.offsetTop - 40, behavior: "smooth" });
+  requestAnimationFrame(()=>{
+    container.style.transition="opacity .6s ease";
+    container.style.opacity="1";
+    window.scrollTo({top:container.offsetTop-40,behavior:"smooth"});
   });
 }
 
-/* ---- Построение календаря ---- */
-function generateCalendar(busyDates = []) {
-  const isApts   = currentSheet === "Апартаменты";
-  const calendar = document.getElementById("calendar");
-  const monthLbl = document.getElementById("monthLabel");
+/* --- генерация календаря --- */
+function generateCalendar(busyDates=[]){
+  const isApts=currentSheet==="Апартаменты";
+  const calendar=document.getElementById("calendar");
+  const monthLbl=document.getElementById("monthLabel");
+  calendar.innerHTML="";
+  const now=new Date(),year=now.getFullYear(),month=now.getMonth();
+  const monthName=now.toLocaleString("ru-RU",{month:"long",year:"numeric"});
+  monthLbl.textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
+  const firstDay=new Date(year,month,1).getDay();
+  const offset=firstDay===0?6:firstDay-1;
+  const daysInMonth=new Date(year,month+1,0).getDate();
+  let html="<tr>";
+  const weekDays=["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
+  html+=weekDays.map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
+  const allTimes=["10:00","12:00","14:00","16:00","18:00"];
+  const groupedByDate={},busyDaysSet=new Set();
 
-  calendar.innerHTML = "";
+  if(isApts){busyDates.forEach(v=>{const[d,t]=v.trim().split(" ");if(!d)return;if(!groupedByDate[d])groupedByDate[d]=new Set();if(t)groupedByDate[d].add(t.trim());});}
+  else busyDates.forEach(v=>busyDaysSet.add(v.split(" ")[0]));
 
-  const now   = new Date();
-  const year  = now.getFullYear();
-  const month = now.getMonth();
-
-  const monthName = now.toLocaleString("ru-RU",{ month:"long", year:"numeric" });
-  monthLbl.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-  const firstDay    = new Date(year, month, 1).getDay();
-  const offset      = firstDay === 0 ? 6 : firstDay - 1;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-
-  let html = "<tr>";
-  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-  html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-
-  const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
-
-  // группировка занятых по дате (для апартаментов)
-  const groupedByDate = {};
-  // простой набор занятых дней (для прочих листов)
-  const busyDaysSet = new Set();
-
-  if (isApts) {
-    busyDates.forEach(v => {
-      const [d, t] = v.trim().split(" ");
-      if (!d) return;
-      if (!groupedByDate[d]) groupedByDate[d] = new Set();
-      if (t) groupedByDate[d].add(t.trim());
-    });
-  } else {
-    busyDates.forEach(v => busyDaysSet.add(v.split(" ")[0]));
-  }
-
-  for (let i = 0; i < offset; i++) html += "<td></td>";
-
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const dateObj = new Date(dateStr);
-    const isPast  = dateObj < new Date(new Date().setHours(0,0,0,0));
-
-    let className = "";
-    let clickAttr = "";
-    let inner     = `<div>${day}</div>`;
-
-    if (isApts) {
-      const busyTimes = Array.from(groupedByDate[dateStr] || []);
-      const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
-      const allBusy   = freeTimes.length === 0;
-
-      const dots = allTimes
-        .map(t => `<span class="slot-dot ${busyTimes.includes(t) ? "busy" : "free"}"></span>`)
-        .join("");
-      inner += `<div class="slots-row">${dots}</div>`;
-
-      if (isPast) {
-        className = "past";
-      } else if (allBusy) {
-        className = "unavailable";
-      } else {
-        className = "available";
-        // передаём в модалку массив занятых слотов дня
-        clickAttr = `onclick='openModal("${dateStr}", ${JSON.stringify(busyTimes)})'`;
-      }
+  for(let i=0;i<offset;i++)html+="<td></td>";
+  for(let day=1;day<=daysInMonth;day++){
+    const dateStr=`${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const dateObj=new Date(dateStr);
+    const isPast=dateObj<new Date(new Date().setHours(0,0,0,0));
+    let className="",clickAttr="",inner=`<div>${day}</div>`;
+    if(isApts){
+      const busyTimes=Array.from(groupedByDate[dateStr]||[]);
+      const freeTimes=allTimes.filter(t=>!busyTimes.includes(t));
+      const allBusy=freeTimes.length===0;
+      const dots=allTimes.map(t=>`<span class="slot-dot ${busyTimes.includes(t)?"busy":"free"}"></span>`).join("");
+      inner+=`<div class="slots-row">${dots}</div>`;
+      if(isPast)className="past";
+      else if(allBusy)className="unavailable";
+      else{className="available";clickAttr=`onclick='openModal("${dateStr}", ${JSON.stringify(busyTimes)})'`;}
     } else {
-      if (isPast) {
-        className = "past";
-      } else if (busyDaysSet.has(dateStr)) {
-        className = "unavailable";
-      } else {
-        className = "available";
-        clickAttr = `onclick='openModal("${dateStr}")'`;
-      }
+      if(isPast)className="past";
+      else if(busyDaysSet.has(dateStr))className="unavailable";
+      else{className="available";clickAttr=`onclick='openModal("${dateStr}")'`;}
     }
-
-    html += `<td class="${className}" ${clickAttr}>${inner}</td>`;
-    if ((day + offset) % 7 === 0) html += "</tr><tr>";
+    html+=`<td class="${className}" ${clickAttr}>${inner}</td>`;
+    if((day+offset)%7===0)html+="</tr><tr>";
   }
-
-  html += "</tr>";
-  calendar.innerHTML = html;
+  html+="</tr>";
+  calendar.innerHTML=html;
 }
 
-/* ---- Модалка ---- */
-const modal = document.getElementById("bookingModal");
+const modal=document.getElementById("bookingModal");
 
-function openModal(date, busyTimes = []) {
-  selectedDate = date;
-  const content = document.querySelector(".modal-content");
-
-  if (currentSheet === "Апартаменты") {
-    const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
-    const slotBtns = timeSlots.map(t => {
-      const disabled = busyTimes.includes(t) ? "disabled style='opacity:.45;cursor:not-allowed;'" : "";
-      return `<option value="${t}" ${disabled ? "disabled" : ""}>${t}</option>`;
+function openModal(date,busyTimes=[]){
+  selectedDate=date;
+  const content=document.querySelector(".modal-content");
+  if(currentSheet==="Апартаменты"){
+    const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
+    const slotOpts=timeSlots.map(t=>{
+      const disabled=busyTimes.includes(t)?"disabled":"";
+      return `<option value="${t}" ${disabled}>${t}</option>`;
     }).join("");
-
-    content.innerHTML = `
+    content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
-      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="POST" style="margin-top:14px;">
-        <input type="hidden" name="date" value="${date}">
+      <h3>${selectedService}<br>📅 ${date}</h3>
+      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="POST">
         <label>Время:</label>
-        <select name="time" required style="width:100%;margin-bottom:12px;">${slotBtns}</select>
-
+        <select name="time" required>${slotOpts}</select>
         <label>ЖК:</label>
         <input type="text" name="complex" placeholder="Например: Orbi City" required>
-
         <label>Апартамент:</label>
         <input type="text" name="apartment" placeholder="Например: B-1210" required>
-
         <label>Управляющая компания:</label>
         <input type="text" name="company" placeholder="Например: Orbi Group" required>
-
         <button type="submit" class="book-btn">Отправить</button>
-      </form>
-    `;
-
-    const form = content.querySelector("#apartmentForm");
-    form.addEventListener("submit", async (e) => {
+      </form>`;
+    const form=content.querySelector("#apartmentForm");
+    form.addEventListener("submit",async(e)=>{
       e.preventDefault();
-      const formData = new FormData(form);
-      const json = Object.fromEntries(formData.entries());
-
-      try {
-        const res = await fetch(form.action, {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify(json)
-        });
-        if (res.ok) {
-          alert("✅ Заявка отправлена!");
-          closeModal();
-        } else {
-          alert("Ошибка при отправке.");
-        }
-      } catch {
-        alert("Ошибка соединения.");
-      }
+      const formData=new FormData(form);
+      const json=Object.fromEntries(formData.entries());
+      try{
+        const res=await fetch(form.action,{method:"POST",headers:{"Content-Type":"application/json"},body:JSON.stringify(json)});
+        if(res.ok){alert("✅ Заявка отправлена!");closeModal();}
+        else alert("Ошибка при отправке.");
+      }catch{alert("Ошибка соединения.");}
     });
-
   } else {
-    // для других услуг оставляем старую форму
-    content.innerHTML = `
+    content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
-      <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
-      <input type="text" id="clientName"  placeholder="Ваше имя" />
-      <input type="tel"  id="clientPhone" placeholder="Телефон" />
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
-    `;
+      <h3>${selectedService}<br>📅 ${date}</h3>
+      <input type="text" id="clientName" placeholder="Ваше имя">
+      <input type="tel" id="clientPhone" placeholder="Телефон">
+      <button class="book-btn" onclick="sendBooking()">Забронировать</button>`;
   }
-
-  modal.style.display = "flex";
-
+  modal.style.display="flex";
 }
 
-function selectTime(time, e) {
-  selectedTime = time;
-  document.querySelectorAll(".time-btn").forEach(b => b.classList.remove("active"));
-  e.target.classList.add("active");
-}
+function closeModal(){modal.style.display="none";}
 
-function closeModal() {
-  modal.style.display = "none";
-}
-
-function sendBooking() {
-  const name  = (document.getElementById("clientName").value  || "").trim();
-  const phone = (document.getElementById("clientPhone").value || "").trim();
-  if (!name || !phone) {
-    alert("Пожалуйста, заполните имя и телефон");
-    return;
-  }
-  let msg = `🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}`;
-  if (selectedTime) msg += ` ⏰ ${selectedTime}`;
-  msg += `\n👤 ${name}\n📞 ${phone}`;
-
+function sendBooking(){
+  const name=(document.getElementById("clientName").value||"").trim();
+  const phone=(document.getElementById("clientPhone").value||"").trim();
+  if(!name||!phone){alert("Пожалуйста, заполните имя и телефон");return;}
+  let msg=`🧹 Новая запись:\n${selectedService}\n📅 ${selectedDate}`;
+  if(selectedTime)msg+=` ⏰ ${selectedTime}`;
+  msg+=`\n👤 ${name}\n📞 ${phone}`;
   window.open(`https://t.me/kalendaruborok_bot?text=${encodeURIComponent(msg)}`,"_blank");
   closeModal();
 }
 </script>
-
-
-
-
-</body> </html>
+</body>
+</html>
