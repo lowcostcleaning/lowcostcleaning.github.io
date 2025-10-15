@@ -219,16 +219,28 @@ async function getBusyDates(sheetName) {
 async function chooseService(service, sheet) {
   selectedService = service;
   currentSheet = sheet;
+
   const container = document.getElementById("calendarContainer");
-  const calendar = document.getElementById("calendar");
-  container.style.display = "flex";
+  const calendar  = document.getElementById("calendar");
+
+  // показать контейнер и подготовить плавное появление
+  container.style.display  = "flex";
+  container.style.opacity  = "0";
+  container.style.transition = "opacity .6s ease";
   calendar.innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
+
+  // подгружаем занятые даты и рисуем календарь
   const busyDates = await getBusyDates(sheet);
   generateCalendar(busyDates);
-  // 👇 плавная прокрутка к календарю
-  setTimeout(() => {
-    container.scrollIntoView({ behavior: "smooth", block: "start" });
-  }, 300);
+
+  // после того как DOM перерисовался — плавно проявляем и скроллим
+  requestAnimationFrame(() => {
+    container.style.opacity = "1";
+    window.scrollTo({
+      top: container.offsetTop - 40,
+      behavior: "smooth"
+    });
+  });
 }
 
 /* ---- Построение календаря ---- */
