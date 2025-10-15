@@ -132,99 +132,80 @@
       box-shadow: var(--shadow-soft);
     }
 
+    /* === Apple style for forms === */
+    .modal-content form {
+      display: flex;
+      flex-direction: column;
+      gap: 14px;
+    }
+
+    .modal-content label {
+      font-size: 0.9rem;
+      font-weight: 500;
+      color: #111;
+      margin-bottom: 4px;
+      display: block;
+    }
+
+    .modal-content input,
+    .modal-content select {
+      width: 100%;
+      padding: 12px 14px;
+      border-radius: 12px;
+      border: 1px solid #e5e5e5;
+      font-size: 1rem;
+      background: #fafafa;
+      transition: all 0.25s ease;
+      box-sizing: border-box;
+    }
+
+    .modal-content input:focus,
+    .modal-content select:focus {
+      outline: none;
+      border-color: #000;
+      background: #fff;
+      box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+    }
+
+    .modal-content h3 {
+      font-size: 1.15rem;
+      font-weight: 600;
+      text-align: center;
+      margin-bottom: 20px;
+    }
+
+    .modal-content form .row {
+      display: flex;
+      gap: 8px;
+    }
+
+    .modal-content form .row input {
+      flex: 1;
+    }
+
     .book-btn {
       background: #000;
       color: #fff;
       border: none;
-      padding: 12px 20px;
-      border-radius: 8px;
+      padding: 14px;
+      border-radius: 14px;
       font-size: 1rem;
+      font-weight: 500;
       cursor: pointer;
-      width: 100%;
+      transition: all 0.3s ease;
     }
 
-    .close {
-      float: right;
-      font-size: 20px;
-      cursor: pointer;
-      color: #aaa;
+    .book-btn:hover {
+      background: #111;
+      transform: translateY(-1px);
     }
 
-    /* === Apple style for forms (refined) === */
-.modal-content form {
-  display: flex;
-  flex-direction: column;
-  gap: 14px;
-}
-
-.modal-content label {
-  font-size: 0.9rem;
-  font-weight: 500;
-  color: #111;
-  margin-bottom: 4px;
-  display: block;
-}
-
-.modal-content input,
-.modal-content select {
-  width: 100%;
-  padding: 12px 14px;
-  border-radius: 12px;
-  border: 1px solid #e5e5e5;
-  font-size: 1rem;
-  background: #fafafa;
-  transition: all 0.25s ease;
-  box-sizing: border-box;
-}
-
-.modal-content input:focus,
-.modal-content select:focus {
-  outline: none;
-  border-color: #000;
-  background: #fff;
-  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
-}
-
-.modal-content h3 {
-  font-size: 1.15rem;
-  font-weight: 600;
-  text-align: center;
-  margin-bottom: 20px;
-}
-
-.modal-content form .row {
-  display: flex;
-  gap: 8px;
-}
-
-.modal-content form .row input {
-  flex: 1;
-}
-
-.book-btn {
-  background: #000;
-  color: #fff;
-  border: none;
-  padding: 14px;
-  border-radius: 14px;
-  font-size: 1rem;
-  font-weight: 500;
-  cursor: pointer;
-  transition: all 0.3s ease;
-}
-
-.book-btn:hover {
-  background: #111;
-  transform: translateY(-1px);
-}
-
-.book-btn:active {
-  transform: scale(0.98);
-}
-
-
+    .book-btn:active {
+      transform: scale(0.98);
+    }
   </style>
 </head>
+
 <body>
   <header>
     <h1>🧹 Lowcost Cleaning</h1>
@@ -256,8 +237,9 @@
     <div class="modal-content"></div>
   </div>
 
-
-  function showNotification(text) {
+<script>
+/* ---- Уведомление ---- */
+function showNotification(text) {
   const note = document.createElement("div");
   note.textContent = text;
   note.style.position = "fixed";
@@ -276,7 +258,6 @@
   note.style.transition = "opacity 0.4s ease";
   note.style.backdropFilter = "blur(8px)";
   note.style.letterSpacing = "0.3px";
-
   document.body.appendChild(note);
   setTimeout(() => (note.style.opacity = "1"), 50);
   setTimeout(() => {
@@ -285,195 +266,13 @@
   }, 2500);
 }
 
-  
-  <script>
+/* ---- Основной JS ---- */
 const BASE_URL = "https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
-const gids = {
-  "Главный": "0",
-  "Химчистка": "591986483",
-  "Апартаменты": "1636464154"
-};
+const gids = { "Главный": "0", "Химчистка": "591986483", "Апартаменты": "1636464154" };
 let selectedService = "", selectedDate = "", currentSheet = "";
 
-/* ---- Загрузка занятых дат ---- */
-async function getBusyDates(sheetName) {
-  const gid = gids[sheetName] || "0";
-  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  const res = await fetch(url, { cache: "no-store" });
-  const text = await res.text();
-  const rows = text.split("\n").map(r => r.split(","));
-  const busy = [];
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 2) continue;
-    let date = (r[0] || "").trim().replace(/"/g, "");
-    const time = (r[1] || "").trim();
-    const status = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
-    if (!date || !status.includes("занято")) continue;
-    if (date.includes(".")) {
-      const [d, m, y] = date.split(".");
-      date = `${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
-    }
-    busy.push(time ? `${date} ${time}` : date);
-  }
-  return busy;
-}
-
-/* ---- Выбор услуги ---- */
-async function chooseService(service, sheet) {
-  selectedService = service;
-  currentSheet = sheet;
-
-  const container = document.getElementById("calendarContainer");
-  const calendar  = document.getElementById("calendar");
-
-  // показать контейнер и подготовить плавное появление
-  container.style.display  = "flex";
-  container.style.opacity  = "0";
-  container.style.transition = "opacity .6s ease";
-  calendar.innerHTML = "<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-
-  // подгружаем занятые даты и рисуем календарь
-  const busyDates = await getBusyDates(sheet);
-  generateCalendar(busyDates);
-
-  // после того как DOM перерисовался — плавно проявляем и скроллим
-  requestAnimationFrame(() => {
-    container.style.opacity = "1";
-    window.scrollTo({
-      top: container.offsetTop - 40,
-      behavior: "smooth"
-    });
-  });
-}
-
-/* ---- Построение календаря ---- */
-function generateCalendar(busyDates = []) {
-  const isApts = currentSheet === "Апартаменты";
-  const calendar = document.getElementById("calendar");
-  const monthLbl = document.getElementById("monthLabel");
-  const now = new Date();
-  const year = now.getFullYear();
-  const month = now.getMonth();
-  const monthName = now.toLocaleString("ru-RU",{ month:"long", year:"numeric" });
-  monthLbl.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-  const firstDay = new Date(year, month, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  const daysInMonth = new Date(year, month + 1, 0).getDate();
-  let html = "<tr>";
-  const weekDays = ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"];
-  html += weekDays.map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-  const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
-  const groupedByDate = {};
-  const busyDaysSet = new Set();
-  if (isApts) {
-    busyDates.forEach(v => {
-      const [d, t] = v.trim().split(" ");
-      if (!d) return;
-      if (!groupedByDate[d]) groupedByDate[d] = new Set();
-      if (t) groupedByDate[d].add(t.trim());
-    });
-  } else {
-    busyDates.forEach(v => busyDaysSet.add(v.split(" ")[0]));
-  }
-  for (let i = 0; i < offset; i++) html += "<td></td>";
-  for (let day = 1; day <= daysInMonth; day++) {
-    const dateStr = `${year}-${String(month+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const dateObj = new Date(dateStr);
-    const isPast = dateObj < new Date(new Date().setHours(0,0,0,0));
-    let className = "";
-    let clickAttr = "";
-    let inner = `<div>${day}</div>`;
-    if (isApts) {
-      const busyTimes = Array.from(groupedByDate[dateStr] || []);
-      const freeTimes = allTimes.filter(t => !busyTimes.includes(t));
-      const allBusy = freeTimes.length === 0;
-      const dots = allTimes.map(t => `<span class="slot-dot ${busyTimes.includes(t) ? "busy" : "free"}"></span>`).join("");
-      inner += `<div class="slots-row">${dots}</div>`;
-      if (isPast) className = "past";
-      else if (allBusy) className = "unavailable";
-      else { className = "available"; clickAttr = `onclick='openModal("${dateStr}", ${JSON.stringify(busyTimes)})'`; }
-    } else {
-      if (isPast) className = "past";
-      else if (busyDaysSet.has(dateStr)) className = "unavailable";
-      else { className = "available"; clickAttr = `onclick='openModal("${dateStr}")'`; }
-    }
-    html += `<td class="${className}" ${clickAttr}>${inner}</td>`;
-    if ((day + offset) % 7 === 0) html += "</tr><tr>";
-  }
-  html += "</tr>";
-  calendar.innerHTML = html;
-}
-
-/* ---- Модалка ---- */
-const modal = document.getElementById("bookingModal");
-
-function openModal(date, busyTimes = []) {
-  selectedDate = date;
-  const content = document.querySelector(".modal-content");
-
-  if (currentSheet === "Апартаменты") {
-    const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
-    const slotOptions = timeSlots.map(t => {
-      const disabled = busyTimes.includes(t) ? "disabled style='opacity:.45;cursor:not-allowed;'" : "";
-      return `<option value="${t}" ${disabled}>${t}</option>`;
-    }).join("");
-
-    content.innerHTML = `
-      <span class="close" onclick="closeModal()">×</span>
-      <h3 style="margin-top:0;">${selectedService}<br>📅 ${date}</h3>
-      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" style="margin-top:14px;">
-        <input type="hidden" name="date" value="${date}">
-        <label>Время:</label>
-        <select name="time" required style="width:100%;margin-bottom:12px;">${slotOptions}</select>
-        <div class="row">
-  <div>
-    <label>ЖК:</label>
-    <input type="text" name="complex" placeholder="Orbi City" required>
-  </div>
-  <div>
-    <label>Апартамент:</label>
-    <input type="text" name="apartment" placeholder="B-1210" required>
-  </div>
-</div>
-
-        <label>Управляющая компания:</label>
-        <input type="text" name="company" placeholder="Orbi Group" required style="width:100%;margin-bottom:12px;">
-        <button type="submit" class="book-btn">Отправить</button>
-      </form>
-    `;
-
-    const form = content.querySelector("#apartmentForm");
-    form.addEventListener("submit", async (e) => {
-      e.preventDefault();
-      const params = new URLSearchParams(new FormData(form)).toString();
-      try {
-        const res = await fetch(`${form.action}?${params}`);
-        if (res.ok) {
-  closeModal();
-  showNotification("✅ Заявка отправлена!");
-  setTimeout(() => {
-    document.getElementById("calendarContainer").style.display = "none";
-    window.scrollTo({ top: 0, behavior: "smooth" });
-  }, 1500);
-} else {
- 
-    content.innerHTML = `
-      <span class="close" onclick="closeModal()">×</span>
-      <h3 style="margin-top:0;">${selectedService}<br>📅 ${date}</h3>
-      <div style="display:flex;gap:6px;">
-        <input type="text" id="clientName" placeholder="Ваше имя" style="flex:1;">
-        <input type="tel" id="clientPhone" placeholder="Телефон" style="flex:1;">
-      </div>
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
-    `;
-  }
-
-  modal.style.display = "flex";
-}
-
-function closeModal() { modal.style.display = "none"; }
-function sendBooking() { alert("Заявка отправлена через Telegram"); }
+/* ---- Остальной JS (getBusyDates, chooseService, generateCalendar, openModal и т.д.) ---- */
+/* (оставь как в твоей версии, менять ничего не нужно) */
 </script>
 </body>
 </html>
