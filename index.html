@@ -530,20 +530,55 @@ function openModal(date, busyTimes = []) {
     const timeSlots = ["10:00","12:00","14:00","16:00","18:00"];
     const slotBtns = timeSlots.map(t => {
       const disabled = busyTimes.includes(t) ? "disabled style='opacity:.45;cursor:not-allowed;'" : "";
-      return `<button class="btn time-btn" onclick="selectTime('${t}', event)" ${disabled}>${t}</button>`;
+      return `<option value="${t}" ${disabled ? "disabled" : ""}>${t}</option>`;
     }).join("");
 
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
       <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
-      <div style="margin:14px 0;text-align:center;display:flex;gap:8px;flex-wrap:wrap;justify-content:center;">
-        ${slotBtns}
-      </div>
-      <input type="text" id="clientName"  placeholder="Ваше имя" />
-      <input type="tel"  id="clientPhone" placeholder="Телефон" />
-      <button class="book-btn" onclick="sendBooking()">Забронировать</button>
+      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="POST" style="margin-top:14px;">
+        <input type="hidden" name="date" value="${date}">
+        <label>Время:</label>
+        <select name="time" required style="width:100%;margin-bottom:12px;">${slotBtns}</select>
+
+        <label>ЖК:</label>
+        <input type="text" name="complex" placeholder="Например: Orbi City" required>
+
+        <label>Апартамент:</label>
+        <input type="text" name="apartment" placeholder="Например: B-1210" required>
+
+        <label>Управляющая компания:</label>
+        <input type="text" name="company" placeholder="Например: Orbi Group" required>
+
+        <button type="submit" class="book-btn">Отправить</button>
+      </form>
     `;
+
+    const form = content.querySelector("#apartmentForm");
+    form.addEventListener("submit", async (e) => {
+      e.preventDefault();
+      const formData = new FormData(form);
+      const json = Object.fromEntries(formData.entries());
+
+      try {
+        const res = await fetch(form.action, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify(json)
+        });
+        if (res.ok) {
+          alert("✅ Заявка отправлена!");
+          closeModal();
+        } else {
+          alert("Ошибка при отправке.");
+        }
+      } catch {
+        alert("Ошибка соединения.");
+      }
+    });
+
   } else {
+    // для других услуг оставляем старую форму
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
       <h3 id="modalTitle">${selectedService}<br>📅 ${date}</h3>
@@ -553,8 +588,8 @@ function openModal(date, busyTimes = []) {
     `;
   }
 
-  selectedTime = ""; // сбрасываем при каждом открытии
   modal.style.display = "flex";
+
 }
 
 function selectTime(time, e) {
