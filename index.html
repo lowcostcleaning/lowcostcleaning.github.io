@@ -149,6 +149,67 @@
       cursor: pointer;
       color: #aaa;
     }
+
+    .modal-content form {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.modal-content label {
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #111;
+  margin-bottom: 4px;
+  display: block;
+}
+
+.modal-content input,
+.modal-content select {
+  width: 100%;
+  padding: 12px 14px;
+  border-radius: 12px;
+  border: 1px solid #e0e0e0;
+  font-size: 1rem;
+  background: #fafafa;
+  transition: all 0.25s ease;
+}
+
+.modal-content input:focus,
+.modal-content select:focus {
+  outline: none;
+  border-color: #000;
+  background: #fff;
+  box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
+}
+
+.modal-content h3 {
+  font-size: 1.15rem;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 16px;
+}
+
+.book-btn {
+  background: #000;
+  color: #fff;
+  border: none;
+  padding: 14px;
+  border-radius: 12px;
+  font-size: 1rem;
+  cursor: pointer;
+  transition: all 0.3s ease;
+}
+
+.book-btn:hover {
+  background: #111;
+  transform: translateY(-1px);
+}
+
+.book-btn:active {
+  transform: scale(0.98);
+}
+
   </style>
 </head>
 <body>
