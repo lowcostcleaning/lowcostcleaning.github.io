@@ -88,30 +88,32 @@ async function getBusyDates(sheetName){
     const r = rows[i];
     if (!r || r.length < 2) continue;
     let date = (r[0] || "").trim().replace(/"/g, "");
-    const status = (r[1] || "").trim().toLowerCase(); // ✅ теперь берём именно B-столбец (статус)
-    const time = (r[2] || "").trim();
-
     if (!date) continue;
 
-    // Химчистка — читаем "свободно"/"занято"
+    // 🧺 Химчистка — только дата + статус
     if (sheetName === "Химчистка") {
-      busy.push(`${date} ${status}`);
+      const status = (r[1] || "").trim().toLowerCase();
+      // записываем обе ситуации, чтобы в календаре понимать что "свободно"
+      busy.push(`${date}|${status}`);
       continue;
     }
 
-    // Остальные листы
-    const checkStatus = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
-    if (!checkStatus.includes("занято")) continue;
+    // Остальные листы (Главный, Апартаменты)
+    const time = (r[1] || "").trim();
+    const status = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
+    if (!status.includes("занято")) continue;
 
+    // Преобразование даты с точками
     if (date.includes(".")) {
       const [d, m, y] = date.split(".");
       date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
     }
-
     busy.push(time ? `${date} ${time}` : date);
   }
+
   return busy;
 }
+
 
 
 async function chooseService(service,sheet){
