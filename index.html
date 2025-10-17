@@ -83,23 +83,39 @@ async function getBusyDates(sheetName){
   const text=await res.text();
   const rows=text.split("\n").map(r=>r.split(","));
   const busy=[];
+
   for(let i=1;i<rows.length;i++){
     const r=rows[i];
     if(!r||r.length<2)continue;
     let date=(r[0]||"").trim().replace(/"/g,"");
-    let status=(r[1]||"").trim().toLowerCase();
-    const time=(r[2]||"").trim();
     if(!date)continue;
-    if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
-    if(sheetName==="Химчистка"){busy.push(`${date}|${status}`);continue;}
+
+    // Универсальное преобразование даты в формат YYYY-MM-DD
+    if(date.includes(".")){
+      const[d,m,y]=date.split(".");
+      date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+    }
+
+    // 🧺 Химчистка
+    if(sheetName==="Химчистка"){
+      const status=(r[1]||"").trim().toLowerCase();
+      busy.push(`${date}|${status}`);
+      continue;
+    }
+
+    // 🏠 Главный и 🏢 Апартаменты
+    const time=(r[1]||"").trim();
+    const status=(r[2]||"").trim().toLowerCase();
     if(!status.includes("занято"))continue;
     busy.push(time?`${date} ${time}`:date);
   }
+
   return busy;
 }
 
 async function chooseService(service,sheet){
-  selectedService=service;currentSheet=sheet;
+  selectedService=service;
+  currentSheet=sheet;
   const cont=document.getElementById("calendarContainer");
   const cal=document.getElementById("calendar");
   cont.style.display="flex";
@@ -146,6 +162,7 @@ function generateCalendar(busyDates=[]){
     const date=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const past=new Date(date)<new Date(new Date().setHours(0,0,0,0));
     let cls="",click="",inner=`<div>${day}</div>`;
+
     if(isApts){
       const allTimes=["10:00","12:00","14:00","16:00","18:00"];
       const busyT=Array.from(grouped[date]||[]);
@@ -153,32 +170,43 @@ function generateCalendar(busyDates=[]){
       const allBusy=freeT.length===0;
       const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
       inner+=`<div class="slots-row">${dots}</div>`;
-      if(past)cls="past";else if(allBusy)cls="unavailable";else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+      if(past)cls="past";
+      else if(allBusy)cls="unavailable";
+      else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+
     }else if(isChem){
       const status=grouped[date];
       if(past)cls="past";
       else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}
       else if(status==="занято")cls="unavailable";
       else cls="past";
+
     }else{
-      if(past)cls="past";else if(daysSet.has(date))cls="unavailable";else{cls="available";click=`onclick='openModal("${date}")'`;}
+      if(past)cls="past";
+      else if(daysSet.has(date))cls="unavailable";
+      else{cls="available";click=`onclick='openModal("${date}")'`;}
     }
+
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
     if((day+offset)%7===0)html+="</tr><tr>";
   }
-  html+="</tr>";cal.innerHTML=html;
+  html+="</tr>";
+  cal.innerHTML=html;
 }
 
 const modal=document.getElementById("bookingModal");
+
 function openModal(date,busyTimes=[]){
   selectedDate=date;
   const content=document.querySelector(".modal-content");
+
   if(currentSheet==="Апартаменты"){
     const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
     const slotOptions=timeSlots.map(t=>{
       const disabled=busyTimes.includes(t)?"disabled style='opacity:.45;cursor:not-allowed;'":"";
       return `<option value="${t}" ${disabled}>${t}</option>`;
     }).join("");
+
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
@@ -191,12 +219,13 @@ function openModal(date,busyTimes=[]){
         <label>Управляющая компания:</label><input type="text" name="компания" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
-  }else{
+  } else {
     let webhook="";
     if(selectedService.includes("Студия")||selectedService.includes("1+1"))
       webhook="https://vm62681.vpsone.xyz/webhook-test/cleaning-studio";
     else if(selectedService.includes("Химчистка"))
       webhook="https://vm62681.vpsone.xyz/webhook-test/cleaning-chemical";
+
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
@@ -211,10 +240,16 @@ function openModal(date,busyTimes=[]){
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
   }
+
   modal.style.display="flex";
   requestAnimationFrame(()=>modal.classList.add("show"));
 }
-function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
+
+function closeModal(){
+  modal.classList.remove("show");
+  setTimeout(()=>modal.style.display="none",250);
+}
 </script>
+
 </body>
 </html>
