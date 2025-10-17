@@ -244,60 +244,53 @@ function generateCalendar(busyDates = []) {
   const firstDay = new Date(y, m, 1).getDay();
   const offset = firstDay === 0 ? 6 : firstDay - 1;
   const days = new Date(y, m + 1, 0).getDate();
+
   let html = "<tr>" + ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  // базовые данные для слотов
-  const allSlots = isApts
-    ? ["10:00","12:00","14:00","16:00","18:00"]
-    : isChem
-      ? Array.from({ length: 10 }, (_, i) => `Слот ${i + 1}`)
-      : [];
-
+  // 🔹 Для апартаментов и химчистки — группируем по дате
   const grouped = {}, daysSet = new Set();
-
-  if (isApts || isChem) {
-    busyDates.forEach(v => {
-      const [d, t] = v.trim().split(" ");
-      if (!d) return;
+  busyDates.forEach(v => {
+    const [d, t, status] = v.trim().split(" ");
+    if (!d) return;
+    if (isChem) {
+      // для химчистки: если есть слово "свободно" — сохраняем как доступный день
+      if (v.toLowerCase().includes("свободно")) grouped[d] = "свободно";
+      else grouped[d] = "занято";
+    } else if (isApts) {
       if (!grouped[d]) grouped[d] = new Set();
-      // если Химчистка — просто считаем количество заявок (без времени)
-      if (isChem) {
-        const count = grouped[d].size;
-        if (count < 10) grouped[d].add(`Слот ${count + 1}`);
-      } else if (t) {
-        grouped[d].add(t.trim());
-      }
-    });
-  } else {
-    busyDates.forEach(v => daysSet.add(v.split(" ")[0]));
-  }
+      if (t) grouped[d].add(t.trim());
+    } else {
+      daysSet.add(d);
+    }
+  });
 
   for (let i = 0; i < offset; i++) html += "<td></td>";
+
   for (let day = 1; day <= days; day++) {
-    const date = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const past = new Date(date) < new Date(new Date().setHours(0,0,0,0));
+    const date = `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
+    const past = new Date(date) < new Date(new Date().setHours(0, 0, 0, 0));
     let cls = "", click = "", inner = `<div>${day}</div>`;
 
-    if (isApts || isChem) {
+    if (isApts) {
+      const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
       const busyT = Array.from(grouped[date] || []);
-      const freeT = allSlots.filter(t => !busyT.includes(t));
+      const freeT = allTimes.filter(t => !busyT.includes(t));
       const allBusy = freeT.length === 0;
-      const dots = allSlots.map(t => `<span class="slot-dot ${busyT.includes(t) ? "busy" : "free"}"></span>`).join("");
+      const dots = allTimes.map(t => `<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
       inner += `<div class="slots-row">${dots}</div>`;
-
       if (past) cls = "past";
       else if (allBusy) cls = "unavailable";
-      else {
-        cls = "available";
-        click = `onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;
-      }
+      else { cls = "available"; click = `onclick='openModal("${date}", ${JSON.stringify(busyT)})'`; }
+
+    } else if (isChem) {
+      const status = grouped[date];
+      if (past) cls = "past";
+      else if (status === "свободно") { cls = "available"; click = `onclick='openModal("${date}")'`; }
+      else { cls = "unavailable"; }
     } else {
       if (past) cls = "past";
       else if (daysSet.has(date)) cls = "unavailable";
-      else {
-        cls = "available";
-        click = `onclick='openModal("${date}")'`;
-      }
+      else { cls = "available"; click = `onclick='openModal("${date}")'`; }
     }
 
     html += `<td class="${cls}" ${click}>${inner}</td>`;
@@ -307,6 +300,7 @@ function generateCalendar(busyDates = []) {
   html += "</tr>";
   cal.innerHTML = html;
 }
+
 
 
 
