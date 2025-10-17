@@ -77,35 +77,42 @@ const gids={"Главный":"0","Химчистка":"591986483","Апарта�
 let selectedService="",selectedDate="",currentSheet="";
 
 async function getBusyDates(sheetName){
-  const gid=gids[sheetName]||"0";
-  const url=`${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  const res=await fetch(url,{cache:"no-store"});
-  const text=await res.text();
-  const rows=text.split("\n").map(r=>r.split(","));
-  const busy=[];
-  for(let i=1;i<rows.length;i++){
-    const r=rows[i]; if(!r||r.length<2)continue;
-    let date=(r[0]||"").trim().replace(/"/g,"");
-    const time=(r[1]||"").trim();
-    const status=((r[2]||r[r.length-1])||"").trim().toLowerCase();
-    if(!date)continue;
+  const gid = gids[sheetName] || "0";
+  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
+  const res = await fetch(url, { cache: "no-store" });
+  const text = await res.text();
+  const rows = text.split("\n").map(r => r.split(","));
+  const busy = [];
 
-    // ✅ химчистка: свободно/занято
-    if(sheetName==="Химчистка"){
+  for (let i = 1; i < rows.length; i++) {
+    const r = rows[i];
+    if (!r || r.length < 2) continue;
+    let date = (r[0] || "").trim().replace(/"/g, "");
+    const status = (r[1] || "").trim().toLowerCase(); // ✅ теперь берём именно B-столбец (статус)
+    const time = (r[2] || "").trim();
+
+    if (!date) continue;
+
+    // Химчистка — читаем "свободно"/"занято"
+    if (sheetName === "Химчистка") {
       busy.push(`${date} ${status}`);
       continue;
     }
 
-    // остальные листы: ищем только "занято"
-    if(!status.includes("занято"))continue;
-    if(date.includes(".")){
-      const [d,m,y]=date.split(".");
-      date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+    // Остальные листы
+    const checkStatus = ((r[2] || r[r.length - 1]) || "").trim().toLowerCase();
+    if (!checkStatus.includes("занято")) continue;
+
+    if (date.includes(".")) {
+      const [d, m, y] = date.split(".");
+      date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
     }
-    busy.push(time?`${date} ${time}`:date);
+
+    busy.push(time ? `${date} ${time}` : date);
   }
   return busy;
 }
+
 
 async function chooseService(service,sheet){
   selectedService=service;currentSheet=sheet;
