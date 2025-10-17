@@ -41,7 +41,6 @@
     .book-btn { background:#000;color:#fff;border:none;padding:14px;border-radius:14px;font-size:1rem;font-weight:500;cursor:pointer;transition:all 0.3s ease; }
     .book-btn:hover { background:#111;transform:translateY(-1px); }
 
-    /* уведомление */
     .notification {
       position: fixed;
       bottom: 30px;
@@ -112,8 +111,7 @@ async function getBusyDates(sheetName){
   const rows=text.split("\n").map(r=>r.split(","));
   const busy=[];
   for(let i=1;i<rows.length;i++){
-    const r=rows[i];
-    if(!r||r.length<2)continue;
+    const r=rows[i]; if(!r||r.length<2)continue;
     let date=(r[0]||"").trim().replace(/"/g,"");
     if(!date)continue;
     if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
@@ -153,6 +151,7 @@ function generateCalendar(busyDates=[]){
   const offset=firstDay===0?6:firstDay-1;
   const days=new Date(y,m+1,0).getDate();
   let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
+
   const grouped={},daysSet=new Set();
   busyDates.forEach(v=>{
     if(isChem){
@@ -181,7 +180,9 @@ function generateCalendar(busyDates=[]){
       const allBusy=freeT.length===0;
       const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
       inner+=`<div class="slots-row">${dots}</div>`;
-      if(past)cls="past";else if(allBusy)cls="unavailable";else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+      if(past)cls="past";
+      else if(allBusy)cls="unavailable";
+      else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else if(isChem){
       const status=grouped[date];
       if(past)cls="past";
@@ -189,7 +190,9 @@ function generateCalendar(busyDates=[]){
       else if(status==="занято")cls="unavailable";
       else cls="past";
     }else{
-      if(past)cls="past";else if(daysSet.has(date))cls="unavailable";else{cls="available";click=`onclick='openModal("${date}")'`;}
+      if(past)cls="past";
+      else if(daysSet.has(date))cls="unavailable";
+      else {cls="available";click=`onclick='openModal("${date}")'`;}
     }
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
     if((day+offset)%7===0)html+="</tr><tr>";
@@ -211,7 +214,7 @@ function openModal(date,busyTimes=[]){
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
-      <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET">
+      <form action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" target="hiddenFrame" onsubmit="formSent()">
         <input type="hidden" name="дата" value="${date}">
         <label>Время:</label>
         <select name="время" required>${slotOptions}</select>
@@ -220,7 +223,6 @@ function openModal(date,busyTimes=[]){
         <label>Управляющая компания:</label><input type="text" name="компания" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
-    handleWebhook(content.querySelector("#apartmentForm"));
   } else {
     let webhook="";
     if(selectedService.includes("Студия")||selectedService.includes("1+1"))
@@ -230,7 +232,7 @@ function openModal(date,busyTimes=[]){
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
-      <form id="simpleForm" action="${webhook}" method="GET">
+      <form action="${webhook}" method="GET" target="hiddenFrame" onsubmit="formSent()">
         <input type="hidden" name="дата" value="${date}">
         <input type="hidden" name="услуга" value="${selectedService}">
         <input type="text" name="адрес" placeholder="Адрес" required>
@@ -240,36 +242,24 @@ function openModal(date,busyTimes=[]){
         <input type="text" name="телеграм" placeholder="Telegram">
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
-    handleWebhook(content.querySelector("#simpleForm"));
   }
   modal.style.display="flex";
   requestAnimationFrame(()=>modal.classList.add("show"));
 }
 
-function handleWebhook(form){
-  form.addEventListener("submit",async(e)=>{
-    e.preventDefault();
-    const params=new URLSearchParams(new FormData(form)).toString();
-    try{
-      const res=await fetch(`${form.action}?${params}`);
-      if(res.ok){
-        closeModal();
-        showNotification("✅ Заявка отправлена!");
-        setTimeout(()=>{
-          document.getElementById("calendarContainer").style.display="none";
-          window.scrollTo({top:0,behavior:"smooth"});
-        },1500);
-      } else showNotification("Ошибка при отправке.");
-    } catch {
-      showNotification("Ошибка соединения.");
-    }
-  });
+function formSent(){
+  setTimeout(()=>{
+    closeModal();
+    showNotification("✅ Заявка отправлена!");
+    setTimeout(()=>window.scrollTo({top:0,behavior:"smooth"}),1000);
+  },300);
 }
 
-function closeModal(){
-  modal.classList.remove("show");
-  setTimeout(()=>modal.style.display="none",250);
-}
+function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
 </script>
+
+<!-- скрытый iframe для отправки без перезагрузки -->
+<iframe name="hiddenFrame" style="display:none;"></iframe>
+
 </body>
 </html>
