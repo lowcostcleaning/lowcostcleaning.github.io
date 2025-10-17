@@ -250,10 +250,13 @@ function openModal(date, busyTimes = []) {
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
 
-    // 🧩 ФИКС: принудительно выбрать первый доступный слот
+    // 🧩 Новый фикс: выбираем первый доступный (не disabled) слот
     setTimeout(() => {
       const select = document.getElementById("timeSelect");
-      if (select) select.selectedIndex = 0;
+      if (select) {
+        const firstFree = Array.from(select.options).find(opt => !opt.disabled);
+        if (firstFree) select.value = firstFree.value;
+      }
     }, 50);
 
   } else {
@@ -282,6 +285,7 @@ function openModal(date, busyTimes = []) {
   modal.style.display = "flex";
   requestAnimationFrame(() => modal.classList.add("show"));
 }
+
 
 function formSent(){setTimeout(()=>{closeModal();showNotification("✅ Заявка отправлена!");},300);}
 function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
