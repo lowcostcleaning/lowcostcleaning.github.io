@@ -29,6 +29,7 @@
     .available:hover{background:rgba(52,199,89,0.25);}
     .unavailable{background:rgba(255,59,48,0.25);cursor:not-allowed;}
     .past{background:rgba(142,142,147,0.25);cursor:not-allowed;}
+    .declined{background:rgba(100,100,100,0.25);cursor:not-allowed;}
     .slots-row{margin-top:6px;display:flex;justify-content:center;gap:4px;}
     .slot-dot{width:8px;height:8px;border-radius:50%;}
     .slot-dot.free{background:rgba(52,199,89,0.6);}
@@ -143,9 +144,6 @@ async function renderCalendar(){
   cal.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
   const busy=await getBusyDates(currentSheet);
   generateCalendar(busy);
-  const cont=document.getElementById("calendarContainer");
-  const rect=cont.getBoundingClientRect();
-  if(rect.top>100) window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"});
 }
 
 function generateCalendar(busyDates=[]){
@@ -200,21 +198,23 @@ function generateCalendar(busyDates=[]){
       if(past)cls="past";
       else if(allBusy)cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
-    }else if(isChem){
+    } else if(isChem){
       const status=grouped[date];
-      if(past)cls="past";
+      if(past) cls="past";
       else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}
-      else if(status==="занято")cls="unavailable";
+      else if(status==="занято") cls="unavailable";
+      else if(status==="отказ") cls="declined";
       else cls="past";
-    }else{
-      if(past)cls="past";
-      else if(daysSet.has(date))cls="unavailable";
+    } else {
+      if(past) cls="past";
+      else if(daysSet.has(date)) cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
     }
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
     if((day+offset)%7===0)html+="</tr><tr>";
   }
-  html+="</tr>";cal.innerHTML=html;
+  html+="</tr>";
+  cal.innerHTML=html;
 }
 
 document.getElementById("prevMonth").addEventListener("click",()=>{if(currentMonth===0){currentMonth=11;currentYear--;}else currentMonth--;renderCalendar();});
@@ -242,7 +242,7 @@ function openModal(date,busyTimes=[]){
         <label>Управляющая компания:</label><input type="text" name="компания" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
-  }else{
+  } else {
     let webhook="";
     if(selectedService.includes("Студия")||selectedService.includes("1+1"))
       webhook="https://vm62681.vpsone.xyz/webhook/cleaning-studio";
