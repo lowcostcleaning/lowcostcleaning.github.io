@@ -231,74 +231,57 @@ async function chooseService(service,sheet){
   requestAnimationFrame(()=>{cont.style.opacity="1";window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"});});
 }
 
-function generateCalendar(busyDates = []) {
-  const isApts = currentSheet === "Апартаменты";
-  const isChem = currentSheet === "Химчистка";
-  const cal = document.getElementById("calendar");
-  const lbl = document.getElementById("monthLabel");
-  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+function generateCalendar(busyDates=[]){
+  const isApts=currentSheet==="Апартаменты";
+  const isChem=currentSheet==="Химчистка";
+  const cal=document.getElementById("calendar");
+  const lbl=document.getElementById("monthLabel");
+  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
+  const monthName=now.toLocaleString("ru-RU",{month:"long",year:"numeric"});
+  lbl.textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
+  const firstDay=new Date(y,m,1).getDay();
+  const offset=firstDay===0?6:firstDay-1;
+  const days=new Date(y,m+1,0).getDate();
+  let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
 
-  const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
-  lbl.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
-
-  const firstDay = new Date(y, m, 1).getDay();
-  const offset = firstDay === 0 ? 6 : firstDay - 1;
-  const days = new Date(y, m + 1, 0).getDate();
-
-  let html = "<tr>" + ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
-
-  // 🔹 Для апартаментов и химчистки — группируем по дате
-  const grouped = {}, daysSet = new Set();
-  busyDates.forEach(v => {
-    const [d, t, status] = v.trim().split(" ");
-    if (!d) return;
-    if (isChem) {
-      // для химчистки: если есть слово "свободно" — сохраняем как доступный день
-      if (v.toLowerCase().includes("свободно")) grouped[d] = "свободно";
-      else grouped[d] = "занято";
-    } else if (isApts) {
-      if (!grouped[d]) grouped[d] = new Set();
-      if (t) grouped[d].add(t.trim());
-    } else {
+  const grouped={},daysSet=new Set();
+  busyDates.forEach(v=>{
+    const [d,t,status]=v.trim().split(" ");
+    if(!d)return;
+    if(isChem){
+      if(v.toLowerCase().includes("свободно"))grouped[d]="свободно";
+      else grouped[d]="занято";
+    }else if(isApts){
+      if(!grouped[d])grouped[d]=new Set();
+      if(t)grouped[d].add(t.trim());
+    }else{
       daysSet.add(d);
     }
   });
 
-  for (let i = 0; i < offset; i++) html += "<td></td>";
-
-  for (let day = 1; day <= days; day++) {
-    const date = `${y}-${String(m + 1).padStart(2, "0")}-${String(day).padStart(2, "0")}`;
-    const past = new Date(date) < new Date(new Date().setHours(0, 0, 0, 0));
-    let cls = "", click = "", inner = `<div>${day}</div>`;
-
-    if (isApts) {
-      const allTimes = ["10:00","12:00","14:00","16:00","18:00"];
-      const busyT = Array.from(grouped[date] || []);
-      const freeT = allTimes.filter(t => !busyT.includes(t));
-      const allBusy = freeT.length === 0;
-      const dots = allTimes.map(t => `<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
-      inner += `<div class="slots-row">${dots}</div>`;
-      if (past) cls = "past";
-      else if (allBusy) cls = "unavailable";
-      else { cls = "available"; click = `onclick='openModal("${date}", ${JSON.stringify(busyT)})'`; }
-
-    } else if (isChem) {
-      const status = grouped[date];
-      if (past) cls = "past";
-      else if (status === "свободно") { cls = "available"; click = `onclick='openModal("${date}")'`; }
-      else { cls = "unavailable"; }
-    } else {
-      if (past) cls = "past";
-      else if (daysSet.has(date)) cls = "unavailable";
-      else { cls = "available"; click = `onclick='openModal("${date}")'`; }
+  for(let i=0;i<offset;i++)html+="<td></td>";
+  for(let day=1;day<=days;day++){
+    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const past=new Date(date)<new Date(new Date().setHours(0,0,0,0));
+    let cls="",click="",inner=`<div>${day}</div>`;
+    if(isApts){
+      const allTimes=["10:00","12:00","14:00","16:00","18:00"];
+      const busyT=Array.from(grouped[date]||[]);
+      const freeT=allTimes.filter(t=>!busyT.includes(t));
+      const allBusy=freeT.length===0;
+      const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
+      inner+=`<div class="slots-row">${dots}</div>`;
+      if(past)cls="past";else if(allBusy)cls="unavailable";else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+    }else if(isChem){
+      const status=grouped[date];
+      if(past)cls="past";else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}else{cls="unavailable";}
+    }else{
+      if(past)cls="past";else if(daysSet.has(date))cls="unavailable";else{cls="available";click=`onclick='openModal("${date}")'`;}
     }
-
-    html += `<td class="${cls}" ${click}>${inner}</td>`;
-    if ((day + offset) % 7 === 0) html += "</tr><tr>";
+    html+=`<td class="${cls}" ${click}>${inner}</td>`;
+    if((day+offset)%7===0)html+="</tr><tr>";
   }
-
-  html += "</tr>";
-  cal.innerHTML = html;
+  html+="</tr>";cal.innerHTML=html;
 }
 
 
