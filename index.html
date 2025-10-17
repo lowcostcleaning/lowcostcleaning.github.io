@@ -198,12 +198,18 @@ function generateCalendar(busyDates=[]){
       else if(allBusy)cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else if(isChem){
-      const status=(grouped[date]||"").toLowerCase();
-      if(past)cls="past";
-      else if(["свободно","ожидание","отказ"].includes(status)){cls="available";click=`onclick='openModal("${date}")'`;}
-      else if(status==="занято")cls="unavailable";
-      else cls="past";
-    }else{
+  const status = (grouped[date] || "").trim().toLowerCase();
+  if (past) cls = "past";
+  else if (["свободно","ожидание","отказ"].includes(status)) {
+    cls = "available";
+    click = `onclick='openModal("${date}")'`;
+  }
+  else if (status === "занято") {
+    cls = "unavailable";
+  }
+  else cls = "past";
+}
+else{
       if(past)cls="past";
       else if(daysSet.has(date))cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
