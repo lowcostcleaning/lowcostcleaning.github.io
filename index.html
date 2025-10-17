@@ -152,6 +152,10 @@ async function renderCalendar(){
   cal.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
   const busy=await getBusyDates(currentSheet);
   generateCalendar(busy);
+  // ✅ Добавляем прокрутку к календарю при перелистывании
+  const cont=document.getElementById("calendarContainer");
+  const rect=cont.getBoundingClientRect();
+  if(rect.top>100) window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"});
 }
 
 function generateCalendar(busyDates=[]){
@@ -280,5 +284,6 @@ function openModal(date,busyTimes=[]){
 function formSent(){setTimeout(()=>{closeModal();showNotification("✅ Заявка отправлена!");},300);}
 function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
 </script>
-</body>
-</html>
+
+</body> 
+</html> 
