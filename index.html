@@ -12,181 +12,64 @@
       --radius: 14px;
       --shadow-soft: 0 8px 20px rgba(0,0,0,0.06);
     }
-
-    body {
-      font-family: -apple-system, BlinkMacSystemFont, "SF Pro Display", Roboto, sans-serif;
-      text-align: center;
-      margin: 0;
-      background: var(--bg-light);
-      color: var(--text-primary);
-    }
-
-    header { padding: 70px 20px 40px; animation: fadeIn 0.6s ease forwards; }
-    h1 { margin: 0; font-size: 2rem; font-weight: 700; letter-spacing: -0.3px; }
-    p { color: var(--text-muted); margin-top: 10px; margin-bottom: 30px; }
-
-    .service-group {
-      background: rgba(255,255,255,0.7);
-      border-radius: 18px;
-      padding: 25px 20px 35px;
-      margin: 25px auto;
-      width: 90%;
-      max-width: 620px;
-      box-shadow: var(--shadow-soft);
-    }
-
-    .button-row { display: flex; flex-wrap: wrap; justify-content: center; gap: 10px; }
-    .btn {
-      background: rgba(255,255,255,0.8);
-      color: #111;
-      border: 1px solid rgba(0,0,0,0.08);
-      padding: 14px 28px;
-      border-radius: var(--radius);
-      font-size: 1rem;
-      cursor: pointer;
-      transition: all 0.25s ease;
-      box-shadow: 0 4px 12px rgba(0,0,0,0.05);
-    }
-
-    .calendar-container {
-      display: none;
-      flex-direction: column;
-      align-items: center;
-      margin-top: 40px;
-    }
-
-    table {
-      width: 100%;
-      max-width: 640px;
-      border-collapse: separate;
-      border-spacing: 6px;
-      margin: 10px auto;
-      background: #fff;
-      border-radius: 20px;
-      box-shadow: 0 10px 25px rgba(0,0,0,0.05);
-    }
-
-    th, td {
-      width: calc(100% / 7);
-      height: 70px;
-      text-align: center;
-      border-radius: 12px;
-      vertical-align: middle;
-    }
-
-    .available { background: rgba(52,199,89,0.15); cursor: pointer; border: 2px solid rgba(52,199,89,0.4); }
-    .available:hover { background: rgba(52,199,89,0.25); border-color: rgba(52,199,89,0.8); }
-    .unavailable { background: rgba(255,59,48,0.25); cursor: not-allowed; }
-    .past { background: rgba(142,142,147,0.25); cursor: not-allowed; }
-
-    .slots-row { margin-top: 6px; display: flex; justify-content: center; gap: 4px; }
-    .slot-dot { width: 8px; height: 8px; border-radius: 50%; }
-    .slot-dot.free { background: rgba(52,199,89,0.6); }
-    .slot-dot.busy { background: rgba(255,59,48,0.7); }
-
-    .modal {
-      display: none;
-      position: fixed;
-      z-index: 10;
-      left: 0; top: 0;
-      width: 100%; height: 100%;
-      background: rgba(0,0,0,0.5);
-      backdrop-filter: blur(8px);
-      justify-content: center;
-      align-items: center;
-      transition: opacity 0.3s ease;
-    }
-
-    .modal-content {
-      background: #fff;
-      padding: 25px;
-      border-radius: 16px;
-      width: 90%;
-      max-width: 360px;
-      text-align: left;
-      box-shadow: var(--shadow-soft);
-      transform: scale(0.95);
-      opacity: 0;
-      transition: all 0.25s ease;
-    }
-
-    .modal.show .modal-content { transform: scale(1); opacity: 1; }
-    .close { float: right; font-size: 20px; cursor: pointer; color: #aaa; }
-
-    .modal-content form { display: flex; flex-direction: column; gap: 12px; }
-    .modal-content input,
-    .modal-content select {
-      width: 100%;
-      padding: 12px 14px;
-      border-radius: 12px;
-      border: 1px solid #e5e5e5;
-      font-size: 1rem;
-      background: #fafafa;
-      transition: all 0.25s ease;
-      box-sizing: border-box;
-    }
-
-    .modal-content input:focus,
-    .modal-content select:focus {
-      outline: none;
-      border-color: #000;
-      background: #fff;
-      box-shadow: 0 0 0 2px rgba(0,0,0,0.05);
-    }
-
-    .modal-content h3 {
-      font-size: 1.1rem;
-      font-weight: 600;
-      text-align: center;
-      margin: 0 0 14px 0;
-      line-height: 1.4;
-    }
-
-    .book-btn {
-      background: #000;
-      color: #fff;
-      border: none;
-      padding: 14px;
-      border-radius: 14px;
-      font-size: 1rem;
-      font-weight: 500;
-      cursor: pointer;
-      transition: all 0.3s ease;
-    }
-    .book-btn:hover { background: #111; transform: translateY(-1px); }
-    .book-btn:active { transform: scale(0.98); }
+    body { font-family: -apple-system,BlinkMacSystemFont,"SF Pro Display",Roboto,sans-serif;text-align:center;margin:0;background:var(--bg-light);color:var(--text-primary);}
+    header { padding:70px 20px 40px; }
+    h1 { margin:0;font-size:2rem;font-weight:700; }
+    p { color:var(--text-muted);margin-top:10px;margin-bottom:30px; }
+    .service-group { background:rgba(255,255,255,0.7);border-radius:18px;padding:25px 20px 35px;margin:25px auto;width:90%;max-width:620px;box-shadow:var(--shadow-soft);}
+    .button-row { display:flex;flex-wrap:wrap;justify-content:center;gap:10px; }
+    .btn { background:rgba(255,255,255,0.8);color:#111;border:1px solid rgba(0,0,0,0.08);padding:14px 28px;border-radius:var(--radius);font-size:1rem;cursor:pointer;transition:all 0.25s ease;box-shadow:0 4px 12px rgba(0,0,0,0.05);}
+    .calendar-container { display:none;flex-direction:column;align-items:center;margin-top:40px; }
+    table { width:100%;max-width:640px;border-collapse:separate;border-spacing:6px;margin:10px auto;background:#fff;border-radius:20px;box-shadow:0 10px 25px rgba(0,0,0,0.05);}
+    th, td { width:calc(100% / 7);height:70px;text-align:center;border-radius:12px;vertical-align:middle; }
+    .available { background:rgba(52,199,89,0.15);cursor:pointer; }
+    .available:hover { background:rgba(52,199,89,0.25); }
+    .unavailable { background:rgba(255,59,48,0.25);cursor:not-allowed; }
+    .past { background:rgba(142,142,147,0.25);cursor:not-allowed; }
+    .slots-row { margin-top:6px;display:flex;justify-content:center;gap:4px; }
+    .slot-dot { width:8px;height:8px;border-radius:50%; }
+    .slot-dot.free { background:rgba(52,199,89,0.6); }
+    .slot-dot.busy { background:rgba(255,59,48,0.7); }
+    .modal { display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);justify-content:center;align-items:center; }
+    .modal-content { background:#fff;padding:25px;border-radius:16px;width:90%;max-width:360px;text-align:left;box-shadow:var(--shadow-soft);transform:scale(0.95);opacity:0;transition:all 0.25s ease; }
+    .modal.show .modal-content { transform:scale(1);opacity:1; }
+    .close { float:right;font-size:20px;cursor:pointer;color:#aaa; }
+    .modal-content form { display:flex;flex-direction:column;gap:12px; }
+    .modal-content input, .modal-content select { width:100%;padding:12px 14px;border-radius:12px;border:1px solid #e5e5e5;font-size:1rem;background:#fafafa;transition:all 0.25s ease;box-sizing:border-box; }
+    .modal-content input:focus, .modal-content select:focus { outline:none;border-color:#000;background:#fff;box-shadow:0 0 0 2px rgba(0,0,0,0.05); }
+    .modal-content h3 { font-size:1.1rem;font-weight:600;text-align:center;margin:0 0 14px 0;line-height:1.4; }
+    .book-btn { background:#000;color:#fff;border:none;padding:14px;border-radius:14px;font-size:1rem;font-weight:500;cursor:pointer;transition:all 0.3s ease; }
+    .book-btn:hover { background:#111;transform:translateY(-1px); }
   </style>
 </head>
 <body>
-  <header>
-    <h1>🧹 Lowcost Cleaning</h1>
-    <p>Выберите категорию:</p>
+<header>
+  <h1>🧹 Lowcost Cleaning</h1>
+  <p>Выберите категорию:</p>
 
-    <div class="service-group">
-      <h3>👤 Для частных лиц</h3>
-      <div class="button-row">
-        <button class="btn" onclick="chooseService('🏠 Студия — 90₾','Главный')">🏠 Студия — 90₾</button>
-        <button class="btn" onclick="chooseService('🛏 1+1 — 120₾','Главный')">🛏 1+1 — 120₾</button>
-        <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾','Химчистка')">🧺 Химчистка — 50₾</button>
-      </div>
+  <div class="service-group">
+    <h3>👤 Для частных лиц</h3>
+    <div class="button-row">
+      <button class="btn" onclick="chooseService('🏠 Студия — 90₾','Главный')">🏠 Студия — 90₾</button>
+      <button class="btn" onclick="chooseService('🛏 1+1 — 120₾','Главный')">🛏 1+1 — 120₾</button>
+      <button class="btn" onclick="chooseService('🧺 Химчистка — 50₾','Химчистка')">🧺 Химчистка — 50₾</button>
     </div>
-
-    <div class="service-group">
-      <h3>🏢 Для управляющих компаний</h3>
-      <div class="button-row">
-        <button class="btn" onclick="chooseService('🏢 Уборка апартаментов','Апартаменты')">🏢 Уборка апартаментов</button>
-      </div>
-    </div>
-  </header>
-
-  <div class="calendar-container" id="calendarContainer">
-    <h2 id="monthLabel"></h2>
-    <table id="calendar"></table>
   </div>
 
-  <div id="bookingModal" class="modal">
-    <div class="modal-content"></div>
+  <div class="service-group">
+    <h3>🏢 Для управляющих компаний</h3>
+    <div class="button-row">
+      <button class="btn" onclick="chooseService('🏢 Уборка апартаментов','Апартаменты')">🏢 Уборка апартаментов</button>
+    </div>
   </div>
+</header>
+
+<div class="calendar-container" id="calendarContainer">
+  <h2 id="monthLabel"></h2>
+  <table id="calendar"></table>
+</div>
+
+<div id="bookingModal" class="modal"><div class="modal-content"></div></div>
 
 <script>
 const BASE_URL="https://docs.google.com/spreadsheets/d/e/2PACX-1vS8zb-CjwcHeTuOYB5iT5jz5RdMPaz0_BrTT6E1jPtaXfSbh7O1xykOE5WI92idU6A-SZ2GLzdcgtMU/pub?gid=";
@@ -199,104 +82,131 @@ async function getBusyDates(sheetName){
   const res=await fetch(url,{cache:"no-store"});
   const text=await res.text();
   const rows=text.split("\n").map(r=>r.split(","));
-  const data=[];
+  const busy=[];
   for(let i=1;i<rows.length;i++){
-    const r=rows[i];
-    if(!r||r.length<2)continue;
+    const r=rows[i]; if(!r||r.length<2)continue;
     let date=(r[0]||"").trim().replace(/"/g,"");
-    let status=(r[1]||"").trim().toLowerCase();
+    const time=(r[1]||"").trim();
+    const status=((r[2]||r[r.length-1])||"").trim().toLowerCase();
     if(!date)continue;
-    if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
-    data.push({date,status});
+
+    // ✅ химчистка: свободно/занято
+    if(sheetName==="Химчистка"){
+      busy.push(`${date} ${status}`);
+      continue;
+    }
+
+    // остальные листы: ищем только "занято"
+    if(!status.includes("занято"))continue;
+    if(date.includes(".")){
+      const [d,m,y]=date.split(".");
+      date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+    }
+    busy.push(time?`${date} ${time}`:date);
   }
-  return data;
+  return busy;
 }
 
 async function chooseService(service,sheet){
-  selectedService=service;
-  currentSheet=sheet;
+  selectedService=service;currentSheet=sheet;
   const cont=document.getElementById("calendarContainer");
   const cal=document.getElementById("calendar");
   cont.style.display="flex";
   cal.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-  const data=await getBusyDates(sheet);
-  generateCalendar(data);
+  const busy=await getBusyDates(sheet);
+  generateCalendar(busy);
   setTimeout(()=>window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"}),200);
 }
 
-function generateCalendar(data){
-  const isChem=currentSheet==="Химчистка";
+function generateCalendar(busyDates=[]){
   const isApts=currentSheet==="Апартаменты";
+  const isChem=currentSheet==="Химчистка";
+  const cal=document.getElementById("calendar");
+  const lbl=document.getElementById("monthLabel");
   const now=new Date(),y=now.getFullYear(),m=now.getMonth();
   const monthName=now.toLocaleString("ru-RU",{month:"long",year:"numeric"});
-  document.getElementById("monthLabel").textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
-
+  lbl.textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
   const firstDay=new Date(y,m,1).getDay();
   const offset=firstDay===0?6:firstDay-1;
   const days=new Date(y,m+1,0).getDate();
+  let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
 
-  const busySet=new Set(),freeSet=new Set();
-  data.forEach(({date,status})=>{
+  const grouped={},daysSet=new Set();
+  busyDates.forEach(v=>{
+    const [d,t,status]=v.trim().split(" ");
+    if(!d)return;
     if(isChem){
-      if(status.includes("свободно")) freeSet.add(date);
-      else busySet.add(date);
-    } else {
-      if(status.includes("занято")) busySet.add(date);
+      if(v.toLowerCase().includes("свободно"))grouped[d]="свободно";
+      else grouped[d]="занято";
+    }else if(isApts){
+      if(!grouped[d])grouped[d]=new Set();
+      if(t)grouped[d].add(t.trim());
+    }else{
+      daysSet.add(d);
     }
   });
 
-  let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
   for(let i=0;i<offset;i++)html+="<td></td>";
-
   for(let day=1;day<=days;day++){
     const date=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const past=new Date(date)<new Date(new Date().setHours(0,0,0,0));
     let cls="",click="",inner=`<div>${day}</div>`;
-
-    if(past) cls="past";
-    else if(isChem){
-      if(freeSet.has(date)){cls="available";click=`onclick='openModal("${date}")'`;}
+    if(isApts){
+      const allTimes=["10:00","12:00","14:00","16:00","18:00"];
+      const busyT=Array.from(grouped[date]||[]);
+      const freeT=allTimes.filter(t=>!busyT.includes(t));
+      const allBusy=freeT.length===0;
+      const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
+      inner+=`<div class="slots-row">${dots}</div>`;
+      if(past)cls="past";
+      else if(allBusy)cls="unavailable";
+      else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+    }else if(isChem){
+      const status=grouped[date];
+      if(past)cls="past";
+      else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}
       else cls="unavailable";
-    } else {
-      if(busySet.has(date)) cls="unavailable";
+    }else{
+      if(past)cls="past";
+      else if(daysSet.has(date))cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
     }
-
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
-    if((day+offset)%7===0) html+="</tr><tr>";
+    if((day+offset)%7===0)html+="</tr><tr>";
   }
   html+="</tr>";
-  document.getElementById("calendar").innerHTML=html;
+  cal.innerHTML=html;
 }
 
 const modal=document.getElementById("bookingModal");
 
-function openModal(date){
+function openModal(date,busyTimes=[]){
   selectedDate=date;
   const content=document.querySelector(".modal-content");
-
   if(currentSheet==="Апартаменты"){
+    const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
+    const slotOptions=timeSlots.map(t=>{
+      const disabled=busyTimes.includes(t)?"disabled style='opacity:.45;cursor:not-allowed;'":"";
+      return `<option value="${t}" ${disabled}>${t}</option>`;
+    }).join("");
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
       <form id="apartmentForm" action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET">
         <input type="hidden" name="дата" value="${date}">
-        <label>ЖК:</label>
-        <input type="text" name="комплекс" placeholder="Orbi City" required>
-        <label>Апартамент:</label>
-        <input type="text" name="апартамент" placeholder="B-1210" required>
-        <label>Управляющая компания:</label>
-        <input type="text" name="компания" placeholder="Orbi Group" required>
+        <label>Время:</label>
+        <select name="время" required>${slotOptions}</select>
+        <label>ЖК:</label><input type="text" name="комплекс" placeholder="Orbi City" required>
+        <label>Апартамент:</label><input type="text" name="апартамент" placeholder="B-1210" required>
+        <label>Управляющая компания:</label><input type="text" name="компания" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
-      </form>
-    `;
-  } else {
+      </form>`;
+  }else{
     let webhook="";
     if(selectedService.includes("Студия")||selectedService.includes("1+1"))
       webhook="https://vm62681.vpsone.xyz/webhook-test/cleaning-studio";
     else if(selectedService.includes("Химчистка"))
       webhook="https://vm62681.vpsone.xyz/webhook-test/cleaning-chemical";
-
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
@@ -309,14 +219,11 @@ function openModal(date){
         <input type="text" name="ватсап" placeholder="WhatsApp">
         <input type="text" name="телеграм" placeholder="Telegram">
         <button type="submit" class="book-btn">Отправить</button>
-      </form>
-    `;
+      </form>`;
   }
-
   modal.style.display="flex";
   requestAnimationFrame(()=>modal.classList.add("show"));
 }
-
 function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
 </script>
 </body>
