@@ -349,15 +349,16 @@ function handleWebhook(form){
           document.getElementById("calendarContainer").style.display="none";
           window.scrollTo({top:0,behavior:"smooth"});
         },1500);
-      }else showNotification("Ошибка при отправке.");
-    }catch{showNotification("Ошибка соединения
-.");}
+           } else showNotification("Ошибка при отправке.");
+    } catch {
+      showNotification("Ошибка соединения.");
+    }
   });
 }
 
-function closeModal(){
+function closeModal() {
   modal.classList.remove("show");
-  setTimeout(()=>modal.style.display="none",250);
+  setTimeout(() => (modal.style.display = "none"), 250);
 }
 </script>
 </body>
