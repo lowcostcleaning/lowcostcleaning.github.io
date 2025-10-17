@@ -162,11 +162,19 @@ function generateCalendar(busyDates=[]){
       else if(allBusy)cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else if(isChem){
-      const status=grouped[date];
-      if(past)cls="past";
-      else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}
-      else cls="unavailable";
-    }else{
+  const status = grouped[date];
+  if (past) {
+    cls = "past"; // прошедшие даты серые
+  } else if (status === "свободно") {
+    cls = "available"; // 🟢 доступная дата
+    click = `onclick='openModal("${date}")'`;
+  } else if (status === "занято") {
+    cls = "unavailable"; // 🔴 если явно указано занято
+  } else {
+    cls = "past"; // ⚪ остальные просто серые (не указаны в таблице)
+  }
+}
+else{
       if(past)cls="past";
       else if(daysSet.has(date))cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
