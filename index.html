@@ -191,7 +191,6 @@ async function getBusyDates(sheetName){
     let date=(r[0]||"").trim().replace(/"/g,"");
     let status=(r[1]||"").trim().toLowerCase();
     if(!date)continue;
-    // форматируем дату (17.10.2025 -> 2025-10-17)
     if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
     data.push({date,status});
   }
@@ -205,9 +204,10 @@ async function chooseService(service,sheet){
   const cal=document.getElementById("calendar");
   cont.style.display="flex";
   cal.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-
   const data=await getBusyDates(sheet);
   generateCalendar(data);
+  // плавная прокрутка
+  setTimeout(()=>window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"}),200);
 }
 
 function generateCalendar(data){
@@ -215,20 +215,17 @@ function generateCalendar(data){
   const now=new Date(),y=now.getFullYear(),m=now.getMonth();
   const monthName=now.toLocaleString("ru-RU",{month:"long",year:"numeric"});
   document.getElementById("monthLabel").textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
-
   const firstDay=new Date(y,m,1).getDay();
   const offset=firstDay===0?6:firstDay-1;
   const days=new Date(y,m+1,0).getDate();
   let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
 
-  // подготовим данные
-  const busySet=new Set();
-  const freeSet=new Set();
+  const busySet=new Set(),freeSet=new Set();
   data.forEach(({date,status})=>{
     if(isChem){
-      if(status==="свободно") freeSet.add(date);
+      if(status.includes("свободно")) freeSet.add(date);
       else busySet.add(date);
-    }else{
+    } else {
       if(status.includes("занято")) busySet.add(date);
     }
   });
@@ -238,22 +235,22 @@ function generateCalendar(data){
     const date=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const past=new Date(date)<new Date(new Date().setHours(0,0,0,0));
     let cls="",click="",inner=`<div>${day}</div>`;
-
-    if(past) cls="past";
+    if(past)cls="past";
     else if(isChem){
       if(freeSet.has(date)){cls="available";click=`onclick='openModal("${date}")'`;}
       else cls="unavailable";
     }else{
-      if(busySet.has(date)) cls="unavailable";
+      if(busySet.has(date))cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
     }
-
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
-    if((day+offset)%7===0) html+="</tr><tr>";
+    if((day+offset)%7===0)html+="</tr><tr>";
   }
   html+="</tr>";
   document.getElementById("calendar").innerHTML=html;
 }
+
+const modal=document.getElementById("bookingModal");
 
 function openModal(date){
   selectedDate=date;
@@ -284,7 +281,7 @@ function openModal(date){
   requestAnimationFrame(()=>modal.classList.add("show"));
 }
 
-function closeModal(){document.getElementById("bookingModal").classList.remove("show");setTimeout(()=>document.getElementById("bookingModal").style.display="none",250);}
+function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
 </script>
 </body>
 </html>
