@@ -231,41 +231,71 @@ async function chooseService(service,sheet){
   requestAnimationFrame(()=>{cont.style.opacity="1";window.scrollTo({top:cont.offsetTop-40,behavior:"smooth"});});
 }
 
-function generateCalendar(busyDates=[]){
-  const isApts=currentSheet==="Апартаменты";
-  const cal=document.getElementById("calendar");
-  const lbl=document.getElementById("monthLabel");
-  const now=new Date(),y=now.getFullYear(),m=now.getMonth();
-  const monthName=now.toLocaleString("ru-RU",{month:"long",year:"numeric"});
-  lbl.textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
-  const firstDay=new Date(y,m,1).getDay();
-  const offset=firstDay===0?6:firstDay-1;
-  const days=new Date(y,m+1,0).getDate();
-  let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
-  const all=["10:00","12:00","14:00","16:00","18:00"];
-  const grouped={},daysSet=new Set();
-  if(isApts){busyDates.forEach(v=>{const[d,t]=v.trim().split(" ");if(!d)return;if(!grouped[d])grouped[d]=new Set();if(t)grouped[d].add(t.trim());});}
-  else busyDates.forEach(v=>daysSet.add(v.split(" ")[0]));
-  for(let i=0;i<offset;i++)html+="<td></td>";
-  for(let day=1;day<=days;day++){
-    const date=`${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
-    const past=new Date(date)<new Date(new Date().setHours(0,0,0,0));
-    let cls="",click="",inner=`<div>${day}</div>`;
-    if(isApts){
-      const busyT=Array.from(grouped[date]||[]);
-      const freeT=all.filter(t=>!busyT.includes(t));
-      const allBusy=freeT.length===0;
-      const dots=all.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
-      inner+=`<div class="slots-row">${dots}</div>`;
-      if(past)cls="past";else if(allBusy)cls="unavailable";else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
-    }else{
-      if(past)cls="past";else if(daysSet.has(date))cls="unavailable";else{cls="available";click=`onclick='openModal("${date}")'`;}
-    }
-    html+=`<td class="${cls}" ${click}>${inner}</td>`;
-    if((day+offset)%7===0)html+="</tr><tr>";
+function generateCalendar(busyDates = []) {
+  const isApts = currentSheet === "Апартаменты";
+  const isChem = currentSheet === "Химчистка";
+  const cal = document.getElementById("calendar");
+  const lbl = document.getElementById("monthLabel");
+  const now = new Date(), y = now.getFullYear(), m = now.getMonth();
+
+  const monthName = now.toLocaleString("ru-RU", { month: "long", year: "numeric" });
+  lbl.textContent = monthName.charAt(0).toUpperCase() + monthName.slice(1);
+
+  const firstDay = new Date(y, m, 1).getDay();
+  const offset = firstDay === 0 ? 6 : firstDay - 1;
+  const days = new Date(y, m + 1, 0).getDate();
+  let html = "<tr>" + ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
+
+  // Разбираем занятые даты
+  const allSlots = isApts ? ["10:00","12:00","14:00","16:00","18:00"] : isChem ? Array.from({length:10},(_,i)=>`Слот ${i+1}`) : [];
+  const grouped = {}, daysSet = new Set();
+
+  if (isApts || isChem) {
+    busyDates.forEach(v => {
+      const [d, t] = v.trim().split(" ");
+      if (!d) return;
+      if (!grouped[d]) grouped[d] = new Set();
+      if (t) grouped[d].add(t.trim());
+    });
+  } else {
+    busyDates.forEach(v => daysSet.add(v.split(" ")[0]));
   }
-  html+="</tr>";cal.innerHTML=html;
+
+  for (let i = 0; i < offset; i++) html += "<td></td>";
+  for (let day = 1; day <= days; day++) {
+    const date = `${y}-${String(m+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
+    const past = new Date(date) < new Date(new Date().setHours(0,0,0,0));
+    let cls = "", click = "", inner = `<div>${day}</div>`;
+
+    if (isApts || isChem) {
+      const busyT = Array.from(grouped[date] || []);
+      const freeT = allSlots.filter(t => !busyT.includes(t));
+      const allBusy = freeT.length === 0;
+      const dots = allSlots.map(t => `<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
+      inner += `<div class="slots-row">${dots}</div>`;
+
+      if (past) cls = "past";
+      else if (allBusy) cls = "unavailable";
+      else {
+        cls = "available";
+        click = `onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;
+      }
+    } else {
+      if (past) cls = "past";
+      else if (daysSet.has(date)) cls = "unavailable";
+      else {
+        cls = "available";
+        click = `onclick='openModal("${date}")'`;
+      }
+    }
+
+    html += `<td class="${cls}" ${click}>${inner}</td>`;
+    if ((day + offset) % 7 === 0) html += "</tr><tr>";
+  }
+  html += "</tr>";
+  cal.innerHTML = html;
 }
+
 
 const modal=document.getElementById("bookingModal");
 
