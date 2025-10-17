@@ -170,7 +170,7 @@ function generateCalendar(busyDates=[]){
   busyDates.forEach(v=>{
     if(isChem){
       const[d,status]=v.trim().split("|");
-      if(!grouped[d]) grouped[d]=status; // не перезаписываем первый статус
+      grouped[d]=status;
     }else{
       const[d,t]=v.trim().split(" ");
       if(!d)return;
@@ -198,18 +198,20 @@ function generateCalendar(busyDates=[]){
       else if(allBusy)cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else if(isChem){
-  const status = (grouped[date] || "").trim().toLowerCase();
-  if (past) cls = "past";
-  else if (["свободно","ожидание","отказ"].includes(status)) {
-    cls = "available";
-    click = `onclick='openModal("${date}")'`;
-  }
-  else if (status === "занято") {
-    cls = "unavailable";
-  }
-  else cls = "past";
-}
-else{
+      const status=(grouped[date]||"")
+        .replace(/[\r\n\t;]+/g,"")
+        .trim()
+        .toLowerCase();
+      if(past)cls="past";
+      else if(["свободно","ожидание","отказ"].includes(status)){
+        cls="available";
+        click=`onclick='openModal("${date}")'`;
+      }
+      else if(status==="занято"){
+        cls="unavailable";
+      }
+      else cls="past";
+    }else{
       if(past)cls="past";
       else if(daysSet.has(date))cls="unavailable";
       else {cls="available";click=`onclick='openModal("${date}")'`;}
@@ -250,7 +252,7 @@ function openModal(date,busyTimes=[]){
     if(selectedService.includes("Студия")||selectedService.includes("1+1"))
       webhook="https://vm62681.vpsone.xyz/webhook/cleaning-studio";
     else if(selectedService.includes("Химчистка"))
-      webhook="https://vm62681.vpsone.xyz/webhook-test/cleaning-chemical";
+      webhook="https://vm62681.vpsone.xyz/webhook/cleaning-chemical";
     content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
