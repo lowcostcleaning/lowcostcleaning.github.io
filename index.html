@@ -77,44 +77,26 @@ const gids={"Главный":"0","Химчистка":"591986483","Апарта�
 let selectedService="",selectedDate="",currentSheet="";
 
 async function getBusyDates(sheetName){
-  const gid = gids[sheetName] || "0";
-  const url = `${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
-  const res = await fetch(url, { cache: "no-store" });
-  const text = await res.text();
-  const rows = text.split("\n").map(r => r.split(","));
-  const busy = [];
-
-  for (let i = 1; i < rows.length; i++) {
-    const r = rows[i];
-    if (!r || r.length < 2) continue;
-    let date = (r[0] || "").trim().replace(/"/g, "");
-    let status = (r[1] || "").trim().toLowerCase();
-    const time = (r[2] || "").trim();
-
-    if (!date) continue;
-
-    // 🔹 Преобразуем дату с "дд.мм.гггг" в "гггг-мм-дд"
-    if (date.includes(".")) {
-      const [d, m, y] = date.split(".");
-      date = `${y}-${m.padStart(2, "0")}-${d.padStart(2, "0")}`;
-    }
-
-    // 🧺 Химчистка — учитываем "свободно" и "занято"
-    if (sheetName === "Химчистка") {
-      busy.push(`${date}|${status}`);
-      continue;
-    }
-
-    // Остальные листы — только занятые даты/слоты
-    if (!status.includes("занято")) continue;
-    busy.push(time ? `${date} ${time}` : date);
+  const gid=gids[sheetName]||"0";
+  const url=`${BASE_URL}${gid}&single=true&output=csv&nocache=${Date.now()}`;
+  const res=await fetch(url,{cache:"no-store"});
+  const text=await res.text();
+  const rows=text.split("\n").map(r=>r.split(","));
+  const busy=[];
+  for(let i=1;i<rows.length;i++){
+    const r=rows[i];
+    if(!r||r.length<2)continue;
+    let date=(r[0]||"").trim().replace(/"/g,"");
+    let status=(r[1]||"").trim().toLowerCase();
+    const time=(r[2]||"").trim();
+    if(!date)continue;
+    if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
+    if(sheetName==="Химчистка"){busy.push(`${date}|${status}`);continue;}
+    if(!status.includes("занято"))continue;
+    busy.push(time?`${date} ${time}`:date);
   }
-
   return busy;
 }
-
-
-
 
 async function chooseService(service,sheet){
   selectedService=service;currentSheet=sheet;
@@ -141,17 +123,21 @@ function generateCalendar(busyDates=[]){
   let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
 
   const grouped={},daysSet=new Set();
+
   busyDates.forEach(v=>{
-    const [d,t,status]=v.trim().split(" ");
-    if(!d)return;
     if(isChem){
-      if(v.toLowerCase().includes("свободно"))grouped[d]="свободно";
-      else grouped[d]="занято";
-    }else if(isApts){
-      if(!grouped[d])grouped[d]=new Set();
-      if(t)grouped[d].add(t.trim());
+      const[d,status]=v.trim().split("|");
+      if(!d)return;
+      grouped[d]=status;
     }else{
-      daysSet.add(d);
+      const[d,t]=v.trim().split(" ");
+      if(!d)return;
+      if(isApts){
+        if(!grouped[d])grouped[d]=new Set();
+        if(t)grouped[d].add(t.trim());
+      }else{
+        daysSet.add(d);
+      }
     }
   });
 
@@ -167,36 +153,23 @@ function generateCalendar(busyDates=[]){
       const allBusy=freeT.length===0;
       const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
       inner+=`<div class="slots-row">${dots}</div>`;
-      if(past)cls="past";
-      else if(allBusy)cls="unavailable";
-      else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
+      if(past)cls="past";else if(allBusy)cls="unavailable";else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else if(isChem){
-  const status = grouped[date];
-  if (past) {
-    cls = "past"; // прошедшие даты серые
-  } else if (status === "свободно") {
-    cls = "available"; // 🟢 доступная дата
-    click = `onclick='openModal("${date}")'`;
-  } else if (status === "занято") {
-    cls = "unavailable"; // 🔴 если явно указано занято
-  } else {
-    cls = "past"; // ⚪ остальные просто серые (не указаны в таблице)
-  }
-}
-else{
+      const status=grouped[date];
       if(past)cls="past";
-      else if(daysSet.has(date))cls="unavailable";
-      else {cls="available";click=`onclick='openModal("${date}")'`;}
+      else if(status==="свободно"){cls="available";click=`onclick='openModal("${date}")'`;}
+      else if(status==="занято")cls="unavailable";
+      else cls="past";
+    }else{
+      if(past)cls="past";else if(daysSet.has(date))cls="unavailable";else{cls="available";click=`onclick='openModal("${date}")'`;}
     }
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
     if((day+offset)%7===0)html+="</tr><tr>";
   }
-  html+="</tr>";
-  cal.innerHTML=html;
+  html+="</tr>";cal.innerHTML=html;
 }
 
 const modal=document.getElementById("bookingModal");
-
 function openModal(date,busyTimes=[]){
   selectedDate=date;
   const content=document.querySelector(".modal-content");
