@@ -246,8 +246,13 @@ function generateCalendar(busyDates = []) {
   const days = new Date(y, m + 1, 0).getDate();
   let html = "<tr>" + ["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d => `<th>${d}</th>`).join("") + "</tr><tr>";
 
-  // Разбираем занятые даты
-  const allSlots = isApts ? ["10:00","12:00","14:00","16:00","18:00"] : isChem ? Array.from({length:10},(_,i)=>`Слот ${i+1}`) : [];
+  // базовые данные для слотов
+  const allSlots = isApts
+    ? ["10:00","12:00","14:00","16:00","18:00"]
+    : isChem
+      ? Array.from({ length: 10 }, (_, i) => `Слот ${i + 1}`)
+      : [];
+
   const grouped = {}, daysSet = new Set();
 
   if (isApts || isChem) {
@@ -255,7 +260,13 @@ function generateCalendar(busyDates = []) {
       const [d, t] = v.trim().split(" ");
       if (!d) return;
       if (!grouped[d]) grouped[d] = new Set();
-      if (t) grouped[d].add(t.trim());
+      // если Химчистка — просто считаем количество заявок (без времени)
+      if (isChem) {
+        const count = grouped[d].size;
+        if (count < 10) grouped[d].add(`Слот ${count + 1}`);
+      } else if (t) {
+        grouped[d].add(t.trim());
+      }
     });
   } else {
     busyDates.forEach(v => daysSet.add(v.split(" ")[0]));
@@ -271,7 +282,7 @@ function generateCalendar(busyDates = []) {
       const busyT = Array.from(grouped[date] || []);
       const freeT = allSlots.filter(t => !busyT.includes(t));
       const allBusy = freeT.length === 0;
-      const dots = allSlots.map(t => `<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
+      const dots = allSlots.map(t => `<span class="slot-dot ${busyT.includes(t) ? "busy" : "free"}"></span>`).join("");
       inner += `<div class="slots-row">${dots}</div>`;
 
       if (past) cls = "past";
@@ -292,9 +303,11 @@ function generateCalendar(busyDates = []) {
     html += `<td class="${cls}" ${click}>${inner}</td>`;
     if ((day + offset) % 7 === 0) html += "</tr><tr>";
   }
+
   html += "</tr>";
   cal.innerHTML = html;
 }
+
 
 
 const modal=document.getElementById("bookingModal");
