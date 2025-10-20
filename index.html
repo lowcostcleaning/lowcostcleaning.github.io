@@ -30,9 +30,6 @@
     .unavailable{background:rgba(255,59,48,0.25);cursor:not-allowed;}
     .past{background:rgba(142,142,147,0.25);cursor:not-allowed;}
     .slots-row{margin-top:6px;display:flex;justify-content:center;gap:4px;}
-    .slot-dot{width:8px;height:8px;border-radius:50%;}
-    .slot-dot.free{background:rgba(52,199,89,0.6);}
-    .slot-dot.busy{background:rgba(255,59,48,0.7);}
     .modal{display:none;position:fixed;z-index:10;left:0;top:0;width:100%;height:100%;background:rgba(0,0,0,0.5);backdrop-filter:blur(8px);justify-content:center;align-items:center;}
     .modal-content{background:#fff;padding:25px;border-radius:16px;width:90%;max-width:360px;text-align:left;box-shadow:var(--shadow-soft);transform:scale(0.95);opacity:0;transition:all 0.25s ease;}
     .modal.show .modal-content{transform:scale(1);opacity:1;}
@@ -102,23 +99,37 @@ async function getBusyDates(sheetName){
   const res=await fetch(url,{cache:"no-store"});
   const text=await res.text();
   const rows=text.split("\n").map(r=>r.split(","));
-  const busy=[];
+  const busy=[],companiesByDateTime={};
+
   for(let i=1;i<rows.length;i++){
-    const r=rows[i]; if(!r||r.length<2)continue;
+    const r=rows[i];
+    if(!r||r.length<2)continue;
     let date=(r[0]||"").trim().replace(/"/g,"");
     if(!date)continue;
-    if(date.includes(".")){const[d,m,y]=date.split(".");date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;}
-    if(sheetName==="Химчистка"){
+    if(date.includes(".")){
+      const[d,m,y]=date.split(".");
+      date=`${y}-${m.padStart(2,"0")}-${d.padStart(2,"0")}`;
+    }
+
+    if(sheetName==="Апартаменты"){
+      const time=(r[1]||"").trim();
+      const status=(r[2]||"").trim().toLowerCase();
+      const company=(r[3]||"").trim();
+      if(status.includes("занято")){
+        const key=time?`${date} ${time}`:date;
+        busy.push(key);
+        if(company)companiesByDateTime[key]=company;
+      }
+    }else if(sheetName==="Химчистка"){
       const status=(r[1]||"").trim().toLowerCase();
       busy.push(`${date}|${status}`);
-      continue;
+    }else{
+      const time=(r[1]||"").trim();
+      const status=(r[2]||"").trim().toLowerCase();
+      if(status.includes("занято"))busy.push(time?`${date} ${time}`:date);
     }
-    const time=(r[1]||"").trim();
-    const status=(r[2]||"").trim().toLowerCase();
-    if(!status.includes("занято"))continue;
-    busy.push(time?`${date} ${time}`:date);
   }
-  return busy;
+  return{busy,companiesByDateTime};
 }
 
 async function chooseService(service,sheet){
@@ -141,11 +152,11 @@ async function chooseService(service,sheet){
 async function renderCalendar(){
   const cal=document.getElementById("calendar");
   cal.innerHTML="<tr><td colspan='7'>⏳ Загрузка...</td></tr>";
-  const busy=await getBusyDates(currentSheet);
-  generateCalendar(busy);
+  const {busy,companiesByDateTime}=await getBusyDates(currentSheet);
+  generateCalendar(busy,companiesByDateTime);
 }
 
-function generateCalendar(busyDates=[]){
+function generateCalendar(busyDates=[],companiesByDateTime={}){
   const isApts=currentSheet==="Апартаменты";
   const isChem=currentSheet==="Химчистка";
   const cal=document.getElementById("calendar");
@@ -154,67 +165,50 @@ function generateCalendar(busyDates=[]){
   lbl.textContent=monthName.charAt(0).toUpperCase()+monthName.slice(1);
 
   const now=new Date();
-  const minMonth=now.getMonth();
-  const maxMonth=(now.getMonth()+2)%12;
-  const minYear=now.getFullYear();
-  const maxYear=now.getFullYear()+(now.getMonth()+2>=12?1:0);
-
-  document.getElementById("prevMonth").disabled=(currentYear===minYear && currentMonth===minMonth);
-  document.getElementById("nextMonth").disabled=(currentYear===maxYear && currentMonth===maxMonth);
-
   const firstDay=new Date(currentYear,currentMonth,1).getDay();
   const offset=firstDay===0?6:firstDay-1;
   const days=new Date(currentYear,currentMonth+1,0).getDate();
+  const grouped={};
 
-  const grouped={},daysSet=new Set();
   busyDates.forEach(v=>{
-    if(isChem){
-      const[d,status]=v.trim().split("|");
-      grouped[d]=status;
-    }else{
-      const[d,t]=v.trim().split(" ");
-      if(!d)return;
-      if(isApts){
-        if(!grouped[d])grouped[d]=new Set();
-        if(t)grouped[d].add(t.trim());
-      }else daysSet.add(d);
-    }
+    const[d,t]=v.trim().split(" ");
+    if(!d)return;
+    if(!grouped[d])grouped[d]=[];
+    grouped[d].push(t||"");
   });
 
   let html="<tr>"+["Пн","Вт","Ср","Чт","Пт","Сб","Вс"].map(d=>`<th>${d}</th>`).join("")+"</tr><tr>";
   for(let i=0;i<offset;i++)html+="<td></td>";
+
   for(let day=1;day<=days;day++){
     const date=`${currentYear}-${String(currentMonth+1).padStart(2,"0")}-${String(day).padStart(2,"0")}`;
     const past=new Date(date)<new Date(now.setHours(0,0,0,0));
     let cls="",click="",inner=`<div>${day}</div>`;
+
     if(isApts){
       const allTimes=["10:00","12:00","14:00","16:00","18:00"];
-      const busyT=Array.from(grouped[date]||[]);
+      const busyT=grouped[date]||[];
       const freeT=allTimes.filter(t=>!busyT.includes(t));
       const allBusy=freeT.length===0;
-      const dots=allTimes.map(t=>`<span class="slot-dot ${busyT.includes(t)?"busy":"free"}"></span>`).join("");
-      inner+=`<div class="slots-row">${dots}</div>`;
+
+      let slotHTML="";
+      for(const t of allTimes){
+        const isBusy=busyT.includes(t);
+        const company=companiesByDateTime[`${date} ${t}`]||"";
+        if(isBusy)slotHTML+=`<div style="font-size:.75rem;color:#ff3b30;">🔴 ${t}${company?" — "+company:""}</div>`;
+        else slotHTML+=`<div style="font-size:.75rem;color:#34c759;">🟢 ${t}</div>`;
+      }
+
+      inner+=`<div class="slots-row" style="flex-direction:column;gap:3px;margin-top:6px;">${slotHTML}</div>`;
       if(past)cls="past";
       else if(allBusy)cls="unavailable";
-      else {cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
-    }else if(isChem){
-      const status=(grouped[date]||"")
-        .replace(/[\r\n\t;]+/g,"")
-        .trim()
-        .toLowerCase();
-      if(past)cls="past";
-      else if(["свободно","ожидание","отказ"].includes(status)){
-        cls="available";
-        click=`onclick='openModal("${date}")'`;
-      }
-      else if(status==="занято"){
-        cls="unavailable";
-      }
-      else cls="past";
+      else{cls="available";click=`onclick='openModal("${date}", ${JSON.stringify(busyT)})'`;}
     }else{
+      // обычная и химчистка — без изменений
+      const isBusy=busyDates.includes(date);
       if(past)cls="past";
-      else if(daysSet.has(date))cls="unavailable";
-      else {cls="available";click=`onclick='openModal("${date}")'`;}
+      else if(isBusy)cls="unavailable";
+      else{cls="available";click=`onclick='openModal("${date}")'`;}
     }
     html+=`<td class="${cls}" ${click}>${inner}</td>`;
     if((day+offset)%7===0)html+="</tr><tr>";
@@ -226,18 +220,18 @@ document.getElementById("prevMonth").addEventListener("click",()=>{if(currentMon
 document.getElementById("nextMonth").addEventListener("click",()=>{if(currentMonth===11){currentMonth=0;currentYear++;}else currentMonth++;renderCalendar();});
 
 const modal=document.getElementById("bookingModal");
-function openModal(date, busyTimes = []) {
-  selectedDate = date;
-  const content = document.querySelector(".modal-content");
+function openModal(date,busyTimes=[]){
+  selectedDate=date;
+  const content=document.querySelector(".modal-content");
 
-  if (currentSheet === "Апартаменты") {
-    const timeSlots = ["10:00", "12:00", "14:00", "16:00", "18:00"];
-    const slotOptions = timeSlots.map(t => {
-      const disabled = busyTimes.includes(t) ? "disabled style='opacity:.45;cursor:not-allowed;'" : "";
+  if(currentSheet==="Апартаменты"){
+    const timeSlots=["10:00","12:00","14:00","16:00","18:00"];
+    const slotOptions=timeSlots.map(t=>{
+      const disabled=busyTimes.includes(t)?"disabled style='opacity:.45;cursor:not-allowed;'":"";
       return `<option value="${t}" ${disabled}>${t}</option>`;
     }).join("");
 
-    content.innerHTML = `
+    content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
       <form action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" target="hiddenFrame" onsubmit="formSent()">
@@ -249,30 +243,21 @@ function openModal(date, busyTimes = []) {
         <label>Управляющая компания:</label><input type="text" name="компания" placeholder="Orbi Group" required>
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
+    setTimeout(()=>{const s=document.getElementById("timeSelect");if(s){const f=Array.from(s.options).find(o=>!o.disabled);if(f)s.value=f.value;}},50);
+  }else{
+    let webhook="";
+    if(selectedService.includes("Студия")||selectedService.includes("1+1"))
+      webhook="https://vm62681.vpsone.xyz/webhook/cleaning-studio";
+    else if(selectedService.includes("Химчистка"))
+      webhook="https://vm62681.vpsone.xyz/webhook/cleaning-chemical";
 
-    // 🧩 Новый фикс: выбираем первый доступный (не disabled) слот
-    setTimeout(() => {
-      const select = document.getElementById("timeSelect");
-      if (select) {
-        const firstFree = Array.from(select.options).find(opt => !opt.disabled);
-        if (firstFree) select.value = firstFree.value;
-      }
-    }, 50);
-
-  } else {
-    let webhook = "";
-    if (selectedService.includes("Студия") || selectedService.includes("1+1"))
-      webhook = "https://vm62681.vpsone.xyz/webhook/cleaning-studio";
-    else if (selectedService.includes("Химчистка"))
-      webhook = "https://vm62681.vpsone.xyz/webhook/cleaning-chemical";
-
-    content.innerHTML = `
+    content.innerHTML=`
       <span class="close" onclick="closeModal()">×</span>
       <h3>${selectedService}<br>📅 ${date}</h3>
       <form action="${webhook}" method="GET" target="hiddenFrame" onsubmit="formSent()">
         <input type="hidden" name="дата" value="${date}">
         <input type="hidden" name="услуга" value="${selectedService}">
-        ${selectedService.includes("Химчистка") ? '<input type="hidden" name="статус" value="ожидание">' : ''}
+        ${selectedService.includes("Химчистка")?'<input type="hidden" name="статус" value="ожидание">':""}
         <input type="text" name="адрес" placeholder="Адрес" required>
         <input type="text" name="имя" placeholder="Имя" required>
         <input type="tel" name="телефон" placeholder="Телефон">
@@ -281,11 +266,9 @@ function openModal(date, busyTimes = []) {
         <button type="submit" class="book-btn">Отправить</button>
       </form>`;
   }
-
-  modal.style.display = "flex";
-  requestAnimationFrame(() => modal.classList.add("show"));
+  modal.style.display="flex";
+  requestAnimationFrame(()=>modal.classList.add("show"));
 }
-
 
 function formSent(){setTimeout(()=>{closeModal();showNotification("✅ Заявка отправлена!");},300);}
 function closeModal(){modal.classList.remove("show");setTimeout(()=>modal.style.display="none",250);}
