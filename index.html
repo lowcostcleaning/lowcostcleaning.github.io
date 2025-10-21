@@ -240,7 +240,7 @@ function openModal(date, busyTimes = []) {
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
       <h3>🏢 Уборка апартаментов<br>📅 ${date}</h3>
-      <form action="https://vm62681.vpsone.xyz/webhook/apartments-booking" method="GET" target="hiddenFrame" onsubmit="formSent()">
+      <form action="https://vm62681.vpsone.xyz/webhook-test/apartments-booking" method="GET" target="hiddenFrame" onsubmit="formSent()">
         <input type="hidden" name="дата" value="${date}">
         <label>Время:</label>
         <select id="timeSelect" name="время" required>${slotOptions}</select>
