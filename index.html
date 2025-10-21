@@ -262,9 +262,9 @@ function openModal(date, busyTimes = []) {
   } else {
     let webhook = "";
     if (selectedService.includes("Студия") || selectedService.includes("1+1"))
-      webhook = "https://vm62681.vpsone.xyz/webhook-test/cleaning-studio";
+      webhook = "https://vm62681.vpsone.xyz/webhook/cleaning-studio";
     else if (selectedService.includes("Химчистка"))
-      webhook = "https://vm62681.vpsone.xyz/webhook-test/cleaning-chemical";
+      webhook = "https://vm62681.vpsone.xyz/webhook/cleaning-chemical";
 
     content.innerHTML = `
       <span class="close" onclick="closeModal()">×</span>
